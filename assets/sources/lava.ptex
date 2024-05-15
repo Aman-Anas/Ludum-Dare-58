@@ -1,0 +1,301 @@
+{
+	"connections": [
+		{
+			"from": "fbm2",
+			"from_port": 0,
+			"to": "colorize_2",
+			"to_port": 0
+		},
+		{
+			"from": "normal_map2",
+			"from_port": 0,
+			"to": "Material",
+			"to_port": 4
+		},
+		{
+			"from": "fbm2",
+			"from_port": 0,
+			"to": "colorize",
+			"to_port": 0
+		},
+		{
+			"from": "colorize_5",
+			"from_port": 0,
+			"to": "blend2",
+			"to_port": 0
+		},
+		{
+			"from": "fbm2_2",
+			"from_port": 0,
+			"to": "colorize_5",
+			"to_port": 0
+		},
+		{
+			"from": "colorize",
+			"from_port": 0,
+			"to": "blend2",
+			"to_port": 1
+		},
+		{
+			"from": "blend2",
+			"from_port": 0,
+			"to": "Material",
+			"to_port": 0
+		},
+		{
+			"from": "colorize_2",
+			"from_port": 0,
+			"to": "blend2",
+			"to_port": 2
+		},
+		{
+			"from": "blend2",
+			"from_port": 0,
+			"to": "Material",
+			"to_port": 3
+		},
+		{
+			"from": "blend2",
+			"from_port": 0,
+			"to": "invert",
+			"to_port": 0
+		},
+		{
+			"from": "invert",
+			"from_port": 0,
+			"to": "normal_map2",
+			"to_port": 0
+		}
+	],
+	"label": "Graph",
+	"longdesc": "",
+	"name": "@@2343",
+	"node_position": {
+		"x": 0,
+		"y": 0
+	},
+	"nodes": [
+		{
+			"export_last_target": "Blender",
+			"export_paths": {
+				"Blender": "D:/Project_Data/Godot/Projects/ComputeHeightmapDemo/blendmat",
+				"Godot/Godot 4": "D:/Project_Data/Godot/Projects/ComputeHeightmapDemo/"
+			},
+			"name": "Material",
+			"node_position": {
+				"x": 483.889343,
+				"y": -260.383606
+			},
+			"parameters": {
+				"albedo_color": {
+					"a": 1,
+					"b": 1,
+					"g": 1,
+					"r": 1,
+					"type": "Color"
+				},
+				"ao": 1,
+				"depth_scale": 0.01,
+				"emission_energy": 0.18,
+				"flags_transparent": true,
+				"metallic": 0,
+				"normal": 1,
+				"roughness": 1,
+				"size": 11,
+				"sss": 1
+			},
+			"seed_int": 0,
+			"type": "material"
+		},
+		{
+			"name": "fbm2",
+			"node_position": {
+				"x": -664.583374,
+				"y": -165.555573
+			},
+			"parameters": {
+				"folds": 0,
+				"iterations": 5,
+				"noise": 0,
+				"offset": "$time*0.05",
+				"persistence": 0.5,
+				"scale_x": 7,
+				"scale_y": 7
+			},
+			"seed_int": 0,
+			"type": "fbm2"
+		},
+		{
+			"name": "colorize",
+			"node_position": {
+				"x": -321.107208,
+				"y": -167.411926
+			},
+			"parameters": {
+				"gradient": {
+					"interpolation": 1,
+					"points": [
+						{
+							"a": 1,
+							"b": 0,
+							"g": 0,
+							"pos": 0.408647,
+							"r": 0
+						},
+						{
+							"a": 1,
+							"b": 0.179688,
+							"g": 0.179688,
+							"pos": 0.63592,
+							"r": 1
+						},
+						{
+							"a": 1,
+							"b": 0.026596,
+							"g": 0.603101,
+							"pos": 0.905614,
+							"r": 0.972656
+						}
+					],
+					"type": "Gradient"
+				}
+			},
+			"seed_int": 0,
+			"type": "colorize"
+		},
+		{
+			"name": "colorize_2",
+			"node_position": {
+				"x": -359.891235,
+				"y": -276.542603
+			},
+			"parameters": {
+				"gradient": {
+					"interpolation": 1,
+					"points": [
+						{
+							"a": 1,
+							"b": 1,
+							"g": 1,
+							"pos": 0.402258,
+							"r": 1
+						},
+						{
+							"a": 1,
+							"b": 0,
+							"g": 0,
+							"pos": 0.489941,
+							"r": 0
+						}
+					],
+					"type": "Gradient"
+				}
+			},
+			"seed_int": 0,
+			"type": "colorize"
+		},
+		{
+			"name": "normal_map2",
+			"node_position": {
+				"x": 208.646454,
+				"y": -81.981392
+			},
+			"parameters": {
+				"buffer": 1,
+				"param2": 0,
+				"size": 10,
+				"strength": 2
+			},
+			"seed_int": 0,
+			"type": "normal_map2"
+		},
+		{
+			"name": "fbm2_2",
+			"node_position": {
+				"x": -688.20813,
+				"y": -415.548676
+			},
+			"parameters": {
+				"folds": 0,
+				"iterations": 6,
+				"noise": 0,
+				"offset": 0,
+				"persistence": 0.5,
+				"scale_x": 12,
+				"scale_y": 12
+			},
+			"seed_int": 0,
+			"type": "fbm2"
+		},
+		{
+			"generic_size": 1,
+			"name": "blend2",
+			"node_position": {
+				"x": -115.624771,
+				"y": -363.308655
+			},
+			"parameters": {
+				"amount1": 1,
+				"blend_type1": 0
+			},
+			"seed_int": 0,
+			"type": "blend2"
+		},
+		{
+			"name": "colorize_5",
+			"node_position": {
+				"x": -362.361633,
+				"y": -385.766357
+			},
+			"parameters": {
+				"gradient": {
+					"interpolation": 1,
+					"points": [
+						{
+							"a": 1,
+							"b": 0,
+							"g": 0,
+							"pos": 0.343438,
+							"r": 0
+						},
+						{
+							"a": 1,
+							"b": 0.179688,
+							"g": 0.179688,
+							"pos": 0.55826,
+							"r": 1
+						},
+						{
+							"a": 1,
+							"b": 0.026596,
+							"g": 0.603101,
+							"pos": 0.812539,
+							"r": 0.972656
+						}
+					],
+					"type": "Gradient"
+				}
+			},
+			"seed_int": 0,
+			"type": "colorize"
+		},
+		{
+			"name": "invert",
+			"node_position": {
+				"x": 65.537987,
+				"y": -89.928467
+			},
+			"parameters": {
+
+			},
+			"seed_int": 0,
+			"type": "invert"
+		}
+	],
+	"parameters": {
+
+	},
+	"seed_int": 0,
+	"shortdesc": "",
+	"type": "graph"
+}

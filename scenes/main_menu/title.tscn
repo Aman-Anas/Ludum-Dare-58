@@ -1,0 +1,29 @@
+[gd_scene load_steps=5 format=3 uid="uid://dd7wtsnynoibe"]
+
+[ext_resource type="PackedScene" uid="uid://cqmg4nlyt3jc0" path="res://scenes/main_menu/interface.tscn" id="1_2ywyu"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ayed3"]
+
+[sub_resource type="Sky" id="Sky_fbovr"]
+sky_material = SubResource("ProceduralSkyMaterial_ayed3")
+
+[sub_resource type="Environment" id="Environment_c8jin"]
+background_mode = 2
+sky = SubResource("Sky_fbovr")
+glow_enabled = true
+
+[node name="Title" type="Node3D"]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.9779, 0.209072, 0, -0.209072, 0.9779, 0, 1.95032, 6)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -13.0764)
+size = Vector3(99.9631, 0.16748, 44.9459)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_c8jin")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Interface" parent="CanvasLayer" instance=ExtResource("1_2ywyu")]

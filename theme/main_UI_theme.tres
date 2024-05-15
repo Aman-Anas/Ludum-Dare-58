@@ -1,0 +1,25 @@
+[gd_resource type="Theme" load_steps=3 format=3 uid="uid://cmeyu4ofgl2c0"]
+
+[ext_resource type="StyleBox" uid="uid://c0uibg7mpw8t1" path="res://theme/MainMenuButtonStyleBox.tres" id="1_whl0w"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_oxr3x"]
+content_margin_left = 40.0
+content_margin_top = 14.0
+content_margin_right = 40.0
+bg_color = Color(0.129558, 0.129559, 0.129558, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[resource]
+TitleButton/base_type = &"Button"
+TitleButton/font_sizes/font_size = 50
+TitleButton/styles/normal = ExtResource("1_whl0w")
+TitleLarge/base_type = &"Label"
+TitleLarge/font_sizes/font_size = 72
+TitleLarge/styles/normal = SubResource("StyleBoxFlat_oxr3x")

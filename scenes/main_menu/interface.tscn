@@ -1,0 +1,153 @@
+[gd_scene load_steps=6 format=3 uid="uid://cqmg4nlyt3jc0"]
+
+[ext_resource type="Theme" uid="uid://cmeyu4ofgl2c0" path="res://theme/main_UI_theme.tres" id="1_sshgn"]
+[ext_resource type="Script" path="res://scripts/main_menu/MainMenu.cs" id="1_x8ln0"]
+[ext_resource type="PackedScene" uid="uid://86na0e3npoj5" path="res://scenes/main_menu/settings.tscn" id="3_t7x32"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gj8vk"]
+content_margin_left = 14.0
+content_margin_top = 14.0
+content_margin_right = 14.0
+content_margin_bottom = 14.0
+bg_color = Color(0, 0, 0, 0.027451)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p3c23"]
+bg_color = Color(0.122252, 0.122252, 0.122252, 1)
+
+[node name="Interface" type="Control" node_paths=PackedStringArray("PlayButton", "HelpButton", "QuitButton", "SettingsButton", "HomeButton", "MainMenuRoot", "HelpMenu", "SettingsMenu")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_x8ln0")
+PlayButton = NodePath("TitleMargin/VBoxContainer/ContentMargin/Columns/PanelContainer/ButtonList/Play")
+HelpButton = NodePath("TitleMargin/VBoxContainer/ContentMargin/Columns/PanelContainer/ButtonList/Help")
+QuitButton = NodePath("TitleMargin/VBoxContainer/ContentMargin/Columns/PanelContainer/ButtonList/Quit")
+SettingsButton = NodePath("TitleMargin/VBoxContainer/ContentMargin/Columns/PanelContainer/ButtonList/Settings")
+HomeButton = NodePath("Home")
+MainMenuRoot = NodePath("TitleMargin")
+HelpMenu = NodePath("Help")
+SettingsMenu = NodePath("Settings")
+metadata/_edit_lock_ = true
+
+[node name="Version" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -111.0
+offset_top = -43.0
+offset_right = -7.0
+offset_bottom = -7.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "v0.0.1"
+horizontal_alignment = 2
+vertical_alignment = 2
+
+[node name="TitleMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="TitleMargin"]
+layout_mode = 2
+
+[node name="TitleContainer" type="MarginContainer" parent="TitleMargin/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="Label" type="Label" parent="TitleMargin/VBoxContainer/TitleContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme = ExtResource("1_sshgn")
+theme_type_variation = &"TitleLarge"
+text = "The Game"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ContentMargin" type="MarginContainer" parent="TitleMargin/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = -10
+theme_override_constants/margin_right = 15
+
+[node name="Columns" type="HBoxContainer" parent="TitleMargin/VBoxContainer/ContentMargin"]
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="TitleMargin/VBoxContainer/ContentMargin/Columns"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_gj8vk")
+
+[node name="ButtonList" type="VBoxContainer" parent="TitleMargin/VBoxContainer/ContentMargin/Columns/PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Play" type="Button" parent="TitleMargin/VBoxContainer/ContentMargin/Columns/PanelContainer/ButtonList"]
+layout_mode = 2
+theme = ExtResource("1_sshgn")
+theme_type_variation = &"TitleButton"
+text = "Play"
+
+[node name="Help" type="Button" parent="TitleMargin/VBoxContainer/ContentMargin/Columns/PanelContainer/ButtonList"]
+layout_mode = 2
+theme = ExtResource("1_sshgn")
+theme_type_variation = &"TitleButton"
+text = "Help"
+
+[node name="Quit" type="Button" parent="TitleMargin/VBoxContainer/ContentMargin/Columns/PanelContainer/ButtonList"]
+layout_mode = 2
+theme = ExtResource("1_sshgn")
+theme_type_variation = &"TitleButton"
+text = "Quit"
+
+[node name="Settings" type="Button" parent="TitleMargin/VBoxContainer/ContentMargin/Columns/PanelContainer/ButtonList"]
+layout_mode = 2
+theme = ExtResource("1_sshgn")
+theme_override_styles/normal = SubResource("StyleBoxFlat_p3c23")
+text = " Settings"
+
+[node name="Help" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="Help"]
+custom_minimum_size = Vector2(0.1, 0.1)
+layout_mode = 2
+text = "Do you need help? well you've come to the right place. This is the very cool help menu. Hit back to leave. mwahahahahahahahahhahahahahahahaaaa"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Settings" parent="." instance=ExtResource("3_t7x32")]
+visible = false
+layout_mode = 1
+
+[node name="Home" type="Button" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -51.0
+offset_top = 15.0
+offset_right = -14.0
+offset_bottom = 50.0
+grow_horizontal = 0
+theme = ExtResource("1_sshgn")
+text = "Back "

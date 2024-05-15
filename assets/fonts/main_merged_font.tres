@@ -1,0 +1,8 @@
+[gd_resource type="FontVariation" load_steps=3 format=3 uid="uid://bd1pe3yd5cuxt"]
+
+[ext_resource type="FontFile" uid="uid://ca02fst6rlk4u" path="res://assets/fonts/main.ttf" id="1_53q4n"]
+[ext_resource type="FontFile" uid="uid://dtbscwwp2ifxg" path="res://assets/fonts/icons.ttf" id="2_135m3"]
+
+[resource]
+fallbacks = Array[Font]([ExtResource("2_135m3")])
+base_font = ExtResource("1_53q4n")
