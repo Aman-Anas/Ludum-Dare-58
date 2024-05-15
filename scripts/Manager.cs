@@ -33,8 +33,14 @@ public partial class Manager : Node
         // Didn't really need to abstract this but whatever
         Config = DataUtils.LoadFromFileOrNull<GameConfig>(configPath);
         Config ??= new();
+        Config.UpdateConfig();
 
         Data = DataUtils.LoadFromFileOrNull<GameData>(savePath);
         Data ??= new();
+    }
+
+    public void SaveConfig()
+    {
+        DataUtils.SaveData(configPath, Config);
     }
 }

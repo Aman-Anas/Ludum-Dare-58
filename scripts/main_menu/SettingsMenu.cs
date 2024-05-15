@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Game;
 using Godot;
+using Utilities.Collections;
 using Utilities.Logic;
 
 public partial class SettingsMenu : MarginContainer
@@ -40,8 +41,6 @@ public partial class SettingsMenu : MarginContainer
         settingsSelect.ItemSelected += SelectSetting;
 
         applyButton.Pressed += ApplyAllSettings;
-
-        GD.Print(DisplayServer.WindowGetVsyncMode());
     }
 
     void SelectSetting(long index)
@@ -52,5 +51,6 @@ public partial class SettingsMenu : MarginContainer
     void ApplyAllSettings()
     {
         graphicsMenu.ApplySettings();
+        Manager.Instance.SaveConfig();
     }
 }
