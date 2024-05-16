@@ -7,6 +7,7 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="LiteNetLib" Version="1.2.0" />
     <PackageReference Include="MessagePack" Version="2.5.140" />
     <PackageReference Include="MessagePackGodot" Version="1.0.1" />
   </ItemGroup>
