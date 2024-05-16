@@ -7,7 +7,7 @@ using NathanHoad;
 [MessagePackObject(keyAsPropertyName: true)]
 public class GameConfig : IMessagePackSerializationCallbackReceiver
 {
-    public string GameInputMap { get; private set; }
+    public string GameInputMap { get; set; }
     public Vector2I Resolution { get; set; }
     public DisplayServer.WindowMode WindowMode { get; set; }
     public DisplayServer.VSyncMode VSyncMode { get; set; }
@@ -30,6 +30,9 @@ public class GameConfig : IMessagePackSerializationCallbackReceiver
 
     public void UpdateConfig()
     {
+        DisplayServer.WindowSetMode(WindowMode);
+        DisplayServer.WindowSetVsyncMode(VSyncMode);
+
         // Set resolution
         if (Resolution != Vector2I.Zero)
         {
@@ -40,8 +43,6 @@ public class GameConfig : IMessagePackSerializationCallbackReceiver
             );
         }
 
-        DisplayServer.WindowSetMode(WindowMode);
-        DisplayServer.WindowSetVsyncMode(VSyncMode);
         // Set maximum FPS
         Engine.MaxFps = MaxFPS;
         TranslationServer.SetLocale(TranslationLocale);
@@ -68,6 +69,7 @@ public class GameConfig : IMessagePackSerializationCallbackReceiver
     {
         if (GameInputMap != null)
         {
+            InputHelper.ResetAllActions();
             InputHelper.DeserializeInputsForActions(GameInputMap);
         }
     }

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Game;
 using Godot;
-using Utilities.Collections;
 using Utilities.Logic;
 
 public partial class SettingsMenu : MarginContainer
@@ -18,6 +17,15 @@ public partial class SettingsMenu : MarginContainer
     [Export]
     Graphics graphicsMenu;
 
+    [Export]
+    Controls controlsMenu;
+
+    [Export]
+    Button resetAllButton;
+
+    [Export]
+    Button revertButton;
+
     // A list of our menu options
     List<Control> menus;
 
@@ -28,29 +36,40 @@ public partial class SettingsMenu : MarginContainer
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        settingsSelect.Clear();
-
         // Define the settings menu order here
-        menus = new List<Control> { graphicsMenu, };
+        menus = new List<Control> { graphicsMenu, controlsMenu };
 
+        settingsSelect.Clear();
         for (int x = 0; x < menus.Count; x++)
         {
             settingsSelect.AddItem(menus[x].Name);
         }
 
-        settingsSelect.ItemSelected += SelectSetting;
+        settingsSelect.ItemSelected += (index) => menuHelper.SetSubMenu(menus[(int)index]);
+        menuHelper.SetSubMenu(menus[0]);
 
+        resetAllButton.Pressed += ResetAllSettings;
         applyButton.Pressed += ApplyAllSettings;
-    }
-
-    void SelectSetting(long index)
-    {
-        menuHelper.SetSubMenu(menus[(int)index]);
+        revertButton.Pressed += RevertAllSettings;
     }
 
     void ApplyAllSettings()
     {
         graphicsMenu.ApplySettings();
         Manager.Instance.SaveConfig();
+    }
+
+    void RevertAllSettings()
+    {
+        manager.LoadConfig();
+        graphicsMenu.PopulateGeneralSettings();
+        controlsMenu.UpdateActionList();
+    }
+
+    void ResetAllSettings()
+    {
+        manager.LoadConfig(true);
+        graphicsMenu.PopulateGeneralSettings();
+        controlsMenu.UpdateActionList();
     }
 }

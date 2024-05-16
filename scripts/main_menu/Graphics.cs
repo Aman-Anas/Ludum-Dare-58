@@ -34,6 +34,9 @@ public partial class Graphics : GridContainer
     {
         var config = Manager.Instance.Config;
 
+        windowModeDropdown.Clear();
+        vsyncDropdown.Clear();
+
         // Populate window mode selecter
         var modeNames = Enum.GetNames<DisplayServer.WindowMode>();
         for (int x = 0; x < modeNames.Length; x++)

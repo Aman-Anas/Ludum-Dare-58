@@ -1,10 +1,12 @@
-[gd_scene load_steps=4 format=3 uid="uid://86na0e3npoj5"]
+[gd_scene load_steps=6 format=3 uid="uid://86na0e3npoj5"]
 
 [ext_resource type="Theme" uid="uid://cmeyu4ofgl2c0" path="res://theme/main_UI_theme.tres" id="1_g5i38"]
 [ext_resource type="Script" path="res://scripts/main_menu/SettingsMenu.cs" id="1_uw2j8"]
 [ext_resource type="Script" path="res://scripts/main_menu/Graphics.cs" id="2_44ats"]
+[ext_resource type="Script" path="res://scripts/main_menu/Controls.cs" id="4_vf0ja"]
+[ext_resource type="PackedScene" uid="uid://dyqtb418xwk78" path="res://scenes/main_menu/keymap_line.tscn" id="5_l7o5b"]
 
-[node name="Settings" type="MarginContainer" node_paths=PackedStringArray("applyButton", "settingsSelect", "graphicsMenu")]
+[node name="Settings" type="MarginContainer" node_paths=PackedStringArray("applyButton", "settingsSelect", "graphicsMenu", "controlsMenu", "resetAllButton", "revertButton")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -15,7 +17,10 @@ size_flags_vertical = 3
 script = ExtResource("1_uw2j8")
 applyButton = NodePath("PanelContainer/MarginContainer/VBoxContainer/ApplyButton")
 settingsSelect = NodePath("PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ItemList")
-graphicsMenu = NodePath("PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/Graphics")
+graphicsMenu = NodePath("PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/Graphics")
+controlsMenu = NodePath("PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/Controls")
+resetAllButton = NodePath("PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/Control/ResetAll")
+revertButton = NodePath("PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/Control/Revert")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 2
@@ -48,6 +53,7 @@ size_flags_vertical = 3
 [node name="ItemList" type="ItemList" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.76
 theme_override_font_sizes/font_size = 31
 item_count = 3
 item_0/text = "Graphics"
@@ -59,7 +65,12 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 3.0
 
-[node name="Graphics" type="GridContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer" node_paths=PackedStringArray("windowModeDropdown", "resolutionX", "resolutionY", "vsyncDropdown", "fpsBox", "locale")]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Graphics" type="GridContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer" node_paths=PackedStringArray("windowModeDropdown", "resolutionX", "resolutionY", "vsyncDropdown", "fpsBox", "locale")]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -74,64 +85,64 @@ vsyncDropdown = NodePath("VsyncDropdown")
 fpsBox = NodePath("SpinBox")
 locale = NodePath("OptionButton")
 
-[node name="ModeLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/Graphics"]
+[node name="ModeLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/Graphics"]
 layout_mode = 2
 theme = ExtResource("1_g5i38")
 theme_type_variation = &"HeaderMedium"
 text = "Window mode
 "
 
-[node name="ModeDropdown" type="OptionButton" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/Graphics"]
+[node name="ModeDropdown" type="OptionButton" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/Graphics"]
 layout_mode = 2
 size_flags_horizontal = 8
 
-[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/Graphics"]
+[node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/Graphics"]
 layout_mode = 2
 theme = ExtResource("1_g5i38")
 theme_type_variation = &"HeaderMedium"
 text = "Resolution"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/Graphics"]
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/Graphics"]
 layout_mode = 2
 size_flags_horizontal = 10
 
-[node name="Res_X" type="SpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/Graphics/HBoxContainer"]
+[node name="Res_X" type="SpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/Graphics/HBoxContainer"]
 layout_mode = 2
 allow_greater = true
 update_on_text_changed = true
 
-[node name="Res_Y" type="SpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/Graphics/HBoxContainer"]
+[node name="Res_Y" type="SpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/Graphics/HBoxContainer"]
 layout_mode = 2
 allow_greater = true
 update_on_text_changed = true
 
-[node name="V-Sync" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/Graphics"]
+[node name="V-Sync" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/Graphics"]
 layout_mode = 2
 theme = ExtResource("1_g5i38")
 theme_type_variation = &"HeaderMedium"
 text = "V-Sync Mode"
 
-[node name="VsyncDropdown" type="OptionButton" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/Graphics"]
+[node name="VsyncDropdown" type="OptionButton" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/Graphics"]
 layout_mode = 2
 size_flags_horizontal = 8
 
-[node name="FPS" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/Graphics"]
+[node name="FPS" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/Graphics"]
 layout_mode = 2
 theme = ExtResource("1_g5i38")
 theme_type_variation = &"HeaderMedium"
 text = "Max FPS (0 unlimited)"
 
-[node name="SpinBox" type="SpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/Graphics"]
+[node name="SpinBox" type="SpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/Graphics"]
 layout_mode = 2
 size_flags_horizontal = 8
 
-[node name="Label2" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/Graphics"]
+[node name="Label2" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/Graphics"]
 layout_mode = 2
 theme = ExtResource("1_g5i38")
 theme_type_variation = &"HeaderMedium"
 text = "Translation Locale"
 
-[node name="OptionButton" type="OptionButton" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/Graphics"]
+[node name="OptionButton" type="OptionButton" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/Graphics"]
 layout_mode = 2
 size_flags_horizontal = 8
 disabled = true
@@ -141,12 +152,49 @@ popup/item_0/text = "N/A"
 popup/item_0/id = 0
 popup/item_0/disabled = true
 
+[node name="Controls" type="GridContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("4_vf0ja")
+keymapScene = ExtResource("5_l7o5b")
+
 [node name="Control" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.4
 
+[node name="ResetAll" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/Control"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -67.0
+offset_top = 13.0
+offset_right = -6.0
+offset_bottom = 53.0
+grow_horizontal = 0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "Reset
+Default"
+
+[node name="Revert" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/Control"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -80.0
+offset_top = 60.0
+offset_right = -6.0
+offset_bottom = 100.0
+grow_horizontal = 0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "Revert
+Saved"
+
 [node name="ApplyButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_type_variation = &"TitleButton"
-text = "Apply Settings!"
+text = "Save Settings!"
