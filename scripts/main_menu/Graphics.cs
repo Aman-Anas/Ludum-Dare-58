@@ -17,6 +17,9 @@ public partial class Graphics : GridContainer
     OptionButton vsyncDropdown;
 
     [Export]
+    OptionButton antialiasDropdown;
+
+    [Export]
     SpinBox fpsBox;
 
     [Export]
@@ -36,6 +39,7 @@ public partial class Graphics : GridContainer
 
         windowModeDropdown.Clear();
         vsyncDropdown.Clear();
+        antialiasDropdown.Clear();
 
         // Populate window mode selecter
         var modeNames = Enum.GetNames<DisplayServer.WindowMode>();
@@ -51,6 +55,13 @@ public partial class Graphics : GridContainer
             vsyncDropdown.AddItem(vsyncNames[x], x);
         }
         vsyncDropdown.Selected = (int)config.VSyncMode;
+
+        var aliasNames = Enum.GetNames<RenderingServer.ViewportMsaa>();
+        for (int x = 0; x < aliasNames.Length - 1; x++)
+        {
+            antialiasDropdown.AddItem(aliasNames[x], x);
+        }
+        antialiasDropdown.Selected = (int)config.AntiAliasing;
 
         resolutionX.Value = config.Resolution[0];
         resolutionY.Value = config.Resolution[1];
@@ -77,6 +88,7 @@ public partial class Graphics : GridContainer
         var config = Manager.Instance.Config;
         config.WindowMode = (DisplayServer.WindowMode)windowModeDropdown.GetSelectedId();
         config.VSyncMode = (DisplayServer.VSyncMode)vsyncDropdown.GetSelectedId();
+        config.AntiAliasing = (RenderingServer.ViewportMsaa)antialiasDropdown.GetSelectedId();
         config.Resolution = new((int)resolutionX.Value, (int)resolutionY.Value);
         config.MaxFPS = (int)fpsBox.Value;
 

@@ -21,6 +21,8 @@ public partial class KeymapLine : HBoxContainer
 
     public event Action RebindTriggered;
 
+    public event Action RebindComplete;
+
     bool rebinding;
 
     public override void _Ready()
@@ -55,6 +57,8 @@ public partial class KeymapLine : HBoxContainer
             InputHelper.SetKeyboardOrJoypadInputForAction(actionName, @event, false);
             UpdateBindedActions();
             rebinding = false;
+            AcceptEvent();
+            RebindComplete?.Invoke();
         }
     }
 }

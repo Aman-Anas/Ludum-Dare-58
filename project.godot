@@ -18,8 +18,8 @@ config/icon="res://icon.svg"
 [autoload]
 
 InputHelper="*res://addons/input_helper/input_helper.gd"
-Manager="*res://scripts/Manager.cs"
 DebugMenu="*res://addons/debug_menu/debug_menu.tscn"
+Manager="*res://scripts/Manager.cs"
 
 [display]
 

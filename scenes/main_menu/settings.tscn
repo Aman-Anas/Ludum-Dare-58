@@ -70,7 +70,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="Graphics" type="GridContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer" node_paths=PackedStringArray("windowModeDropdown", "resolutionX", "resolutionY", "vsyncDropdown", "fpsBox", "locale")]
+[node name="Graphics" type="GridContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer" node_paths=PackedStringArray("windowModeDropdown", "resolutionX", "resolutionY", "vsyncDropdown", "antialiasDropdown", "fpsBox", "locale")]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -82,6 +82,7 @@ windowModeDropdown = NodePath("ModeDropdown")
 resolutionX = NodePath("HBoxContainer/Res_X")
 resolutionY = NodePath("HBoxContainer/Res_Y")
 vsyncDropdown = NodePath("VsyncDropdown")
+antialiasDropdown = NodePath("AADropdown")
 fpsBox = NodePath("SpinBox")
 locale = NodePath("OptionButton")
 
@@ -136,7 +137,17 @@ text = "Max FPS (0 unlimited)"
 layout_mode = 2
 size_flags_horizontal = 8
 
-[node name="Label2" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/Graphics"]
+[node name="Antialias" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/Graphics"]
+layout_mode = 2
+theme = ExtResource("1_g5i38")
+theme_type_variation = &"HeaderMedium"
+text = "Anti-Aliasing"
+
+[node name="AADropdown" type="OptionButton" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/Graphics"]
+layout_mode = 2
+size_flags_horizontal = 8
+
+[node name="TranslationLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/Graphics"]
 layout_mode = 2
 theme = ExtResource("1_g5i38")
 theme_type_variation = &"HeaderMedium"

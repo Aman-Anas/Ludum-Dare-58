@@ -11,7 +11,7 @@ public partial class Manager : Node
     [Export]
     string configPath = "user://config_user.dat";
 
-    string defaultConfigPath = "user://config_default.dat";
+    const string defaultConfigPath = "user://config_default.dat";
 
     [Export]
     string savePath = "user://saves/default.dat";
@@ -33,8 +33,6 @@ public partial class Manager : Node
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        GD.Print(InputHelper.GuessDeviceName());
-
         // Load config vars
         LoadConfig();
 
