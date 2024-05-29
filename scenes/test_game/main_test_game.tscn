@@ -1,0 +1,175 @@
+[gd_scene load_steps=9 format=3 uid="uid://c528dv4slqbn7"]
+
+[ext_resource type="Material" uid="uid://dour81aelbrs3" path="res://assets/materials/test_material.tres" id="1_yyfb3"]
+[ext_resource type="Texture2D" uid="uid://c1k2huj8tg6ak" path="res://addons/kenney_prototype_textures/green/texture_09.png" id="2_d63xp"]
+[ext_resource type="PackedScene" uid="uid://drug3ug02voqd" path="res://scenes/test_game/testcharacter.tscn" id="2_kwlo0"]
+[ext_resource type="PackedScene" uid="uid://be68kkhnkgb6u" path="res://scenes/main_menu/Pause.tscn" id="4_tod67"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_k0nhx"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_4th22"]
+sky_material = SubResource("ProceduralSkyMaterial_k0nhx")
+
+[sub_resource type="Environment" id="Environment_xgs2d"]
+background_mode = 2
+background_canvas_max_layer = -100
+sky = SubResource("Sky_4th22")
+tonemap_mode = 2
+ssr_enabled = true
+ssao_enabled = true
+sdfgi_enabled = true
+glow_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0ewdp"]
+albedo_color = Color(1, 1, 1, 0.619608)
+albedo_texture = ExtResource("2_d63xp")
+roughness = 0.55
+uv1_triplanar = true
+distance_fade_mode = 1
+distance_fade_max_distance = 7.0
+
+[node name="MainTestGame" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_xgs2d")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, 0.12941, 0.482963, -0.5, 0.224144, 0.836516, 0, -0.965926, 0.258819, 0, 9, 0)
+shadow_enabled = true
+
+[node name="TestLevel" type="CSGCombiner3D" parent="."]
+material_override = ExtResource("1_yyfb3")
+use_collision = true
+
+[node name="CSGCylinder3D3" type="CSGCylinder3D" parent="TestLevel"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -1.31134e-07, 3, 12.8647)
+radius = 4.0
+height = 22.0
+sides = 20
+
+[node name="CSGCylinder3D4" type="CSGCylinder3D" parent="TestLevel"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -1.31134e-07, 3, 12.8647)
+operation = 2
+radius = 3.4
+height = 22.0
+sides = 20
+
+[node name="CSGBox3D" type="CSGBox3D" parent="TestLevel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, -0.05, 0)
+use_collision = true
+size = Vector3(45, 0.1, 38)
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="TestLevel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 7)
+size = Vector3(1, 2.5, 1)
+
+[node name="CSGBox3D15" type="CSGBox3D" parent="TestLevel"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 18.5, 1, 7)
+size = Vector3(7, 2, 1)
+
+[node name="CSGBox3D16" type="CSGBox3D" parent="TestLevel"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 18.5, 1.5, 11)
+size = Vector3(1, 3, 1)
+
+[node name="CSGBox3D17" type="CSGBox3D" parent="TestLevel"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 18.5, 0.501193, 2)
+
+[node name="CSGBox3D18" type="CSGBox3D" parent="TestLevel"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 18.5, 1, 3)
+size = Vector3(1, 2, 1)
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="TestLevel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0.1, 2.12397)
+size = Vector3(1, 0.3, 4.79395)
+
+[node name="CSGBox3D5" type="CSGBox3D" parent="TestLevel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.25, 2.12397)
+size = Vector3(1, 0.6, 4.79395)
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="TestLevel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 1.2, -4)
+size = Vector3(1, 2.5, 1)
+
+[node name="CSGBox3D12" type="CSGBox3D" parent="TestLevel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0.45, -2.8)
+
+[node name="CSGBox3D13" type="CSGBox3D" parent="TestLevel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.1, 0.25, 4)
+size = Vector3(1, 0.6, 1)
+
+[node name="CSGBox3D14" type="CSGBox3D" parent="TestLevel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.3, 0.25, 4)
+size = Vector3(1, 0.6, 1)
+
+[node name="CSGBox3D7" type="CSGBox3D" parent="TestLevel"]
+transform = Transform3D(0.692597, 0.721325, 0, -0.721325, 0.692597, 0, 0, 0, 1, 10.7671, 7.81519, -10.105)
+size = Vector3(0.564331, 5.62021, 1.95117)
+
+[node name="CSGBox3D6" type="CSGBox3D" parent="TestLevel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.1, 9.44792, -3.65225)
+size = Vector3(1, 1, 15.1045)
+
+[node name="CSGCylinder3D" type="CSGCylinder3D" parent="TestLevel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.2, 1.64445)
+radius = 3.504
+height = 0.363
+sides = 10
+
+[node name="CSGCylinder3D2" type="CSGCylinder3D" parent="TestLevel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 2.2, 1.64445)
+radius = 2.0
+height = 4.0
+sides = 10
+
+[node name="CSGTorus3D" type="CSGTorus3D" parent="TestLevel"]
+transform = Transform3D(0.732745, -0.680503, 0, 0.680503, 0.732745, 0, 0, 0, 1, 3.79828, 1.0463, -9.91155)
+inner_radius = 7.41846
+outer_radius = 5.85533
+sides = 24
+smooth_faces = false
+
+[node name="CSGBox3D8" type="CSGBox3D" parent="TestLevel"]
+transform = Transform3D(0.347286, 0.359713, 0.866026, -0.719426, 0.694572, 0, -0.601517, -0.623041, 0.5, 10.5119, 3.31311, -15.9571)
+size = Vector3(0.2547, 10.1204, 3.03857)
+
+[node name="CSGBox3D9" type="CSGBox3D" parent="TestLevel"]
+transform = Transform3D(0.499924, 0.00878713, 0.866026, -0.0175744, 0.999847, 0, -0.865893, -0.0152196, 0.5, 12.3544, 11.7852, -19.1484)
+size = Vector3(0.2547, 10.1204, 3.03857)
+
+[node name="CSGBox3D10" type="CSGBox3D" parent="TestLevel"]
+transform = Transform3D(0.359713, -0.347286, 0.866026, 0.694572, 0.719426, 0, -0.623041, 0.601517, 0.5, 10.6617, 20.3616, -16.2166)
+size = Vector3(0.2547, 10, 3.03857)
+
+[node name="SpotLight3D" type="SpotLight3D" parent="TestLevel"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 5.76844, 12.7699)
+light_color = Color(0.281067, 0.928903, 0.870643, 1)
+light_energy = 20.76
+spot_range = 6.38834
+spot_attenuation = 0.482968
+spot_angle = 24.64
+
+[node name="CSGBox3D11" type="CSGBox3D" parent="TestLevel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.33086, -0.0247957, -0.0832152)
+operation = 2
+size = Vector3(1.62122, 0.104688, 4.12152)
+
+[node name="hole" type="CSGBox3D" parent="TestLevel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.5775, -0.0299512, -7.67768)
+operation = 2
+size = Vector3(3.77992, 0.104688, 4.78819)
+
+[node name="CSGPolygon3D" type="CSGPolygon3D" parent="TestLevel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, -5)
+polygon = PackedVector2Array(0, 0, 0, 1, 0.5, 0.5, 1, 0)
+
+[node name="Water" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.5775, -0.0617128, -7.67768)
+material_override = SubResource("StandardMaterial3D_0ewdp")
+size = Vector3(3.77992, 0.104688, 4.78819)
+
+[node name="testcharacter" parent="." instance=ExtResource("2_kwlo0")]
+transform = Transform3D(1.00269, 0, 0, 0, 1.00269, 0, 0, 0, 1.00269, 8.32963, -3.8147e-06, 11.7776)
+
+[node name="Pause" parent="." instance=ExtResource("4_tod67")]

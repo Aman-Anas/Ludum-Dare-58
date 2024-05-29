@@ -9,10 +9,7 @@ public partial class KeymapLine : HBoxContainer
     public Label ActionLabel { get; set; }
 
     [Export]
-    public Button AddButton { get; set; }
-
-    [Export]
-    Button ClearButton { get; set; }
+    public Button ChangeButton { get; set; }
 
     [Export]
     public Label BindedActions { get; set; }
@@ -27,8 +24,8 @@ public partial class KeymapLine : HBoxContainer
 
     public override void _Ready()
     {
-        AddButton.Pressed += () => RebindTriggered?.Invoke();
-        AddButton.Pressed += () => rebinding = true;
+        ChangeButton.Pressed += () => RebindTriggered?.Invoke();
+        ChangeButton.Pressed += () => rebinding = true;
     }
 
     public void AssignAction(StringName actionName)

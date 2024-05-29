@@ -17,6 +17,9 @@ public class GameConfig : IMessagePackSerializationCallbackReceiver
     // Idk if I'll ever use translations lol
     public string TranslationLocale { get; set; }
 
+    // Game-specific config
+    public float MOUSE_SENSITIVITY { get; set; } = 0.01f;
+
     public GameConfig()
     {
         WindowMode = DisplayServer.WindowGetMode();
@@ -25,7 +28,7 @@ public class GameConfig : IMessagePackSerializationCallbackReceiver
         MaxFPS = Engine.MaxFps;
         TranslationLocale = TranslationServer.GetLocale();
         AntiAliasing = 0;
-        GameInputMap = (string)InputHelper.Instance.Call("serialize_inputs_for_actions");
+        GameInputMap = InputHelper.SerializeInputsForActions();
     }
 
     public void UpdateConfig()
@@ -49,20 +52,19 @@ public class GameConfig : IMessagePackSerializationCallbackReceiver
 
         // Set Antialiasing
         // Set both 2D and 3D settings to the same value
-        ProjectSettings.SetSetting(
-            name: "rendering/anti_aliasing/quality/msaa_2d",
-            value: (int)AntiAliasing
+        RenderingServer.ViewportSetMsaa2D(
+            Manager.Instance.GetTree().Root.GetViewportRid(),
+            AntiAliasing
         );
-
-        ProjectSettings.SetSetting(
-            name: "rendering/anti_aliasing/quality/msaa_3d",
-            value: (int)AntiAliasing
+        RenderingServer.ViewportSetMsaa3D(
+            Manager.Instance.GetTree().Root.GetViewportRid(),
+            AntiAliasing
         );
     }
 
     public void OnBeforeSerialize()
     {
-        GameInputMap = (string)InputHelper.Instance.Call("serialize_inputs_for_actions");
+        GameInputMap = InputHelper.SerializeInputsForActions();
     }
 
     public void OnAfterDeserialize()

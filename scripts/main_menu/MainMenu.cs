@@ -29,6 +29,9 @@ public partial class MainMenu : Control
     [Export]
     Control SettingsMenu;
 
+    [Export]
+    PackedScene mainGameScene;
+
     // Helper to manage side menus
     SubMenuHelper mainHelper;
 
@@ -46,6 +49,6 @@ public partial class MainMenu : Control
     void StartGame()
     {
         //start the game
-        GD.Print("Hello There!");
+        GetTree().ChangeSceneToPacked(mainGameScene);
     }
 }

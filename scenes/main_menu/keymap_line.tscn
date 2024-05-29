@@ -2,12 +2,11 @@
 
 [ext_resource type="Script" path="res://scripts/main_menu/KeymapLine.cs" id="1_17u23"]
 
-[node name="HBoxContainer" type="HBoxContainer" node_paths=PackedStringArray("ActionLabel", "AddButton", "ClearButton", "BindedActions")]
+[node name="HBoxContainer" type="HBoxContainer" node_paths=PackedStringArray("ActionLabel", "ChangeButton", "BindedActions")]
 size_flags_horizontal = 3
 script = ExtResource("1_17u23")
 ActionLabel = NodePath("HSplitContainer/ActionNameLabel")
-AddButton = NodePath("AddBtn")
-ClearButton = NodePath("ClearBtn")
+ChangeButton = NodePath("ChangeBtn")
 BindedActions = NodePath("HSplitContainer/ActionList")
 
 [node name="HSplitContainer" type="HSplitContainer" parent="."]
@@ -26,12 +25,11 @@ text = "something something something"
 horizontal_alignment = 2
 clip_text = true
 
-[node name="AddBtn" type="Button" parent="."]
+[node name="ChangeBtn" type="Button" parent="."]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Add"
+theme_override_font_sizes/font_size = 20
+text = "Change"
 
-[node name="ClearBtn" type="Button" parent="."]
+[node name="Control" type="Control" parent="."]
+custom_minimum_size = Vector2(3, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Clear"

@@ -1,6 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://dd7wtsnynoibe"]
+[gd_scene load_steps=7 format=3 uid="uid://dd7wtsnynoibe"]
 
 [ext_resource type="PackedScene" uid="uid://cqmg4nlyt3jc0" path="res://scenes/main_menu/interface.tscn" id="1_2ywyu"]
+[ext_resource type="PackedScene" uid="uid://e874v5gkg20t" path="res://scenes/main_menu/funny_test_object.tscn" id="2_dwwkt"]
+[ext_resource type="PackedScene" uid="uid://cepoengp70iqy" path="res://assets/meshes/player/testcharacter.blend" id="3_hymuj"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ayed3"]
 
@@ -10,16 +12,19 @@ sky_material = SubResource("ProceduralSkyMaterial_ayed3")
 [sub_resource type="Environment" id="Environment_c8jin"]
 background_mode = 2
 sky = SubResource("Sky_fbovr")
+sdfgi_enabled = true
 glow_enabled = true
 
 [node name="Title" type="Node3D"]
 
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.9779, 0.209072, 0, -0.209072, 0.9779, 0, 1.95032, 6)
-
 [node name="CSGBox3D" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -13.0764)
+use_collision = true
 size = Vector3(99.9631, 0.16748, 44.9459)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.9779, 0.209072, 0, -0.209072, 0.9779, 0, 1.95032, 6)
+fov = 90.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_c8jin")
@@ -27,3 +32,15 @@ environment = SubResource("Environment_c8jin")
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="Interface" parent="CanvasLayer" instance=ExtResource("1_2ywyu")]
+
+[node name="funny_test_object" parent="." instance=ExtResource("2_dwwkt")]
+transform = Transform3D(0.280617, -0.392808, -0.87576, 0.0701128, 0.918373, -0.389455, 0.957256, 0.0478859, 0.285252, 6.69032, 10.6192, -16.095)
+
+[node name="funny_test_object2" parent="." instance=ExtResource("2_dwwkt")]
+transform = Transform3D(-0.133792, 0.456117, -0.879805, -0.154981, 0.867234, 0.473167, 0.978816, 0.19966, -0.0453396, 3.64138, 28.3108, -17.1049)
+
+[node name="funny_test_object3" parent="." instance=ExtResource("2_dwwkt")]
+transform = Transform3D(0.0156098, -0.458999, -0.891813, 0.618877, 0.706298, -0.352686, 0.789304, -0.544716, 0.294171, 7.19565, 51.6078, -14.3162)
+
+[node name="testcharacter" parent="." instance=ExtResource("3_hymuj")]
+transform = Transform3D(0.939973, 0, 0.341249, 0, 1, 0, -0.341249, 0, 0.939973, 0.0206823, 9.08374, 3.14259)

@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://cqmg4nlyt3jc0"]
+[gd_scene load_steps=7 format=3 uid="uid://cqmg4nlyt3jc0"]
 
 [ext_resource type="Theme" uid="uid://cmeyu4ofgl2c0" path="res://theme/main_UI_theme.tres" id="1_sshgn"]
 [ext_resource type="Script" path="res://scripts/main_menu/MainMenu.cs" id="1_x8ln0"]
+[ext_resource type="PackedScene" uid="uid://c528dv4slqbn7" path="res://scenes/test_game/main_test_game.tscn" id="2_1ruh2"]
 [ext_resource type="PackedScene" uid="uid://86na0e3npoj5" path="res://scenes/main_menu/settings.tscn" id="3_t7x32"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gj8vk"]
@@ -30,6 +31,7 @@ HomeButton = NodePath("Home")
 MainMenuRoot = NodePath("TitleMargin")
 HelpMenu = NodePath("Help")
 SettingsMenu = NodePath("Settings")
+mainGameScene = ExtResource("2_1ruh2")
 metadata/_edit_lock_ = true
 
 [node name="Version" type="Label" parent="."]

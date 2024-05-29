@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://86na0e3npoj5"]
 
 [ext_resource type="Theme" uid="uid://cmeyu4ofgl2c0" path="res://theme/main_UI_theme.tres" id="1_g5i38"]
-[ext_resource type="Script" path="res://scripts/main_menu/SettingsMenu.cs" id="1_uw2j8"]
+[ext_resource type="Script" path="res://SettingsMenu.cs" id="1_uw2j8"]
 [ext_resource type="Script" path="res://scripts/main_menu/Graphics.cs" id="2_44ats"]
 [ext_resource type="Script" path="res://scripts/main_menu/Controls.cs" id="4_vf0ja"]
 [ext_resource type="PackedScene" uid="uid://dyqtb418xwk78" path="res://scenes/main_menu/keymap_line.tscn" id="5_l7o5b"]
@@ -163,12 +163,13 @@ popup/item_0/text = "N/A"
 popup/item_0/id = 0
 popup/item_0/disabled = true
 
-[node name="Controls" type="GridContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer"]
+[node name="Controls" type="GridContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer" node_paths=PackedStringArray("keyPressOverlay")]
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
 script = ExtResource("4_vf0ja")
 keymapScene = ExtResource("5_l7o5b")
+keyPressOverlay = NodePath("../../../../../../../KeyPressOverlay")
 
 [node name="Control" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
@@ -209,3 +210,12 @@ Saved"
 layout_mode = 2
 theme_type_variation = &"TitleButton"
 text = "Save Settings!"
+
+[node name="KeyPressOverlay" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 2
+
+[node name="Label" type="Label" parent="KeyPressOverlay"]
+layout_mode = 2
+text = "Press a key..."
+horizontal_alignment = 1
