@@ -1,0 +1,115 @@
+[gd_scene load_steps=6 format=3 uid="uid://5tfng4tp7c4"]
+
+[ext_resource type="PackedScene" uid="uid://c4j2ttclugxdy" path="res://assets/meshes/player/player_hitbox.blend" id="1_kd8d6"]
+[ext_resource type="PackedScene" uid="uid://bcbqu4symo7ux" path="res://assets/meshes/player/player_rig_default.blend" id="2_jjmcg"]
+[ext_resource type="Script" path="res://scripts/entities/SimpleRigidPlayer.cs" id="2_x2qyr"]
+[ext_resource type="Script" path="res://utility/Node/PhysicsSmoother.cs" id="4_8qcpq"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_lt2x0"]
+friction = 0.0
+
+[node name="Player" node_paths=PackedStringArray("floorSensors", "yawTarget", "pitchTarget", "headMesh", "animPlayer") instance=ExtResource("1_kd8d6")]
+collision_layer = 2
+axis_lock_angular_x = true
+axis_lock_angular_z = true
+physics_material_override = SubResource("PhysicsMaterial_lt2x0")
+script = ExtResource("2_x2qyr")
+floorSensors = NodePath("FootRays")
+yawTarget = NodePath("CameraYawTarget")
+pitchTarget = NodePath("CameraYawTarget/CameraPitchTarget")
+headMesh = NodePath("PhysicsSmoother/player_rig_default/PlayerHead")
+animPlayer = NodePath("PhysicsSmoother/player_rig_default/AnimationPlayer")
+
+[node name="PhysicsSmoother" type="Node3D" parent="." index="1" node_paths=PackedStringArray("target")]
+top_level = true
+script = ExtResource("4_8qcpq")
+target = NodePath("..")
+
+[node name="player_rig_default" parent="PhysicsSmoother" index="0" instance=ExtResource("2_jjmcg")]
+
+[node name="PlayerHead" parent="PhysicsSmoother/player_rig_default" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.86509e-15, 1.74628, 0.0247)
+
+[node name="Skeleton3D" parent="PhysicsSmoother/player_rig_default/rig_player" index="0"]
+bones/2/rotation = Quaternion(-0.0568479, 2.86901e-14, -1.35536e-08, 0.998383)
+bones/3/rotation = Quaternion(0.27042, 1.14768e-07, 9.67096e-08, 0.962743)
+bones/3/scale = Vector3(1, 1, 1)
+bones/4/rotation = Quaternion(-0.26091, -1.1508e-07, -9.33085e-08, 0.965363)
+bones/5/rotation = Quaternion(-0.139365, -0.717596, -0.422666, 0.535712)
+bones/5/scale = Vector3(1, 1, 1)
+bones/6/rotation = Quaternion(-0.139365, 0.717596, 0.422666, 0.535712)
+bones/6/scale = Vector3(1, 1, 1)
+bones/7/rotation = Quaternion(0.999362, 0.00405305, 0.0153585, 0.0319761)
+bones/7/scale = Vector3(1, 1, 1)
+bones/9/rotation = Quaternion(0.0583772, 1.12282e-06, 4.66457e-09, 0.998295)
+bones/9/scale = Vector3(1, 1, 1)
+bones/11/rotation = Quaternion(-0.528472, -0.0184166, -0.00500968, 0.848736)
+bones/12/rotation = Quaternion(-0.00318926, 0.977257, -0.212034, -0.000937534)
+bones/13/rotation = Quaternion(0.999362, -0.00405305, -0.0153585, 0.0319761)
+bones/13/scale = Vector3(1, 1, 1)
+bones/15/rotation = Quaternion(0.0583772, -1.12282e-06, -4.66457e-09, 0.998295)
+bones/15/scale = Vector3(1, 1, 1)
+bones/17/rotation = Quaternion(-0.528472, 0.0184166, 0.00500968, 0.848736)
+bones/18/rotation = Quaternion(0.00318926, 0.977257, -0.212034, 0.000937534)
+bones/19/rotation = Quaternion(-0.493167, -0.451538, -0.359942, 0.650647)
+bones/19/scale = Vector3(1, 1, 1)
+bones/20/rotation = Quaternion(-0.0376549, -0.106292, 0.990933, -0.0730493)
+bones/20/scale = Vector3(1, 1, 1)
+bones/21/rotation = Quaternion(-4.88944e-08, 6.56582e-08, 9.0804e-08, 1)
+bones/22/scale = Vector3(1, 1, 1)
+bones/23/rotation = Quaternion(1.58325e-08, -4.19095e-09, -1.04774e-08, 1)
+bones/25/rotation = Quaternion(-0.493167, 0.451538, 0.359942, 0.650647)
+bones/25/scale = Vector3(1, 1, 1)
+bones/26/scale = Vector3(1, 1, 1)
+bones/30/scale = Vector3(1, 1, 1)
+
+[node name="BoneAttachment3D" type="BoneAttachment3D" parent="PhysicsSmoother/player_rig_default/rig_player/Skeleton3D" index="3"]
+transform = Transform3D(1, 2.84217e-14, 2.38419e-07, 4.26326e-14, 1, -2.98023e-08, -2.38419e-07, -2.98023e-08, 1, -9.31073e-16, 1.54628, 0.0247)
+bone_name = "DEF-spine.006"
+bone_idx = 4
+
+[node name="RemoteTransform3D" type="RemoteTransform3D" parent="PhysicsSmoother/player_rig_default/rig_player/Skeleton3D/BoneAttachment3D" index="0"]
+transform = Transform3D(1, 6.77626e-21, 0, -2.42338e-27, 1, 0, 0, 0, 1, -8.88178e-16, 0.2, 0)
+remote_path = NodePath("../../../../../../CameraYawTarget")
+update_rotation = false
+update_scale = false
+
+[node name="AnimationPlayer" parent="PhysicsSmoother/player_rig_default" index="2"]
+playback_default_blend_time = 1.0
+
+[node name="FootRays" type="Node3D" parent="." index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+
+[node name="Middle" type="RayCast3D" parent="FootRays" index="0"]
+target_position = Vector3(0, -0.11, 0)
+
+[node name="Right" type="RayCast3D" parent="FootRays" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0, 0)
+target_position = Vector3(0, -0.11, 0)
+
+[node name="Left" type="RayCast3D" parent="FootRays" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0, 0)
+target_position = Vector3(0, -0.11, 0)
+
+[node name="Forward" type="RayCast3D" parent="FootRays" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.3)
+target_position = Vector3(0, -0.11, 0)
+
+[node name="Back" type="RayCast3D" parent="FootRays" index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.3)
+target_position = Vector3(0, -0.11, 0)
+
+[node name="CameraYawTarget" type="Node3D" parent="." index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.86509e-15, 1.74628, 0.0247)
+top_level = true
+
+[node name="CameraPitchTarget" type="Node3D" parent="CameraYawTarget" index="0"]
+
+[node name="HeadRemoteTransform" type="RemoteTransform3D" parent="CameraYawTarget/CameraPitchTarget" index="0"]
+remote_path = NodePath("../../../PhysicsSmoother/player_rig_default/PlayerHead")
+
+[node name="FirstPersonCam" type="Camera3D" parent="CameraYawTarget/CameraPitchTarget" index="1"]
+transform = Transform3D(-1, 2.71051e-20, -1.50996e-07, 2.71051e-20, 1, 4.09276e-27, 1.50996e-07, 0, -1, 1.50996e-08, 0, 0.1)
+fov = 90.0
+
+[editable path="PhysicsSmoother/player_rig_default"]

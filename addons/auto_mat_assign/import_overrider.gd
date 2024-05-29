@@ -26,6 +26,9 @@ func _post_process(scene: Node):
 	# This improves the workflow for CharacterBody3Ds and RigidBody3Ds
 	for node in scene.get_children():
 		if node is StaticBody3D:
+			if node.name.contains("nopost"):
+				continue
+			
 			var body: StaticBody3D = node
 
 			for child in body.get_children():

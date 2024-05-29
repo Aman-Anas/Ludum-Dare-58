@@ -1,9 +1,10 @@
-[gd_scene load_steps=9 format=3 uid="uid://c528dv4slqbn7"]
+[gd_scene load_steps=11 format=3 uid="uid://c528dv4slqbn7"]
 
 [ext_resource type="Material" uid="uid://dour81aelbrs3" path="res://assets/materials/test_material.tres" id="1_yyfb3"]
 [ext_resource type="Texture2D" uid="uid://c1k2huj8tg6ak" path="res://addons/kenney_prototype_textures/green/texture_09.png" id="2_d63xp"]
-[ext_resource type="PackedScene" uid="uid://drug3ug02voqd" path="res://scenes/test_game/testcharacter.tscn" id="2_kwlo0"]
+[ext_resource type="PackedScene" uid="uid://5tfng4tp7c4" path="res://scenes/test_game/player.tscn" id="4_pc65c"]
 [ext_resource type="PackedScene" uid="uid://be68kkhnkgb6u" path="res://scenes/main_menu/Pause.tscn" id="4_tod67"]
+[ext_resource type="Texture2D" uid="uid://c6yiplbg4g5yr" path="res://addons/kenney_prototype_textures/light/texture_07.png" id="5_b517f"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_k0nhx"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -17,18 +18,23 @@ background_mode = 2
 background_canvas_max_layer = -100
 sky = SubResource("Sky_4th22")
 tonemap_mode = 2
-ssr_enabled = true
 ssao_enabled = true
-sdfgi_enabled = true
+ssil_enabled = true
 glow_enabled = true
+volumetric_fog_density = 0.024
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0ewdp"]
 albedo_color = Color(1, 1, 1, 0.619608)
 albedo_texture = ExtResource("2_d63xp")
 roughness = 0.55
 uv1_triplanar = true
+uv1_world_triplanar = true
 distance_fade_mode = 1
 distance_fade_max_distance = 7.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lltu2"]
+albedo_texture = ExtResource("5_b517f")
+uv1_triplanar = true
 
 [node name="MainTestGame" type="Node3D"]
 
@@ -93,7 +99,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 1.2, -4)
 size = Vector3(1, 2.5, 1)
 
 [node name="CSGBox3D12" type="CSGBox3D" parent="TestLevel"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0.45, -2.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0.5, -3)
 
 [node name="CSGBox3D13" type="CSGBox3D" parent="TestLevel"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.1, 0.25, 4)
@@ -169,7 +175,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.5775, -0.0617128, -7.6776
 material_override = SubResource("StandardMaterial3D_0ewdp")
 size = Vector3(3.77992, 0.104688, 4.78819)
 
-[node name="testcharacter" parent="." instance=ExtResource("2_kwlo0")]
-transform = Transform3D(1.00269, 0, 0, 0, 1.00269, 0, 0, 0, 1.00269, 8.32963, -3.8147e-06, 11.7776)
+[node name="CSGSphere3D" type="CSGSphere3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.1686, 1.511, -9.70835)
+radial_segments = 24
+rings = 16
+material = SubResource("StandardMaterial3D_lltu2")
 
 [node name="Pause" parent="." instance=ExtResource("4_tod67")]
+
+[node name="Player" parent="." instance=ExtResource("4_pc65c")]

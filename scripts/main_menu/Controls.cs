@@ -1,7 +1,7 @@
 using Godot;
 using NathanHoad;
 
-public partial class Controls : GridContainer
+public partial class Controls : GridContainer, SettingsMenu.ISettingsSubMenu
 {
     [Export]
     PackedScene keymapScene;
@@ -24,7 +24,7 @@ public partial class Controls : GridContainer
         keyPressOverlay.Hide();
     }
 
-    public void UpdateActionList()
+    public void LoadSettings()
     {
         foreach (var node in GetChildren())
         {
@@ -34,4 +34,6 @@ public partial class Controls : GridContainer
             }
         }
     }
+
+    public void ApplySettings() { }
 }

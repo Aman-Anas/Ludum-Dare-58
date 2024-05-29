@@ -19,7 +19,7 @@ public partial class SimpleRigidPlayer : RigidBody3D
     readonly Vector3 JUMP_IMPULSE = new(0, 4.5f, 0);
     bool justJumped;
     ulong timeJumped;
-    readonly ulong MIN_JUMP_RESET_TIME = 200; // ms
+    readonly ulong MIN_JUMP_RESET_TIME = 1000; // ms
 
     // Mouselook
     [Export]

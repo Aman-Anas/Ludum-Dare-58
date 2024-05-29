@@ -2,7 +2,7 @@ using System;
 using Game;
 using Godot;
 
-public partial class Graphics : GridContainer
+public partial class Graphics : GridContainer, SettingsMenu.ISettingsSubMenu
 {
     [Export]
     OptionButton windowModeDropdown;
@@ -28,12 +28,12 @@ public partial class Graphics : GridContainer
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        PopulateGeneralSettings();
+        LoadSettings();
 
         GetTree().Root.SizeChanged += UpdateResolutionSetting;
     }
 
-    public void PopulateGeneralSettings()
+    public void LoadSettings()
     {
         var config = Manager.Instance.Config;
 
