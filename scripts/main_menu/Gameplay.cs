@@ -18,11 +18,11 @@ public partial class Gameplay : GridContainer, SettingsMenu.ISettingsSubMenu
 
     public void LoadSettings()
     {
-        mouseSensitivityBox.Value = gameManager.Config.MOUSE_SENSITIVITY;
+        mouseSensitivityBox.Value = gameManager.Config.MouseSensitivity;
     }
 
     public void ApplySettings()
     {
-        gameManager.Config.MOUSE_SENSITIVITY = (float)mouseSensitivityBox.Value;
+        gameManager.Config.MouseSensitivity = (float)mouseSensitivityBox.Value;
     }
 }

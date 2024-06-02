@@ -82,7 +82,7 @@ public partial class SimpleRigidPlayer : RigidBody3D
         // Direct mouselook for head itself
         if (@event is InputEventMouseMotion motion)
         {
-            var sensitivity = Manager.Instance.Config.MOUSE_SENSITIVITY;
+            var sensitivity = Manager.Instance.Config.MouseSensitivity;
 
             yawTarget.RotateObjectLocal(Vector3.Up, -motion.Relative.X * sensitivity);
 
