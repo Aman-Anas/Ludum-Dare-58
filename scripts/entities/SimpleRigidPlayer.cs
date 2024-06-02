@@ -61,7 +61,6 @@ public partial class SimpleRigidPlayer : RigidBody3D
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta)
     {
-        UpdateHeadOrientation();
         RunAnimations();
     }
 
@@ -195,6 +194,8 @@ public partial class SimpleRigidPlayer : RigidBody3D
         but velocity is a bit easier to work with. If needed, torque can be used though.
         */
         AngularVelocity = newLocalAngVelo;
+
+        UpdateHeadOrientation();
     }
 
     void RunAnimations()
