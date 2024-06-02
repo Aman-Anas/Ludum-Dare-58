@@ -3,17 +3,17 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://bcbqu4symo7ux"
-path="res://.godot/imported/player_rig_default.blend-6dc3f75f7e03237a0308736ac4a70d2d.scn"
+uid="uid://c4j2ttclugxdy"
+path="res://.godot/imported/player_hitbox.blend-e24fa95472dc5da2b2c8856fe9254cd0.scn"
 
 [deps]
 
-source_file="res://assets/meshes/player/player_rig_default.blend"
-dest_files=["res://.godot/imported/player_rig_default.blend-6dc3f75f7e03237a0308736ac4a70d2d.scn"]
+source_file="res://assets/objects/player/player_hitbox.blend"
+dest_files=["res://.godot/imported/player_hitbox.blend-e24fa95472dc5da2b2c8856fe9254cd0.scn"]
 
 [params]
 
-nodes/root_type=""
+nodes/root_type="RigidBody3D"
 nodes/root_name=""
 nodes/apply_root_scale=true
 nodes/root_scale=1.0

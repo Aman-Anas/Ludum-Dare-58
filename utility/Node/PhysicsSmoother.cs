@@ -14,6 +14,6 @@ public partial class PhysicsSmoother : Node3D
     {
         var frac = Engine.GetPhysicsInterpolationFraction();
 
-        Transform = Transform.InterpolateWith(target.GlobalTransform, (float)frac);
+        Transform = Transform.InterpolateWith(target.Transform, (float)frac);
     }
 }

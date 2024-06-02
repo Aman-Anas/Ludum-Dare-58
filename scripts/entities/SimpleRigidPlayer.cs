@@ -14,6 +14,7 @@ public partial class SimpleRigidPlayer : RigidBody3D
     const float MAX_MOVEMENT_SPEED = 5;
     Vector3 movementVec = new(0, 0, 0);
     const float AIR_MOVEMENT_MULTIPLIER = 0.1f;
+    const float GRAVITY_CORRECTION_SPEED = 4.0f;
 
     // Jumping
     readonly Vector3 JUMP_IMPULSE = new(0, 4.5f, 0);
@@ -31,6 +32,9 @@ public partial class SimpleRigidPlayer : RigidBody3D
     [Export]
     Node3D headMesh;
 
+    [Export]
+    Node3D mouseLookRotationTarget;
+
     readonly float MIN_PITCH = Mathf.DegToRad(-90.0f);
     readonly float MAX_PITCH = Mathf.DegToRad(80.0f);
 
@@ -43,17 +47,31 @@ public partial class SimpleRigidPlayer : RigidBody3D
     readonly StringName DEFAULT_ANIM = new("Idle"); // This should be an idle
     readonly StringName RUNNING_ANIM = new("Run");
 
+    Rid thisRid;
+
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
         // Need this to capture the mouse of course
         Input.MouseMode = Input.MouseModeEnum.Captured;
+
+        thisRid = GetRid();
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta)
     {
+        UpdateHeadOrientation();
         RunAnimations();
+    }
+
+    void UpdateHeadOrientation()
+    {
+        yawTarget.Orthonormalize();
+        var yawUpDiff = new Quaternion(yawTarget.GlobalBasis.Y, GlobalBasis.Y).Normalized();
+        yawTarget.Rotate(yawUpDiff.GetAxis().Normalized(), yawUpDiff.GetAngle());
+
+        mouseLookRotationTarget.GlobalRotation = yawTarget.GlobalRotation;
     }
 
     public override void _UnhandledInput(InputEvent @event)
@@ -66,7 +84,7 @@ public partial class SimpleRigidPlayer : RigidBody3D
         {
             var sensitivity = Manager.Instance.Config.MOUSE_SENSITIVITY;
 
-            yawTarget.RotateY(-motion.Relative.X * sensitivity);
+            yawTarget.RotateObjectLocal(Vector3.Up, -motion.Relative.X * sensitivity);
 
             var pitchRot = pitchTarget.Rotation;
             pitchRot.X = Mathf.Clamp(
@@ -82,6 +100,8 @@ public partial class SimpleRigidPlayer : RigidBody3D
     {
         if (!MovementEnabled)
             return;
+
+        Orthonormalize();
 
         var inputVec = Input.GetVector(
             GameActions.PLAYER_STRAFE_RIGHT,
@@ -108,7 +128,7 @@ public partial class SimpleRigidPlayer : RigidBody3D
         movementVec.Z = inputVec.Y;
 
         // Convert our global linear velocity to local and remove Y
-        var actualLocalVelocity = Transform.Basis.Inverse() * LinearVelocity;
+        var actualLocalVelocity = GlobalBasis.Inverse() * LinearVelocity;
         actualLocalVelocity.Y = 0;
 
         // Calculate our intended local velocity
@@ -122,7 +142,7 @@ public partial class SimpleRigidPlayer : RigidBody3D
             diffVelo *= AIR_MOVEMENT_MULTIPLIER;
         }
 
-        ApplyForce(Transform.Basis * (diffVelo.LimitLength(1) * MOVEMENT_FORCE));
+        ApplyCentralForce(GlobalBasis * (diffVelo.LimitLength(1) * MOVEMENT_FORCE));
 
         // Jumping
 
@@ -134,26 +154,52 @@ public partial class SimpleRigidPlayer : RigidBody3D
 
         if (Input.IsActionPressed(GameActions.PLAYER_JUMP) && touchingFloor && !justJumped)
         {
-            ApplyImpulse(JUMP_IMPULSE);
+            ApplyCentralImpulse(GlobalBasis * JUMP_IMPULSE);
             justJumped = true;
             timeJumped = Time.GetTicksMsec();
         }
 
-        // For fancy gravity stuff
-        // Vector3 alignVec = alignRay.IsColliding()
-        //     ? alignRay.GetCollisionPoint() - Position
-        //     : new(0, 0, 0);
-        // or maybe Vector3 alignVec = new(0, -1, 0);
-        // Just lock X and Z rotation in rigid body settings for now
+        // Get the current gravity direction and our down direction (both global)
+        var currentGravityDir = PhysicsServer3D
+            .BodyGetDirectState(thisRid)
+            .TotalGravity.Normalized();
 
-        var rotationDiff = Quaternion.FromEuler(yawTarget.Rotation - Rotation);
+        var currentDownDir = -GlobalBasis.Y;
 
-        AngularVelocity = rotationDiff.GetEuler() * ROTATION_SPEED;
+        // Find the rotation difference between these two
+        var rotationDifference = new Quaternion(currentDownDir, currentGravityDir);
+
+        // Turn it into an euler and multiply by our gravity correction speed
+        var gravityCorrectionVelo = rotationDifference.Normalized();
+
+        // Before assigning gravity correction, make it a local vector and add mouselook
+        var newLocalAngVelo = gravityCorrectionVelo.GetEuler() * GRAVITY_CORRECTION_SPEED;
+
+        // Get the rotation difference for our head
+        var mouseLookDiff = new Quaternion(GlobalBasis.Z, mouseLookRotationTarget.GlobalBasis.Z)
+            .Normalized()
+            .GetEuler();
+
+        // Put into local coordinates
+        mouseLookDiff = GlobalBasis.Inverse() * mouseLookDiff;
+
+        // Remove extraneous rotation (only want mouselook to affect Y)
+        mouseLookDiff.X = 0;
+        mouseLookDiff.Z = 0;
+
+        // Add it to our new velocity (after making it global)
+        newLocalAngVelo += GlobalBasis * (mouseLookDiff * ROTATION_SPEED);
+
+        /**
+        Get our final angular velocity. It would be more realistic to use torque,
+        but velocity is a bit easier to work with. If needed, torque can be used though.
+        */
+        AngularVelocity = newLocalAngVelo;
     }
 
     void RunAnimations()
     {
-        var horizontalSpeed = Transform.Basis.Inverse() * LinearVelocity;
+        var horizontalSpeed = GlobalBasis.Inverse() * LinearVelocity;
         horizontalSpeed.Y = 0;
         if (movementVec.Length() > 0.1 && (horizontalSpeed.Length() > 0.2))
         {

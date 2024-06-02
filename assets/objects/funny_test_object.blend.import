@@ -3,17 +3,17 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://c4j2ttclugxdy"
-path="res://.godot/imported/player_hitbox.blend-47db8e50dff21afc0b5eee9f59f4a9b3.scn"
+uid="uid://dv5kkekfv8ijt"
+path="res://.godot/imported/funny_test_object.blend-2f2008c71a4deff79bb423efad4566d2.scn"
 
 [deps]
 
-source_file="res://assets/meshes/player/player_hitbox.blend"
-dest_files=["res://.godot/imported/player_hitbox.blend-47db8e50dff21afc0b5eee9f59f4a9b3.scn"]
+source_file="res://assets/objects/funny_test_object.blend"
+dest_files=["res://.godot/imported/funny_test_object.blend-2f2008c71a4deff79bb423efad4566d2.scn"]
 
 [params]
 
-nodes/root_type="RigidBody3D"
+nodes/root_type=""
 nodes/root_name=""
 nodes/apply_root_scale=true
 nodes/root_scale=1.0

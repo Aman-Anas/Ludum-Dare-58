@@ -18,7 +18,7 @@ public class GameConfig : IMessagePackSerializationCallbackReceiver
     public string TranslationLocale { get; set; }
 
     // Game-specific config
-    public float MOUSE_SENSITIVITY { get; set; } = 0.01f;
+    public float MOUSE_SENSITIVITY { get; set; } = 0.005f;
 
     public GameConfig()
     {
