@@ -47,15 +47,11 @@ public partial class SimpleRigidPlayer : RigidBody3D
     readonly StringName DEFAULT_ANIM = new("Idle"); // This should be an idle
     readonly StringName RUNNING_ANIM = new("Run");
 
-    Rid thisRid;
-
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
         // Need this to capture the mouse of course
         Input.MouseMode = Input.MouseModeEnum.Captured;
-
-        thisRid = GetRid();
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -95,7 +91,7 @@ public partial class SimpleRigidPlayer : RigidBody3D
         }
     }
 
-    public override void _PhysicsProcess(double delta)
+    public override void _IntegrateForces(PhysicsDirectBodyState3D state)
     {
         if (!MovementEnabled)
             return;
@@ -127,7 +123,7 @@ public partial class SimpleRigidPlayer : RigidBody3D
         movementVec.Z = inputVec.Y;
 
         // Convert our global linear velocity to local and remove Y
-        var actualLocalVelocity = GlobalBasis.Inverse() * LinearVelocity;
+        var actualLocalVelocity = GlobalBasis.Inverse() * state.LinearVelocity;
         actualLocalVelocity.Y = 0;
 
         // Calculate our intended local velocity
@@ -141,7 +137,7 @@ public partial class SimpleRigidPlayer : RigidBody3D
             diffVelo *= AIR_MOVEMENT_MULTIPLIER;
         }
 
-        ApplyCentralForce(GlobalBasis * (diffVelo.LimitLength(1) * MOVEMENT_FORCE));
+        state.ApplyCentralForce(GlobalBasis * (diffVelo.LimitLength(1) * MOVEMENT_FORCE));
 
         // Jumping
 
@@ -153,15 +149,13 @@ public partial class SimpleRigidPlayer : RigidBody3D
 
         if (Input.IsActionPressed(GameActions.PLAYER_JUMP) && touchingFloor && !justJumped)
         {
-            ApplyCentralImpulse(GlobalBasis * JUMP_IMPULSE);
+            state.ApplyCentralImpulse(GlobalBasis * JUMP_IMPULSE);
             justJumped = true;
             timeJumped = Time.GetTicksMsec();
         }
 
         // Get the current gravity direction and our down direction (both global)
-        var currentGravityDir = PhysicsServer3D
-            .BodyGetDirectState(thisRid)
-            .TotalGravity.Normalized();
+        var currentGravityDir = state.TotalGravity.Normalized();
 
         var currentDownDir = -GlobalBasis.Y;
 
@@ -193,7 +187,7 @@ public partial class SimpleRigidPlayer : RigidBody3D
         Get our final angular velocity. It would be more realistic to use torque,
         but velocity is a bit easier to work with. If needed, torque can be used though.
         */
-        AngularVelocity = newLocalAngVelo;
+        state.AngularVelocity = newLocalAngVelo;
 
         UpdateHeadOrientation();
     }

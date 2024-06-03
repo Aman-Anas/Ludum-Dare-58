@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="AmanTemplate"
+config/name="TestMarchingCubesGen"
 run/main_scene="res://scenes/main_menu/title.tscn"
 config/features=PackedStringArray("4.2", "C#", "Forward Plus")
 config/icon="res://icon.svg"
@@ -28,7 +28,7 @@ window/stretch/aspect="expand"
 
 [dotnet]
 
-project/assembly_name="AmanTemplate"
+project/assembly_name="TestMarchingCubesGen"
 
 [editor_plugins]
 

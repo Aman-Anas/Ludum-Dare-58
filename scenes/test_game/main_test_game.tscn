@@ -11,13 +11,13 @@
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
 ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
 
-[sub_resource type="Sky" id="Sky_4th22"]
+[sub_resource type="Sky" id="Sky_sbqvx"]
 sky_material = SubResource("ProceduralSkyMaterial_k0nhx")
 
 [sub_resource type="Environment" id="Environment_xgs2d"]
 background_mode = 2
 background_canvas_max_layer = -100
-sky = SubResource("Sky_4th22")
+sky = SubResource("Sky_sbqvx")
 tonemap_mode = 2
 ssil_enabled = true
 glow_enabled = true
