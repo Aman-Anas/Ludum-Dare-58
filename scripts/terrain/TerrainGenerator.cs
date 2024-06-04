@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Game.Terrain;
 using Godot;
@@ -19,6 +20,7 @@ public partial class TerrainGenerator : Node3D
     const int WORK_GROUP_SIZE = 8;
     const int NUM_VOXELS_PER_AXIS = WORK_GROUP_SIZE * TERRAIN_RESOLUTION;
 
+    // Index of the bufferset for the shader
     const int BUFFER_SET_INDEX = 0;
 
     // Bind Indices
@@ -46,6 +48,7 @@ public partial class TerrainGenerator : Node3D
     int numTriangles;
 
     // Terrain mesh for testing
+    MeshInstance3D testInstance;
     ArrayMesh terrainMesh = new();
     Vector3[] verts = System.Array.Empty<Vector3>();
     Vector3[] normals = System.Array.Empty<Vector3>();
@@ -63,16 +66,39 @@ public partial class TerrainGenerator : Node3D
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
+        Stopwatch stopwatch = Stopwatch.StartNew();
+
         // Make one child node and assign it the mesh
-        var newMesh = new MeshInstance3D { Name = "ChunkOne" };
-        AddChild(newMesh);
+        testInstance = new MeshInstance3D { Name = "ChunkOne" };
+        AddChild(testInstance);
 
-        newMesh.Mesh = terrainMesh;
+        testInstance.Mesh = terrainMesh;
 
+        long madeNewNodes = stopwatch.ElapsedMilliseconds;
+        stopwatch.Restart();
         InitializeCompute();
+        long initCompute = stopwatch.ElapsedMilliseconds;
+        stopwatch.Restart();
         RunNewCompute();
+        long runCompute = stopwatch.ElapsedMilliseconds;
+        stopwatch.Restart();
         FetchAndProcessCompute();
+        long fetchProcessCompute = stopwatch.ElapsedMilliseconds;
+        stopwatch.Restart();
         CreateMesh();
+        long createdMesh = stopwatch.ElapsedMilliseconds;
+        stopwatch.Restart();
+        testInstance.CreateTrimeshCollision();
+        long createdCollision = stopwatch.ElapsedMilliseconds;
+        stopwatch.Stop();
+
+        GD.Print("Stats--");
+        GD.Print(madeNewNodes);
+        GD.Print(initCompute);
+        GD.Print(runCompute);
+        GD.Print(fetchProcessCompute);
+        GD.Print(createdMesh);
+        GD.Print(createdCollision);
     }
 
     void InitializeCompute()
@@ -239,8 +265,8 @@ public partial class TerrainGenerator : Node3D
         numTriangles = (int)counterFloatArr[0];
         var numVerts = numTriangles * 3;
 
-        System.Array.Resize(ref verts, numVerts);
-        System.Array.Resize(ref normals, numVerts);
+        verts = new Vector3[numVerts];
+        normals = new Vector3[numVerts];
 
         for (int triIndex = 0; triIndex < numTriangles; triIndex++)
         {
