@@ -102,10 +102,10 @@ float snoise(vec3 v)
 	}
 
 struct Triangle {
-	vec4 a;
-	vec4 b;
-	vec4 c;
-	vec4 norm;
+	vec4 a; // 4 floats
+	vec4 b; // 4 floats
+	vec4 c; // 4 floats
+	vec4 norm; // 34 floats
 };
 
 // #------ Marching Cubes ------#
@@ -147,19 +147,106 @@ layout(set = 0, binding = 3, std430) restrict buffer LutBuffer
 	int data[];
 }
 lut;
+// psrdnoise (c) Stefan Gustavson and Ian McEwan,
+// ver. 2021-12-02, published under the MIT license:
+// https://github.com/stegu/psrdnoise/
+
+// vec4 permute(vec4 i) {
+//      vec4 im = mod(i, 289.0);
+//      return mod(((im*34.0)+10.0)*im, 289.0);
+// }
+
+float psrdnoise(vec3 x, vec3 period, float alpha, out vec3 gradient)
+{
+  const mat3 M = mat3(0.0, 1.0, 1.0, 1.0, 0.0, 1.0,  1.0, 1.0, 0.0);
+  const mat3 Mi = mat3(-0.5, 0.5, 0.5, 0.5,-0.5, 0.5, 0.5, 0.5,-0.5);
+  vec3 uvw = M * x;
+  vec3 i0 = floor(uvw), f0 = fract(uvw);
+  vec3 g_ = step(f0.xyx, f0.yzz), l_ = 1.0 - g_;
+  vec3 g = vec3(l_.z, g_.xy), l = vec3(l_.xy, g_.z);
+  vec3 o1 = min( g, l ), o2 = max( g, l );
+  vec3 i1 = i0 + o1, i2 = i0 + o2, i3 = i0 + vec3(1.0);
+  vec3 v0 = Mi * i0, v1 = Mi * i1, v2 = Mi * i2, v3 = Mi * i3;
+  vec3 x0 = x - v0, x1 = x - v1, x2 = x - v2, x3 = x - v3;
+  if(any(greaterThan(period, vec3(0.0)))) {
+    vec4 vx = vec4(v0.x, v1.x, v2.x, v3.x);
+    vec4 vy = vec4(v0.y, v1.y, v2.y, v3.y);
+    vec4 vz = vec4(v0.z, v1.z, v2.z, v3.z);
+	if(period.x > 0.0) vx = mod(vx, period.x);
+	if(period.y > 0.0) vy = mod(vy, period.y);
+	if(period.z > 0.0) vz = mod(vz, period.z);
+	i0 = floor(M * vec3(vx.x, vy.x, vz.x) + 0.5);
+	i1 = floor(M * vec3(vx.y, vy.y, vz.y) + 0.5);
+	i2 = floor(M * vec3(vx.z, vy.z, vz.z) + 0.5);
+	i3 = floor(M * vec3(vx.w, vy.w, vz.w) + 0.5);
+  }
+  vec4 hash = permute( permute( permute( 
+              vec4(i0.z, i1.z, i2.z, i3.z ))
+            + vec4(i0.y, i1.y, i2.y, i3.y ))
+            + vec4(i0.x, i1.x, i2.x, i3.x ));
+  vec4 theta = hash * 3.883222077;
+  vec4 sz = hash * -0.006920415 + 0.996539792;
+  vec4 psi = hash * 0.108705628;
+  vec4 Ct = cos(theta), St = sin(theta);
+  vec4 sz_prime = sqrt( 1.0 - sz*sz );
+  vec4 gx, gy, gz;
+  if(alpha != 0.0) {
+    vec4 px = Ct * sz_prime, py = St * sz_prime, pz = sz;
+    vec4 Sp = sin(psi), Cp = cos(psi), Ctp = St*Sp - Ct*Cp;
+    vec4 qx = mix( Ctp*St, Sp, sz), qy = mix(-Ctp*Ct, Cp, sz);
+    vec4 qz = -(py*Cp + px*Sp);
+    vec4 Sa = vec4(sin(alpha)), Ca = vec4(cos(alpha));
+    gx = Ca*px + Sa*qx; gy = Ca*py + Sa*qy; gz = Ca*pz + Sa*qz;
+  }
+  else {
+    gx = Ct * sz_prime; gy = St * sz_prime; gz = sz;  
+  }
+  vec3 g0 = vec3(gx.x, gy.x, gz.x), g1 = vec3(gx.y, gy.y, gz.y);
+  vec3 g2 = vec3(gx.z, gy.z, gz.z), g3 = vec3(gx.w, gy.w, gz.w);
+  vec4 w = 0.5-vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3));
+  w = max(w, 0.0); vec4 w2 = w * w, w3 = w2 * w;
+  vec4 gdotx = vec4(dot(g0,x0), dot(g1,x1), dot(g2,x2), dot(g3,x3));
+  float n = dot(w3, gdotx);
+  vec4 dw = -6.0 * w2 * gdotx;
+  vec3 dn0 = w3.x * g0 + dw.x * x0;
+  vec3 dn1 = w3.y * g1 + dw.y * x1;
+  vec3 dn2 = w3.z * g2 + dw.z * x2;
+  vec3 dn3 = w3.w * g3 + dw.w * x3;
+  gradient = 39.5 * (dn0 + dn1 + dn2 + dn3);
+  return 39.5 * n;
+}
+
 
 vec4 evaluate(vec3 coord)
 {   
-	float cellSize = 1.0 / params.numVoxelsPerAxis * params.scale;
-	float cx = int(params.posX / cellSize + 0.5 * sign(params.posX)) * cellSize;
-	float cy = int(params.posY / cellSize + 0.5 * sign(params.posY)) * cellSize;
-	float cz = int(params.posZ / cellSize + 0.5 * sign(params.posZ)) * cellSize;
-	vec3 centreSnapped = vec3(cx, cy, cz);
+    vec3 grad;
 
-	vec3 posNorm = coord / vec3(params.numVoxelsPerAxis) - vec3(0.5);
-	vec3 worldPos = posNorm * params.scale + centreSnapped;
-	vec3 noiseOffset = vec3(params.noiseOffsetX, params.noiseOffsetY, params.noiseOffsetZ);
-	vec3 samplePos = (worldPos + noiseOffset) * params.noiseScale / params.scale;
+    vec3 chunkPos = vec3(params.posX, params.posY, params.posZ);
+    vec3 noiseOffset = vec3(params.noiseOffsetX, params.noiseOffsetY, params.noiseOffsetZ);
+
+
+    // float worldVoxelSize = params.scale / params.numVoxelsPerAxis;
+    vec3 percentPos = (coord / vec3(params.numVoxelsPerAxis)) - vec3(0.5); // 0 - 1 position relative to chunk
+    // vec3 worldPos = (percentPos * params.scale) + chunkPos;
+    // vec3 samplePos = ((worldPos + noiseOffset) / params.scale) * params.noiseScale;
+    vec3 worldPos = (percentPos * params.scale);
+    vec3 samplePos = (percentPos + (chunkPos / params.scale)) * params.noiseScale + noiseOffset;
+	// float cellSize = 1.0 / params.numVoxelsPerAxis * params.scale;
+	// float cx = int(params.posX / cellSize + 0.5 * sign(params.posX)) * cellSize;
+	// float cy = int(params.posY / cellSize + 0.5 * sign(params.posY)) * cellSize;
+	// float cz = int(params.posZ / cellSize + 0.5 * sign(params.posZ)) * cellSize;
+// 	vec3 centreSnapped = vec3(params.posX, params.posY, params.posZ);// / params.scale;//vec3(cx, cy, cz);
+
+// 	vec3 posNorm = (coord / vec3(params.numVoxelsPerAxis)) - vec3(0.5); // This is basically from -1 to 1 where this pos is
+
+//     // vec3 worldPos = (posNorm * params.scale) + centreSnapped;
+    
+// 	vec3 noiseOffset = vec3(params.noiseOffsetX, params.noiseOffsetY, params.noiseOffsetZ); // World space noise offset
+// 	// vec3 samplePos = (worldPos + noiseOffset) * params.noiseScale / params.scale; // Add the offset, then scale to sample space
+//    // / params.scale;
+//     vec3 worldPos = (posNorm * params.scale) + centreSnapped;
+//     vec3 samplePos = (worldPos + noiseOffset)* params.noiseScale / params.scale;
+
 
 	float sum = 0;
 	float amplitude = 1;
@@ -167,7 +254,7 @@ vec4 evaluate(vec3 coord)
 	
 	for (int i = 0; i < 6; i ++)
 	{
-		float noise = snoise(samplePos) * 2 - 1;
+		float noise = psrdnoise(samplePos, vec3(0.0), 0.0, grad) * 2 - 1;
 		noise = 1 - abs(noise);
 		noise *= noise;
 		noise *= weight;
@@ -177,8 +264,9 @@ vec4 evaluate(vec3 coord)
 		amplitude *= 0.5;
 	}
 	float density = sum;
-	density = -(worldPos.y+100)/300 + density;
+	density = -worldPos.y - density;//-(worldPos.y+100)/300 + density;
 
+    // return vec4(worldPos, sin(worldPos.x));//psrdnoise(coord, vec3(0.0), 0.0, grad));
 	return vec4(worldPos, density);
 }
 
@@ -188,6 +276,19 @@ vec4 interpolateVerts(vec4 v1, vec4 v2, float isoLevel)
 	float t = (isoLevel - v1.w) / (v2.w - v1.w);
 	return v1 + t * (v2 - v1);
 }
+
+// int indexFromCoord(vec4 coord) {
+//     float numVoxelsPerAxis = params.numVoxelsPerAxis;
+// 	coord = coord - vec4(params.posX, params.posY, params.posZ, 0);
+// 	return int((coord.z * numVoxelsPerAxis * numVoxelsPerAxis) + (coord.y * numVoxelsPerAxis) + coord.x);
+// }
+
+// int getDoubleID(vec4 coordA, vec4 coordB){
+//     int voxCount = int(round(params.numVoxelsPerAxis));
+//     int indexA = indexFromCoord(coordA);
+//     int indexB = indexFromCoord(coordB);
+//     return (indexA) + ((voxCount * voxCount * voxCount) * indexA);
+// }
 
 
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;

@@ -1,19 +1,20 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Game.Terrain;
 using Godot;
-using Godot.Collections;
 
 public partial class TerrainGenerator : Node3D
 {
-    float noiseScale = 2.0f;
-    Vector3 noiseOffset = new(0.0f, 0f, 0f);
+    float noiseScale = 0.4f;
+    Vector3 noiseOffset = new(2.0f, 0f, 0f);
     float isoLevel = 1.00f;
-    float chunkScale = 1000;
+    float chunkScale = 10;
     Vector3 playerPos = new(0, 0, 0);
 
-    const int TERRAIN_RESOLUTION = 8;
+    const int TERRAIN_RESOLUTION = 4;
     const int NUM_WAITFRAMES_GPUSYNC = 12;
     const int NUM_WAITFRAMES_MESHTHREAD = 90;
 
@@ -50,8 +51,11 @@ public partial class TerrainGenerator : Node3D
     // Terrain mesh for testing
     MeshInstance3D testInstance;
     ArrayMesh terrainMesh = new();
-    Vector3[] verts = System.Array.Empty<Vector3>();
-    Vector3[] normals = System.Array.Empty<Vector3>();
+
+    Dictionary<(int, int, int), int> existingVertexIDs = new();
+    List<Vector3> verts = new();
+    List<Vector3> normals = new();
+    int[] indices = { };
 
     // Measure state I guess
     float time = 0;
@@ -62,15 +66,30 @@ public partial class TerrainGenerator : Node3D
     bool waitingForMeshthread;
 
     Task meshProcess;
+    Task newTask;
+
+    CollisionShape3D testShape;
+    Stopwatch stopwatch;
+
+    [Export]
+    Material terrainMat;
+
+    readonly StringName CollisionGenMethodName = new(nameof(GenerateCollisionShape));
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        Stopwatch stopwatch = Stopwatch.StartNew();
+        playerPos = Position;
+        // return;
+        stopwatch = Stopwatch.StartNew();
 
         // Make one child node and assign it the mesh
         testInstance = new MeshInstance3D { Name = "ChunkOne" };
+        var testBody = new StaticBody3D();
+        testShape = new CollisionShape3D();
         AddChild(testInstance);
+        testInstance.AddChild(testBody);
+        testBody.AddChild(testShape);
 
         testInstance.Mesh = terrainMesh;
 
@@ -79,16 +98,19 @@ public partial class TerrainGenerator : Node3D
         InitializeCompute();
         long initCompute = stopwatch.ElapsedMilliseconds;
         stopwatch.Restart();
-        RunNewCompute();
+        var runComp = Task.Run(RunNewCompute);
         long runCompute = stopwatch.ElapsedMilliseconds;
+        runComp.Wait();
         stopwatch.Restart();
         FetchAndProcessCompute();
         long fetchProcessCompute = stopwatch.ElapsedMilliseconds;
         stopwatch.Restart();
         CreateMesh();
         long createdMesh = stopwatch.ElapsedMilliseconds;
+        // waitMesh.Wait();
+        terrainMesh.SurfaceSetMaterial(0, terrainMat);
         stopwatch.Restart();
-        testInstance.CreateTrimeshCollision();
+        // CallDeferredThreadGroup(CollisionGenMethodName);
         long createdCollision = stopwatch.ElapsedMilliseconds;
         stopwatch.Stop();
 
@@ -97,8 +119,14 @@ public partial class TerrainGenerator : Node3D
         GD.Print(initCompute);
         GD.Print(runCompute);
         GD.Print(fetchProcessCompute);
+        // GD.Print(processMeshData);
         GD.Print(createdMesh);
         GD.Print(createdCollision);
+    }
+
+    void GenerateCollisionShape()
+    {
+        testShape.Shape = testInstance.Mesh.CreateTrimeshShape();
     }
 
     void InitializeCompute()
@@ -112,7 +140,7 @@ public partial class TerrainGenerator : Node3D
         const int MAX_TRIANGLES_PER_VOXEL = 5;
         int MAX_TRIANGLES = MAX_TRIANGLES_PER_VOXEL * (int)Math.Pow(NUM_VOXELS_PER_AXIS, 3);
         const int BYTES_PER_FLOAT = sizeof(float);
-        const int FLOATS_PER_TRI = 4 * 3;
+        const int FLOATS_PER_TRI = 4 * 4; //3; changed to 4 * 4 because it's 4 vec4s. Each vec4 has 4 floats.
         const int BYTES_PER_TRI = FLOATS_PER_TRI * BYTES_PER_FLOAT;
         uint MAX_BYTES = (uint)(BYTES_PER_TRI * MAX_TRIANGLES);
         GD.Print("MAX_BYTES ", MAX_BYTES);
@@ -158,7 +186,13 @@ public partial class TerrainGenerator : Node3D
         );
 
         bufferSet = renderDevice.UniformSetCreate(
-            new Array<RDUniform> { trianglesUniform, paramsUniform, counterUniform, lutUniform },
+            new Godot.Collections.Array<RDUniform>
+            {
+                trianglesUniform,
+                paramsUniform,
+                counterUniform,
+                lutUniform
+            },
             shader,
             BUFFER_SET_INDEX
         );
@@ -190,7 +224,7 @@ public partial class TerrainGenerator : Node3D
             // IT DIDNT EVEN SHOW ANY ERROR AAAAAAAAAAAAAAAAAAAAAAAAAAAA
             // I guess at least I learned more about compoop shaders :(
 
-            NUM_VOXELS_PER_AXIS,
+            (float)NUM_VOXELS_PER_AXIS,
             chunkScale,
             playerPos.X,
             playerPos.Y,
@@ -236,6 +270,7 @@ public partial class TerrainGenerator : Node3D
 
         // Submit the stuff (whatever that means)
         renderDevice.Submit();
+
         lastComputeDispatch = frameCount;
         waitingForCompute = true;
     }
@@ -244,10 +279,11 @@ public partial class TerrainGenerator : Node3D
     {
         renderDevice.Sync();
         waitingForCompute = false;
-
         triangleDataBytes = renderDevice.BufferGetData(triangleBuffer);
+
         counterDataBytes = renderDevice.BufferGetData(counterBuffer);
 
+        // newTask.Wait();
         // Start up our mesh processing task
         meshProcess = Task.Run(ProcessMeshData);
         waitingForMeshthread = true;
@@ -256,47 +292,157 @@ public partial class TerrainGenerator : Node3D
 
     void ProcessMeshData()
     {
-        var triangles = new float[triangleDataBytes.Length / sizeof(float)];
-        Buffer.BlockCopy(triangleDataBytes, 0, triangles, 0, triangleDataBytes.Length);
-
-        var counterFloatArr = new uint[counterDataBytes.Length / sizeof(uint)];
-        Buffer.BlockCopy(counterDataBytes, 0, counterFloatArr, 0, counterDataBytes.Length);
+        // var triangles = new float[triangleDataBytes.Length / sizeof(float)];
+        // Buffer.BlockCopy(triangleDataBytes, 0, triangles, 0, triangleDataBytes.Length);
+        var triangles = MemoryMarshal.Cast<byte, float>(triangleDataBytes);
+        // var counterFloatArr = new uint[counterDataBytes.Length / sizeof(uint)];
+        // Buffer.BlockCopy(counterDataBytes, 0, counterFloatArr, 0, counterDataBytes.Length);
+        var counterFloatArr = MemoryMarshal.Cast<byte, uint>(counterDataBytes);
 
         numTriangles = (int)counterFloatArr[0];
-        var numVerts = numTriangles * 3;
 
-        verts = new Vector3[numVerts];
-        normals = new Vector3[numVerts];
+        // GD.Print("tris?? ", numTriangles);
+        // Span<uint> potato = MemoryMarshal.Cast<byte, uint>(counterDataBytes);
+        // GD.Print("spans?? ", (int)potato[0]);
+
+        var numIndices = numTriangles * 3;
+
+        // System.Array.Resize(ref verts, numVerts);
+        // System.Array.Resize(ref normals, numVerts);
+        // verts = new Vector3[numVerts];
+        // normals = new Vector3[numVerts];
+        existingVertexIDs.Clear();
+        verts.Clear();
+        normals.Clear();
+        indices = new int[numIndices];
 
         for (int triIndex = 0; triIndex < numTriangles; triIndex++)
         {
             var i = triIndex * 16;
-            var posA = new Vector3(triangles[i + 0], triangles[i + 1], triangles[i + 2]);
-            var posB = new Vector3(triangles[i + 4], triangles[i + 5], triangles[i + 6]);
-            var posC = new Vector3(triangles[i + 8], triangles[i + 9], triangles[i + 10]);
-            var norm = new Vector3(triangles[i + 12], triangles[i + 13], triangles[i + 14]);
-            verts[(triIndex * 3) + 0] = posA;
-            verts[(triIndex * 3) + 1] = posB;
-            verts[(triIndex * 3) + 2] = posC;
-            normals[(triIndex * 3) + 0] = norm;
-            normals[(triIndex * 3) + 1] = norm;
-            normals[(triIndex * 3) + 2] = norm;
+
+            (int, int, int) aID = (
+                GetSnappedPos(triangles[i + 0]),
+                GetSnappedPos(triangles[i + 1]),
+                GetSnappedPos(triangles[i + 2])
+            );
+            (int, int, int) bID = (
+                GetSnappedPos(triangles[i + 4]),
+                GetSnappedPos(triangles[i + 5]),
+                GetSnappedPos(triangles[i + 6])
+            );
+            (int, int, int) cID = (
+                GetSnappedPos(triangles[i + 8]),
+                GetSnappedPos(triangles[i + 9]),
+                GetSnappedPos(triangles[i + 10])
+            );
+
+            int aIndex = GetVertexIndex(
+                triangles[i + 0],
+                triangles[i + 1],
+                triangles[i + 2],
+                aID,
+                triangles[i + 12],
+                triangles[i + 13],
+                triangles[i + 14]
+            );
+            int bIndex = GetVertexIndex(
+                triangles[i + 4],
+                triangles[i + 5],
+                triangles[i + 6],
+                bID,
+                triangles[i + 12],
+                triangles[i + 13],
+                triangles[i + 14]
+            );
+            int cIndex = GetVertexIndex(
+                triangles[i + 8],
+                triangles[i + 9],
+                triangles[i + 10],
+                cID,
+                triangles[i + 12],
+                triangles[i + 13],
+                triangles[i + 14]
+            );
+            indices[(triIndex * 3) + 0] = aIndex;
+            indices[(triIndex * 3) + 1] = bIndex;
+            indices[(triIndex * 3) + 2] = cIndex;
+
+            // var posA = new Vector3(triangles[i + 0], triangles[i + 1], triangles[i + 2]);
+            // var posB = new Vector3(triangles[i + 4], triangles[i + 5], triangles[i + 6]);
+            // var posC = new Vector3(triangles[i + 8], triangles[i + 9], triangles[i + 10]);
+            // var norm = new Vector3(triangles[i + 12], triangles[i + 13], triangles[i + 14]);
+            // verts[(triIndex * 3) + 0] = posA;
+            // verts[(triIndex * 3) + 1] = posB;
+            // verts[(triIndex * 3) + 2] = posC;
+            // normals[(triIndex * 3) + 0] = norm;
+            // normals[(triIndex * 3) + 1] = norm;
+            // normals[(triIndex * 3) + 2] = norm;
         }
+
+        // Apparently not needed??
+        // Ensure all normals are normal
+        // Parallel.For(
+        //     0,
+        //     normals.Count,
+        //     index =>
+        //     {
+        //         normals[index] = normals[index].Normalized();
+        //     }
+        // );
+    }
+
+    int GetSnappedPos(float input)
+    {
+        return (int)(MathF.Round(input, 3) * 1_000);
+    }
+
+    int GetVertexIndex(
+        float x,
+        float y,
+        float z,
+        (int, int, int) id,
+        float normX,
+        float normY,
+        float normZ
+    )
+    {
+        int index;
+
+        Vector3 normVec = new Vector3(normX, normY, normZ);
+
+        if (existingVertexIDs.ContainsKey(id))
+        {
+            index = existingVertexIDs[id];
+            normals[index] = normals[index] + normVec;
+        }
+        else
+        {
+            index = verts.Count;
+            existingVertexIDs[id] = index;
+            verts.Add(new Vector3(x, y, z));
+            normals.Add(normVec);
+        }
+
+        return index;
     }
 
     void CreateMesh()
     {
         meshProcess.Wait();
         waitingForMeshthread = false;
-        GD.Print("Num tris: ", numTriangles);
-        if (verts.Length > 0)
+        GD.Print("Num tris: ", numTriangles, " FPS: ", Engine.GetFramesPerSecond());
+        // GD.Print("Num verts: ", verts.Length);
+        if (verts.Count > 0)
         {
             var meshData = new Godot.Collections.Array();
             meshData.Resize((int)Mesh.ArrayType.Max);
-            meshData[(int)Mesh.ArrayType.Vertex] = verts;
-            meshData[(int)Mesh.ArrayType.Normal] = normals;
+            // GD.Print(indices);
+            meshData[(int)Mesh.ArrayType.Vertex] = verts.ToArray();
+            meshData[(int)Mesh.ArrayType.Normal] = normals.ToArray();
+            meshData[(int)Mesh.ArrayType.Index] = indices;
             terrainMesh.ClearSurfaces();
             terrainMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, meshData);
+            // terrainMesh.RegenNormalMaps();
         }
     }
 
@@ -329,18 +475,28 @@ public partial class TerrainGenerator : Node3D
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
-    // public override void _Process(double delta)
-    // {
-    //     if (waitingForCompute && (frameCount - lastComputeDispatch >= NUM_WAITFRAMES_GPUSYNC))
-    //         FetchAndProcessCompute();
-    //     else if (
-    //         waitingForMeshthread && (frameCount - lastMeshthreadStart >= NUM_WAITFRAMES_MESHTHREAD)
-    //     )
-    //         CreateMesh();
-    //     else if (!waitingForCompute && !waitingForMeshthread)
-    //         RunNewCompute();
+    public override void _Process(double delta)
+    {
+        // return;
+        // if (waitingForCompute && (frameCount - lastComputeDispatch >= NUM_WAITFRAMES_GPUSYNC))
+        // {
 
-    //     frameCount += 1;
-    //     time += (float)(delta);
-    // }
+        //     // waitingForCompute = false;
+        // }
+        // else if (
+        //     waitingForMeshthread && (frameCount - lastMeshthreadStart >= NUM_WAITFRAMES_MESHTHREAD)
+        // )
+        // {
+        //     CreateMesh();
+        //     // waitingForMeshthread = false;
+        // }
+        // else if (!waitingForCompute && !waitingForMeshthread)
+        // {
+        //     RunNewCompute();
+        // }
+        // FetchAndProcessCompute();
+
+        frameCount += 1;
+        time += (float)(delta);
+    }
 }
