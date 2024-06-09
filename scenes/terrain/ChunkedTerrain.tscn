@@ -1,0 +1,37 @@
+[gd_scene load_steps=6 format=3 uid="uid://ce4a07ov21gnq"]
+
+[ext_resource type="Script" path="res://scripts/terrain/ChunkManager.cs" id="1_8512h"]
+[ext_resource type="PackedScene" uid="uid://cemklg2tr1ud8" path="res://scenes/terrain/Chunk.tscn" id="2_v3kne"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_cs2r6"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_4th22"]
+sky_material = SubResource("ProceduralSkyMaterial_cs2r6")
+
+[sub_resource type="Environment" id="Environment_3bldx"]
+background_mode = 2
+background_canvas_max_layer = -100
+sky = SubResource("Sky_4th22")
+tonemap_mode = 2
+glow_bloom = 1.0
+volumetric_fog_density = 0.024
+
+[node name="ChunkedTerrain" type="Node3D"]
+
+[node name="ChunkManager" type="Node3D" parent="."]
+script = ExtResource("1_8512h")
+chunkTemplate = ExtResource("2_v3kne")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.948368, 0.317172, 0, -0.317172, 0.948368, 0, 4.92214, 8.98157)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_3bldx")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.712069, 0.12941, -0.69008, 0.656913, 0.224144, 0.719878, 0.247837, -0.965926, 0.0745951, 0, 9, 0)
+shadow_enabled = true

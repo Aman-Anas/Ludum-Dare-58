@@ -105,7 +105,7 @@ struct Triangle {
 	vec4 a; // 4 floats
 	vec4 b; // 4 floats
 	vec4 c; // 4 floats
-	vec4 norm; // 34 floats
+	vec4 norm; // 4 floats
 };
 
 // #------ Marching Cubes ------#

@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://cemklg2tr1ud8"]
+
+[ext_resource type="Script" path="res://scripts/terrain/Chunk.cs" id="1_nbiym"]
+[ext_resource type="Material" uid="uid://ceb20pogq2nfk" path="res://assets/materials/test_material_specular.tres" id="2_jkqj2"]
+
+[node name="Chunk" type="MeshInstance3D" node_paths=PackedStringArray("physicsBody", "collider")]
+script = ExtResource("1_nbiym")
+physicsBody = NodePath("StaticBody3D")
+collider = NodePath("StaticBody3D/CollisionShape3D")
+chunkMaterial = ExtResource("2_jkqj2")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
