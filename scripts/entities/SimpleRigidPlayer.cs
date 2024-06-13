@@ -165,7 +165,7 @@ public partial class SimpleRigidPlayer : RigidBody3D
         // Turn it into an euler and multiply by our gravity correction speed
         var gravityCorrectionVelo = rotationDifference.Normalized();
 
-        // Before assigning gravity correction, make it a local vector and add mouselook
+        // Before assigning gravity correction, add mouselook
         var newLocalAngVelo = gravityCorrectionVelo.GetEuler() * GRAVITY_CORRECTION_SPEED;
 
         // Get the rotation difference for our head

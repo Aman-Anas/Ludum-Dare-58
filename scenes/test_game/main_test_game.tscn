@@ -1,11 +1,12 @@
 [gd_scene load_steps=16 format=3 uid="uid://c528dv4slqbn7"]
 
 [ext_resource type="Material" uid="uid://dour81aelbrs3" path="res://assets/materials/test_material.tres" id="1_yyfb3"]
-[ext_resource type="Texture2D" uid="uid://c1k2huj8tg6ak" path="res://addons/kenney_prototype_textures/green/texture_09.png" id="2_d63xp"]
+[ext_resource type="Material" uid="uid://cs3ge67ertec7" path="res://assets/materials/test_transparent_fade_inverted.tres" id="2_icsnt"]
 [ext_resource type="PackedScene" uid="uid://5tfng4tp7c4" path="res://scenes/test_game/player.tscn" id="4_pc65c"]
 [ext_resource type="PackedScene" uid="uid://be68kkhnkgb6u" path="res://scenes/main_menu/Pause.tscn" id="4_tod67"]
 [ext_resource type="Script" path="res://utility/Node/LocalGravityArea.cs" id="4_x4bi2"]
 [ext_resource type="Texture2D" uid="uid://c6yiplbg4g5yr" path="res://addons/kenney_prototype_textures/light/texture_07.png" id="5_b517f"]
+[ext_resource type="PackedScene" uid="uid://crf33aqia24q7" path="res://scenes/test_game/test_ball.tscn" id="7_gwbvi"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_k0nhx"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -23,18 +24,6 @@ ssil_enabled = true
 glow_enabled = true
 glow_bloom = 1.0
 volumetric_fog_density = 0.024
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0ewdp"]
-cull_mode = 2
-albedo_color = Color(1, 1, 1, 0.184314)
-albedo_texture = ExtResource("2_d63xp")
-roughness = 0.45
-refraction_scale = 0.2
-uv1_triplanar = true
-uv1_world_triplanar = true
-grow_amount = -1.333
-distance_fade_mode = 1
-distance_fade_max_distance = 3.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lltu2"]
 albedo_texture = ExtResource("5_b517f")
@@ -228,12 +217,12 @@ size = Vector3(1, 0.7, 1)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.6077, -1.19248, -7.67205)
 operation = 2
 size = Vector3(3.86652, 2.26515, 4.82773)
-material = SubResource("StandardMaterial3D_0ewdp")
+material = ExtResource("2_icsnt")
 
 [node name="Water" type="CSGBox3D" parent="TestLevel"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.5775, -0.0617128, -7.67768)
-material_override = SubResource("StandardMaterial3D_0ewdp")
-size = Vector3(3.77992, 0.104688, 4.78819)
+material_override = ExtResource("2_icsnt")
+size = Vector3(3.77992, 0.104688, 4.9209)
 
 [node name="CSGSphere3D" type="CSGSphere3D" parent="TestLevel"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.1686, 1.511, -9.70835)
@@ -301,3 +290,11 @@ shape = SubResource("BoxShape3D_hjowt")
 
 [node name="Player" parent="." instance=ExtResource("4_pc65c")]
 transform = Transform3D(0.384086, 0, 0.923297, 0, 1, 0, -0.923297, 0, 0.384086, 12.9, 0.1, -4.4)
+
+[node name="TestBall2" parent="." instance=ExtResource("7_gwbvi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 125.095, 1.84353)
+
+[node name="TestBall3" parent="." instance=ExtResource("7_gwbvi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 125.095, 1.84353)
+
+[node name="TestBall" parent="." instance=ExtResource("7_gwbvi")]

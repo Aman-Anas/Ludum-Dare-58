@@ -1,3 +1,5 @@
+namespace Game.Terrain;
+
 using System.Runtime.InteropServices;
 
 public static class ChunkData

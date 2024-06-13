@@ -1,10 +1,11 @@
+namespace Game.Terrain;
+
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Game.Terrain;
 using Godot;
-using static ChunkData;
+using static Game.Terrain.ChunkData;
 
 // Class to handle generating, loading/unloading chunks
 public partial class ChunkManager : Node3D
@@ -22,7 +23,7 @@ public partial class ChunkManager : Node3D
     readonly Dictionary<ChunkID, byte[]> knownChunkMods = new();
 
     // This is the task tracking the currently processing chunk
-    Task currentChunkCompute;
+    bool currentlyComputing;
 
     // Index of the bufferset for the shader
     const int BUFFER_SET_INDEX = 0;
@@ -66,7 +67,7 @@ public partial class ChunkManager : Node3D
         // eeesh this is a lot of bytes
 
         // Make our storage buffers (this one for triangles)
-        this.triangleBuffer = InitStorageBuffer(
+        triangleBuffer = InitStorageBuffer(
             out var trianglesUniform,
             MAX_BYTES_TRIS,
             TRIANGLE_BIND_INDEX
@@ -112,7 +113,7 @@ public partial class ChunkManager : Node3D
 
         modBuffer = InitStorageBuffer(
             out var modUniform,
-            (uint)TerrainParams.MAX_MOD_POINTS,
+            (uint)TerrainParams.MAX_MOD_BYTES,
             MODDATA_BIND_INDEX
         );
 
@@ -136,7 +137,7 @@ public partial class ChunkManager : Node3D
     {
         ref var chunkParams = ref MemoryMarshal.AsRef<ChunkParameters>(chunkParamBytes);
         chunkParams.noiseScale = 1.0f;
-        chunkParams.isoLevel = 1.00f;
+        chunkParams.isoLevel = 0.00f;
         chunkParams.numVoxelsPerAxis = TerrainParams.NUM_VOXELS_PER_AXIS;
         chunkParams.chunkScale = TerrainParams.CHUNK_SIZE;
         chunkParams.chunkX = cID.posX;
@@ -192,22 +193,18 @@ public partial class ChunkManager : Node3D
 
     void ReloadChunk(ChunkID chunkID)
     {
+        currentlyComputing = true;
         // If this chunk is already loaded, reload it
         // Otherwise grab a new one and move it where it needs to go
-        Chunk chunkToLoad;
-        if (loadedChunks.ContainsKey(chunkID))
-        {
-            chunkToLoad = loadedChunks[chunkID];
-        }
-        else
+        if (!loadedChunks.TryGetValue(chunkID, out Chunk chunkToLoad))
         {
             chunkToLoad = GetNewChunk();
             chunkToLoad.Position =
                 new Vector3(chunkID.posX, chunkID.posY, chunkID.posZ) * TerrainParams.CHUNK_SIZE;
+            loadedChunks[chunkID] = chunkToLoad;
         }
 
-        loadedChunks.Add(chunkID, chunkToLoad);
-        currentChunkCompute = Task.Run(() => ComputeChunk(chunkID, chunkToLoad));
+        var _ = Task.Run(() => ComputeChunk(chunkID, chunkToLoad));
     }
 
     // This method should run in a Task
@@ -256,6 +253,7 @@ public partial class ChunkManager : Node3D
 
         // Chuck the data over to the new chunk and let it finish processing
         c.ProcessChunk(triangles, count);
+        currentlyComputing = false;
     }
 
     Chunk GetNewChunk()
@@ -301,11 +299,11 @@ public partial class ChunkManager : Node3D
                 posZ = 0
             }
         );
-        for (int x = -10; x <= 10; x++)
+        for (int x = -2; x <= 2; x++)
         {
-            for (int z = -10; z <= 10; z++)
+            for (int z = -2; z <= 2; z++)
             {
-                for (int y = 0; y <= 2; y++)
+                for (int y = -2; y <= 2; y++)
                 {
                     QueueChunk(
                         new ChunkID
@@ -320,24 +318,59 @@ public partial class ChunkManager : Node3D
         }
     }
 
-    // Called every frame. 'delta' is the elapsed time since the previous frame.
-    public override void _Process(double delta)
+    public override void _PhysicsProcess(double delta)
     {
         // We want to process *at most* one chunk per frame
         // to avoid lag. This can be adjusted maybe
         if (chunksToReload.Count > 0)
         {
             // Make sure there isn't a current chunk computing
-            // Null is neither true or false in C#
-            // So this'll trigger if the field is null or completed
-            if (currentChunkCompute?.IsCompleted != false)
+            if (!currentlyComputing)
             {
                 // Thread.Sleep(500); // uncomment for SUPER lag :D (maybe useful for debug)
                 ReloadNextChunk();
             }
         }
+    }
+
+    // Called every frame. 'delta' is the elapsed time since the previous frame.
+    public override void _Process(double delta)
+    {
+        // We want to process *at most* one chunk per frame
+        // to avoid lag. This can be adjusted maybe
+        // if (chunksToReload.Count > 0)
+        // {
+        //     // Make sure there isn't a current chunk computing
+        //     if (!currentlyComputing)
+        //     {
+        //         // Thread.Sleep(500); // uncomment for SUPER lag :D (maybe useful for debug)
+        //         ReloadNextChunk();
+        //     }
+        // }
 
         // TODO: Add some code here to flag farther chunks
         // as free to unload
+    }
+
+    public override void _Notification(int what)
+    {
+        if (what == NotificationPredelete)
+        {
+            ReleaseData();
+        }
+    }
+
+    // I don't know if this is necessary, but it does say to free RIDs
+    // when you're done with them in the docs.
+    private void ReleaseData()
+    {
+        renderDevice.FreeRid(pipeline);
+        renderDevice.FreeRid(triangleBuffer);
+        renderDevice.FreeRid(paramsBuffer);
+        renderDevice.FreeRid(counterBuffer);
+        renderDevice.FreeRid(lutBuffer);
+        renderDevice.FreeRid(shader);
+        renderDevice.Free();
+        renderDevice = null;
     }
 }

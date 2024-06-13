@@ -1,7 +1,10 @@
+namespace Game.Terrain;
+
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Godot;
-using static ChunkData;
+using static Game.Terrain.ChunkData;
 
 public partial class Chunk : MeshInstance3D
 {
@@ -26,7 +29,8 @@ public partial class Chunk : MeshInstance3D
     // For the Godot surface array
     readonly List<Vector3> verts = new();
     readonly List<Vector3> normals = new();
-    int[] indices;
+    int[] indices = Array.Empty<int>();
+    int numIndices;
 
     public void ProcessChunk(Span<Triangle> triangles, uint count)
     {
@@ -39,11 +43,16 @@ public partial class Chunk : MeshInstance3D
 
     void ProcessMeshData(Span<Triangle> triangles, uint count)
     {
-        var numIndices = count * 3;
+        numIndices = (int)(count * 3);
         existingVertexIDs.Clear();
         verts.Clear();
         normals.Clear();
-        indices = new int[numIndices];
+
+        if (numIndices > indices.Length)
+        {
+            Array.Resize(ref indices, numIndices);
+        }
+
         for (int triIndex = 0; triIndex < count; triIndex++)
         {
             var currentTri = triangles[triIndex];
@@ -60,15 +69,17 @@ public partial class Chunk : MeshInstance3D
     {
         if (verts.Count > 0)
         {
+            // TODO: Test that using AsSpan doesn't cause issues if I re-use a chunk
+            // later... hopefully not
             meshData.Resize((int)Mesh.ArrayType.Max);
-            meshData[(int)Mesh.ArrayType.Vertex] = verts.ToArray();
-            meshData[(int)Mesh.ArrayType.Normal] = normals.ToArray();
-            meshData[(int)Mesh.ArrayType.Index] = indices;
+            meshData[(int)Mesh.ArrayType.Vertex] = CollectionsMarshal.AsSpan(verts);
+            meshData[(int)Mesh.ArrayType.Normal] = CollectionsMarshal.AsSpan(normals);
+            meshData[(int)Mesh.ArrayType.Index] = indices.AsSpan(0, numIndices);
             chunkMesh.ClearSurfaces();
         }
     }
 
-    (int, int, int) GetVertexID(Vertex v)
+    static (int, int, int) GetVertexID(Vertex v)
     {
         return (
             (int)(MathF.Round(v.posX, 3) * 1_000),
@@ -79,18 +90,11 @@ public partial class Chunk : MeshInstance3D
 
     int GetVertexIndex(Vertex v)
     {
-        int index;
         (int, int, int) id = GetVertexID(v);
 
-        if (existingVertexIDs.ContainsKey(id))
+        if (!existingVertexIDs.TryGetValue(id, out int index))
         {
-            // If this vertex already is known, we'll just grab its index
-            index = existingVertexIDs[id];
-        }
-        else
-        {
-            // Otherwise, we'll add it and its normals to our data.
-
+            // If it doesn't exist yet, add it
             index = verts.Count;
             existingVertexIDs[id] = index;
             verts.Add(new Vector3(v.posX, v.posY, v.posZ));
@@ -111,6 +115,7 @@ public partial class Chunk : MeshInstance3D
         }
         chunkMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, meshData);
         collider.Shape = chunkMesh.CreateTrimeshShape();
+        // collider
         chunkMesh.SurfaceSetMaterial(0, chunkMaterial);
     }
 

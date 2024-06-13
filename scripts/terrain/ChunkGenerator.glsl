@@ -141,6 +141,17 @@ layout(set = 0, binding = 4, std430) restrict buffer ModBuffer
 	int data[];
 } modData;
 
+float sdBox( vec3 p, vec3 b )
+{
+  vec3 q = abs(p) - b;
+  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+}
+
+float sdSphere( vec3 p, float s )
+{
+  return length(p)-s;
+}
+
 vec4 evaluate(ivec3 coord)
 {   
     vec3 grad;
@@ -158,25 +169,45 @@ vec4 evaluate(ivec3 coord)
 	float sum = 0;
 	float amplitude = 1;
 	float weight = 1;
-	
-	for (int i = 0; i < 6; i ++)//6
+  
+    vec3 fbmSample = samplePos;
+
+	for (int i = 0; i < 3; i ++)//6
 	{
-		float noise = psrdnoise(samplePos, vec3(0.0), 0.0, grad) * 2 - 1;
-		noise = 1 - abs(noise);
-		noise *= noise;
+		float noise = psrdnoise(fbmSample, vec3(0.0), 0.0, grad);// * 2 - 1;
+		//noise = 1 - abs(noise);
+		// noise *= noise;
 		noise *= weight;
 		weight = max(0, min(1, noise * 10));
 		sum += noise * amplitude;
-		samplePos *= 2;
+		fbmSample *= 2;
 		amplitude *= 0.5;
 	}
-	float density = sum;
+	float density = clamp(sum, 0.0, 1.0);
+    
+    density = sdSphere(samplePos, 2) + density;
 
+
+    // float sphere = clamp(-sdSphere(samplePos, 1), -2.0, 1.0);
+    // density = -density;
+    // density = density + 0.1 * min((length(trueWorldPos)-1), 1);
+    // density = (density + 1)/2;
+    // density = sphere;// / 2;//, 0.0, 1.0);
+    // density = (density*2)-1;
+    // density = -samplePos.y;// - density;
+    // float posSum = (sum + 1.0); // Sum from 0 to 1
+    // float dist = clamp(length(samplePos), 0, 1);
+    // density -= (dist*dist*dist * posSum);
+    // density += sphere;
+    // density =  clamp(-distanceFromSphere, -1.0, 1.0) - tunnels;
+    // density = density;
+    // density += -distanceFromOrigin/10;
+    // density = -sdBox(trueWorldPos, vec3(4, 3, 4));
     // density = (-trueWorldPos.y * density) - density;
 	// density = -(worldPos.y+100)/300 + density;
-    density = -trueWorldPos.y - density;
+    // density = (-trueWorldPos.y / 100) - density*2;
     // density = 1 / length(trueWorldPos); // funny smol sphere
-
+    // density = 0.1 + length(trueWorldPos);// - density;;
 	return vec4(chunkWorldPos, density);
 }
 
@@ -194,7 +225,7 @@ vec3 calculateNormal(ivec3 coord) {
 	float dy = evaluate(coord + offsetY).w - evaluate(coord - offsetY).w;
 	float dz = evaluate(coord + offsetZ).w - evaluate(coord - offsetZ).w;
 
-	return -normalize(vec3(dx, dy, dz));
+	return normalize(vec3(dx, dy, dz));
 }
 
 Vertex generateVertex(ivec3 localPosA, ivec3 localPosB, float isoLevel)
@@ -205,7 +236,7 @@ Vertex generateVertex(ivec3 localPosA, ivec3 localPosB, float isoLevel)
     vec4 v2 = evaluate(localPosB);
 
 	float t = (isoLevel - v1.w) / (v2.w - v1.w);
-    //vec3 position =  (v1 + v2) * 0.5; // blocky version
+    // vec4 position =  (v1 + v2) * 0.5; // blocky version
 	vec4 position = v1 + t * (v2 - v1);
 
     vec3 normalA = calculateNormal(localPosA);
@@ -222,8 +253,8 @@ Vertex generateVertex(ivec3 localPosA, ivec3 localPosB, float isoLevel)
     return v;
 }
 
-
-layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
+// 8, 8, 8 was original
+layout(local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
 void main()
 {
 	vec3 id = gl_GlobalInvocationID;
@@ -278,9 +309,9 @@ void main()
 		
 		// Calculate vertex positions
 		Triangle currTri;
-		currTri.a = generateVertex(cubeCorners[a0], cubeCorners[b0], isoLevel);
+		currTri.c = generateVertex(cubeCorners[a0], cubeCorners[b0], isoLevel);
 		currTri.b = generateVertex(cubeCorners[a1], cubeCorners[b1], isoLevel);
-		currTri.c = generateVertex(cubeCorners[a2], cubeCorners[b2], isoLevel);
+		currTri.a = generateVertex(cubeCorners[a2], cubeCorners[b2], isoLevel);
 
 		// vec3 ab = currTri.b.xyz - currTri.a.xyz;
 		// vec3 ac = currTri.c.xyz - currTri.a.xyz;
