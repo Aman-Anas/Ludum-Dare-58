@@ -3,7 +3,7 @@ namespace Game.Terrain;
 public static class MarchingCubesLUT
 {
     public static readonly int[] LUT_ARRAY =
-    {
+    [
         0,
         8,
         3,
@@ -2464,5 +2464,5 @@ public static class MarchingCubesLUT
         0,
         3,
         8
-    };
+    ];
 }

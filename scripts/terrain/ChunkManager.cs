@@ -2,6 +2,7 @@ namespace Game.Terrain;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Godot;
@@ -13,16 +14,21 @@ public partial class ChunkManager : Node3D
     [Export]
     PackedScene chunkTemplate;
 
+    [Export]
+    Node3D player;
+
     // Manage the current chunks
-    readonly Dictionary<ChunkID, Chunk> loadedChunks = new();
+    readonly Dictionary<ChunkID, Chunk> loadedChunks = [];
     readonly Queue<ChunkID> chunksToReload = new(); // If it doesn't exist, load it, otherwise reload
+    readonly HashSet<ChunkID> queuedChunkIDs = [];
+
     readonly Queue<Chunk> freeChunks = new(); // For object pooling
 
     // Chunk generation
     // We'll have to clear this after some limit and on area changes
-    readonly Dictionary<ChunkID, byte[]> knownChunkMods = new();
+    readonly Dictionary<ChunkID, byte[]> knownChunkMods = [];
 
-    // This is the task tracking the currently processing chunk
+    // This is the task tracking whether we already are processing a chunk
     bool currentlyComputing;
 
     // Index of the bufferset for the shader
@@ -118,14 +124,7 @@ public partial class ChunkManager : Node3D
         );
 
         bufferSet = renderDevice.UniformSetCreate(
-            new Godot.Collections.Array<RDUniform>
-            {
-                trianglesUniform,
-                paramsUniform,
-                counterUniform,
-                lutUniform,
-                modUniform
-            },
+            [trianglesUniform, paramsUniform, counterUniform, lutUniform, modUniform],
             shader,
             BUFFER_SET_INDEX
         );
@@ -173,6 +172,7 @@ public partial class ChunkManager : Node3D
     public void QueueChunk(ChunkID chunkID)
     {
         chunksToReload.Enqueue(chunkID);
+        queuedChunkIDs.Add(chunkID);
     }
 
     // For when we receive some chunk mods from the server
@@ -181,17 +181,17 @@ public partial class ChunkManager : Node3D
         knownChunkMods[chunkID] = chunkMods;
         if (loadedChunks.ContainsKey(chunkID))
         {
-            chunksToReload.Enqueue(chunkID);
+            QueueChunk(chunkID);
         }
     }
 
     // Simple helper to start reloading the next chunk
     void ReloadNextChunk()
     {
-        ReloadChunk(chunksToReload.Dequeue());
+        var _ = ReloadChunk(chunksToReload.Dequeue());
     }
 
-    void ReloadChunk(ChunkID chunkID)
+    Task ReloadChunk(ChunkID chunkID)
     {
         currentlyComputing = true;
         // If this chunk is already loaded, reload it
@@ -204,7 +204,7 @@ public partial class ChunkManager : Node3D
             loadedChunks[chunkID] = chunkToLoad;
         }
 
-        var _ = Task.Run(() => ComputeChunk(chunkID, chunkToLoad));
+        return Task.Run(() => ComputeChunk(chunkID, chunkToLoad));
     }
 
     // This method should run in a Task
@@ -254,6 +254,10 @@ public partial class ChunkManager : Node3D
         // Chuck the data over to the new chunk and let it finish processing
         c.ProcessChunk(triangles, count);
         currentlyComputing = false;
+
+        // It's fine if it returns false, that just means the chunkID
+        // was (re)loaded manually instead of being in the queue
+        queuedChunkIDs.Remove(cID);
     }
 
     Chunk GetNewChunk()
@@ -270,9 +274,8 @@ public partial class ChunkManager : Node3D
 
     void UnloadChunk(ChunkID cID)
     {
-        if (loadedChunks.ContainsKey(cID))
+        if (loadedChunks.Remove(cID, out var removedChunk))
         {
-            loadedChunks.Remove(cID, out var removedChunk);
             freeChunks.Enqueue(removedChunk);
         }
         // Otherwise can't unload it if it's not loaded :V
@@ -299,26 +302,77 @@ public partial class ChunkManager : Node3D
                 posZ = 0
             }
         );
-        for (int x = -2; x <= 2; x++)
+        // for (int x = -2; x <= 2; x++)
+        // {
+        //     for (int z = -2; z <= 2; z++)
+        //     {
+        //         for (int y = -2; y <= 2; y++)
+        //         {
+        //             QueueChunk(
+        //                 new ChunkID
+        //                 {
+        //                     posX = x,
+        //                     posY = y,
+        //                     posZ = z
+        //                 }
+        //             );
+        //         }
+        //     }
+        // }
+    }
+
+    public override void _PhysicsProcess(double delta)
+    {
+        var chunkSpacePos = player.Position / TerrainParams.CHUNK_SIZE;
+        var currentChunkID = new ChunkID
         {
-            for (int z = -2; z <= 2; z++)
+            posX = Mathf.RoundToInt(chunkSpacePos.X),
+            posY = Mathf.RoundToInt(chunkSpacePos.Y),
+            posZ = Mathf.RoundToInt(chunkSpacePos.Z),
+        };
+
+        if (!loadedChunks.ContainsKey(currentChunkID))
+        {
+            // wait for this chunk because we at least
+            // need the chunk the player is in to be loaded
+            ReloadChunk(currentChunkID).Wait();
+        }
+
+        // GD.Print("[");
+
+        // foreach (var chunk in loadedChunks.Keys)
+        // {
+        //     GD.Print(chunk.posX, ' ', chunk.posY, ' ', chunk.posZ, ", ");
+        // }
+        // GD.Print("]");
+
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
             {
-                for (int y = -2; y <= 2; y++)
+                for (int z = -1; z <= 1; z++)
                 {
-                    QueueChunk(
-                        new ChunkID
+                    ChunkID toQueue =
+                        new()
                         {
-                            posX = x,
-                            posY = y,
-                            posZ = z
-                        }
-                    );
+                            posX = x + currentChunkID.posX,
+                            posY = y + currentChunkID.posY,
+                            posZ = z + currentChunkID.posZ,
+                        };
+                    if ((!loadedChunks.ContainsKey(toQueue)) && (!queuedChunkIDs.Contains(toQueue)))
+                    {
+                        // Queue only if the chunk is not there and it's not already queued
+                        QueueChunk(toQueue);
+                        // GD.Print(chunkSpacePos);
+                        // GD.Print("Queueing ", toQueue.posX, " ", toQueue.posY, " ", toQueue.posZ);
+                    }
                 }
             }
         }
     }
 
-    public override void _PhysicsProcess(double delta)
+    // Called every frame. 'delta' is the elapsed time since the previous frame.
+    public override void _Process(double delta)
     {
         // We want to process *at most* one chunk per frame
         // to avoid lag. This can be adjusted maybe
@@ -331,22 +385,6 @@ public partial class ChunkManager : Node3D
                 ReloadNextChunk();
             }
         }
-    }
-
-    // Called every frame. 'delta' is the elapsed time since the previous frame.
-    public override void _Process(double delta)
-    {
-        // We want to process *at most* one chunk per frame
-        // to avoid lag. This can be adjusted maybe
-        // if (chunksToReload.Count > 0)
-        // {
-        //     // Make sure there isn't a current chunk computing
-        //     if (!currentlyComputing)
-        //     {
-        //         // Thread.Sleep(500); // uncomment for SUPER lag :D (maybe useful for debug)
-        //         ReloadNextChunk();
-        //     }
-        // }
 
         // TODO: Add some code here to flag farther chunks
         // as free to unload

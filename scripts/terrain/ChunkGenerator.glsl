@@ -194,7 +194,7 @@ vec4 evaluate(ivec3 coord)
     // density = (density + 1)/2;
     // density = sphere;// / 2;//, 0.0, 1.0);
     // density = (density*2)-1;
-    // density = -samplePos.y;// - density;
+    // density = samplePos.y * density;
     // float posSum = (sum + 1.0); // Sum from 0 to 1
     // float dist = clamp(length(samplePos), 0, 1);
     // density -= (dist*dist*dist * posSum);
@@ -203,7 +203,7 @@ vec4 evaluate(ivec3 coord)
     // density = density;
     // density += -distanceFromOrigin/10;
     // density = -sdBox(trueWorldPos, vec3(4, 3, 4));
-    // density = (-trueWorldPos.y * density) - density;
+    // density = (-samplePos.y * density) + density;
 	// density = -(worldPos.y+100)/300 + density;
     // density = (-trueWorldPos.y / 100) - density*2;
     // density = 1 / length(trueWorldPos); // funny smol sphere

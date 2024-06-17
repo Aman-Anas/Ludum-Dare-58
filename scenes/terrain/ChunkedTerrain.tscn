@@ -30,9 +30,10 @@ radius = 30.0
 
 [node name="ChunkedTerrain" type="Node3D"]
 
-[node name="ChunkManager" type="Node3D" parent="."]
+[node name="ChunkManager" type="Node3D" parent="." node_paths=PackedStringArray("player")]
 script = ExtResource("1_8512h")
 chunkTemplate = ExtResource("2_v3kne")
+player = NodePath("../Player")
 
 [node name="CSGBox3D" type="CSGBox3D" parent="."]
 

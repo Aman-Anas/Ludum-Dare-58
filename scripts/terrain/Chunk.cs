@@ -21,15 +21,15 @@ public partial class Chunk : MeshInstance3D
 
     // Mesh data stuff
     ArrayMesh chunkMesh = new();
-    Godot.Collections.Array meshData = new();
+    Godot.Collections.Array meshData = [];
 
     // Maps vertex IDs to their index in the surface array
-    readonly Dictionary<(int, int, int), int> existingVertexIDs = new();
+    readonly Dictionary<(int, int, int), int> existingVertexIDs = [];
 
     // For the Godot surface array
-    readonly List<Vector3> verts = new();
-    readonly List<Vector3> normals = new();
-    int[] indices = Array.Empty<int>();
+    readonly List<Vector3> verts = [];
+    readonly List<Vector3> normals = [];
+    int[] indices = [];
     int numIndices;
 
     public void ProcessChunk(Span<Triangle> triangles, uint count)
