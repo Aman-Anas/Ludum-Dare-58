@@ -32,6 +32,8 @@ public partial class Chunk : MeshInstance3D
     int[] indices = [];
     int numIndices;
 
+    public ChunkID CurrentChunkID { get; set; }
+
     public void ProcessChunk(Span<Triangle> triangles, uint count)
     {
         ProcessMeshData(triangles, count);
@@ -104,6 +106,10 @@ public partial class Chunk : MeshInstance3D
         // triangles are constructed in parallel on the GPU so we can't
         // know how they fit together ahead of time
 
+        // An alternative to GetVertexID is to have a nice hashable ID for each voxel edge and
+        // include it in the GPU data per vertex, but that balloons the total amount of data
+        // coming from the GPU and GetVertexID() is simple and fast enough
+
         return index;
     }
 
@@ -115,7 +121,6 @@ public partial class Chunk : MeshInstance3D
         }
         chunkMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, meshData);
         collider.Shape = chunkMesh.CreateTrimeshShape();
-        // collider
         chunkMesh.SurfaceSetMaterial(0, chunkMaterial);
     }
 

@@ -1,7 +1,10 @@
 namespace Game.Terrain;
 
 using System.Runtime.InteropServices;
+using Godot;
 
+// If needed, refactor to non-public struct fields, only
+// set up that way for simplicity + testing
 public static class ChunkData
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -26,11 +29,30 @@ public static class ChunkData
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct ChunkID
+    public readonly struct ChunkID(int x, int y, int z)
     {
-        public int posX;
-        public int posY;
-        public int posZ;
+        public readonly int posX = x;
+        public readonly int posY = y;
+        public readonly int posZ = z;
+
+        // For debug
+        public override readonly string ToString()
+        {
+            return posX + " " + posY + " " + posZ;
+        }
+
+        public static ChunkID GetNearestID(Vector3 position)
+        {
+            // Put this global position into chunk space
+            position /= TerrainParams.CHUNK_SIZE;
+
+            // Snap it to the nearest chunk
+            return new(
+                Mathf.RoundToInt(position.X),
+                Mathf.RoundToInt(position.Y),
+                Mathf.RoundToInt(position.Z)
+            );
+        }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

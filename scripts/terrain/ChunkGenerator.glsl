@@ -123,7 +123,7 @@ layout(set = 0, binding = 1, std430) restrict buffer ParamsBuffer
 	float noiseOffsetX;
 	float noiseOffsetY;
 	float noiseOffsetZ;
-    int useMods; // negative if don't positive if do
+    int useMods; // 0 if don't, 1 if do
 } params; // Parameters for the chunk and generation
 
 layout(set = 0, binding = 2, std430) coherent buffer Counter
@@ -138,7 +138,7 @@ layout(set = 0, binding = 3, std430) restrict buffer LutBuffer
 
 layout(set = 0, binding = 4, std430) restrict buffer ModBuffer
 {
-	int data[];
+	float data[];
 } modData;
 
 float sdBox( vec3 p, vec3 b )
@@ -183,9 +183,17 @@ vec4 evaluate(ivec3 coord)
 		fbmSample *= 2;
 		amplitude *= 0.5;
 	}
-	float density = clamp(sum, 0.0, 1.0);
+	float density = clamp(sum, -1.0, 1.0); //clamp(sum, -1.0, 1.0);//
+    // density = sdSphere(samplePos, 2) + density;
+
+    density += (
+        params.useMods * modData.data[
+            (coord.z * params.numVoxelsPerAxis * params.numVoxelsPerAxis) 
+            + (coord.y * params.numVoxelsPerAxis)
+            + coord.x
+        ]
+    );
     
-    density = sdSphere(samplePos, 2) + density;
 
 
     // float sphere = clamp(-sdSphere(samplePos, 1), -2.0, 1.0);
