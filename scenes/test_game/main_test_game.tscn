@@ -1,24 +1,28 @@
-[gd_scene load_steps=16 format=3 uid="uid://c528dv4slqbn7"]
+[gd_scene load_steps=18 format=3 uid="uid://c528dv4slqbn7"]
 
+[ext_resource type="PackedScene" uid="uid://6j8jju0bod6n" path="res://scenes/test_game/world_background.tscn" id="1_bhp6h"]
 [ext_resource type="Material" uid="uid://dour81aelbrs3" path="res://assets/materials/test_material.tres" id="1_yyfb3"]
-[ext_resource type="Material" uid="uid://cs3ge67ertec7" path="res://assets/materials/test_transparent_fade_inverted.tres" id="2_icsnt"]
+[ext_resource type="Material" uid="uid://ddulokmr8s0l7" path="res://assets/materials/test_transparent_fade.tres" id="2_vmhml"]
 [ext_resource type="PackedScene" uid="uid://5tfng4tp7c4" path="res://scenes/test_game/player.tscn" id="4_pc65c"]
 [ext_resource type="PackedScene" uid="uid://be68kkhnkgb6u" path="res://scenes/main_menu/Pause.tscn" id="4_tod67"]
 [ext_resource type="Script" path="res://utility/Node/LocalGravityArea.cs" id="4_x4bi2"]
 [ext_resource type="Texture2D" uid="uid://c6yiplbg4g5yr" path="res://addons/kenney_prototype_textures/light/texture_07.png" id="5_b517f"]
 [ext_resource type="PackedScene" uid="uid://crf33aqia24q7" path="res://scenes/test_game/test_ball.tscn" id="7_gwbvi"]
+[ext_resource type="Material" uid="uid://c83mmu5mwg41i" path="res://scenes/test_game/background_view_material.tres" id="9_sylqv"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_k0nhx"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
 ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
 
-[sub_resource type="Sky" id="Sky_sbqvx"]
+[sub_resource type="Sky" id="Sky_8kvws"]
 sky_material = SubResource("ProceduralSkyMaterial_k0nhx")
 
 [sub_resource type="Environment" id="Environment_xgs2d"]
-background_mode = 2
+background_mode = 3
 background_canvas_max_layer = -100
-sky = SubResource("Sky_sbqvx")
+sky = SubResource("Sky_8kvws")
+ambient_light_source = 3
+reflected_light_source = 2
 tonemap_mode = 2
 ssil_enabled = true
 glow_enabled = true
@@ -48,6 +52,30 @@ emission_energy_multiplier = 7.77
 size = Vector3(0.917912, 9.98205, 2.91571)
 
 [node name="MainTestGame" type="Node3D"]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = -100
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="CanvasLayer"]
+process_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="CanvasLayer/SubViewportContainer"]
+process_mode = 1
+own_world_3d = true
+handle_input_locally = false
+physics_object_picking = true
+size = Vector2i(1152, 648)
+render_target_update_mode = 4
+
+[node name="TestBackground" parent="CanvasLayer/SubViewportContainer/SubViewport" node_paths=PackedStringArray("mainScene") instance=ExtResource("1_bhp6h")]
+mainScene = NodePath("../../../..")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_xgs2d")
@@ -217,11 +245,11 @@ size = Vector3(1, 0.7, 1)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.6077, -1.19248, -7.67205)
 operation = 2
 size = Vector3(3.86652, 2.26515, 4.82773)
-material = ExtResource("2_icsnt")
+material = ExtResource("2_vmhml")
 
 [node name="Water" type="CSGBox3D" parent="TestLevel"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.5775, -0.0617128, -7.67768)
-material_override = ExtResource("2_icsnt")
+material_override = ExtResource("2_vmhml")
 size = Vector3(3.77992, 0.104688, 4.9209)
 
 [node name="CSGSphere3D" type="CSGSphere3D" parent="TestLevel"]
@@ -298,3 +326,25 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 125.095, 1.84353)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 125.095, 1.84353)
 
 [node name="TestBall" parent="." instance=ExtResource("7_gwbvi")]
+
+[node name="Windoge" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.481134, 2, -22)
+use_collision = true
+size = Vector3(0.963269, 1, 1)
+material = ExtResource("9_sylqv")
+
+[node name="Windoge2" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.481134, 2, -12)
+use_collision = true
+size = Vector3(0.963269, 1, 1)
+material = ExtResource("9_sylqv")
+
+[node name="Windoge3" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.5189, 2, -12)
+use_collision = true
+size = Vector3(0.963269, 1, 1)
+material = ExtResource("9_sylqv")
+
+[node name="CSGSphere3D" type="CSGSphere3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.59547, 1.73429, -1.92402)
+material = ExtResource("9_sylqv")

@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://5tfng4tp7c4"]
+[gd_scene load_steps=7 format=3 uid="uid://5tfng4tp7c4"]
 
 [ext_resource type="PackedScene" uid="uid://c4j2ttclugxdy" path="res://assets/objects/player/player_hitbox.blend" id="1_kd8d6"]
 [ext_resource type="PackedScene" uid="uid://bcbqu4symo7ux" path="res://assets/objects/player/player_rig_default.blend" id="2_jjmcg"]
 [ext_resource type="Script" path="res://scripts/entities/SimpleRigidPlayer.cs" id="2_x2qyr"]
 [ext_resource type="Script" path="res://utility/Node/PhysicsSmoother.cs" id="4_8qcpq"]
+[ext_resource type="Script" path="res://scripts/entities/InteractionRay.cs" id="5_ptte0"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_lt2x0"]
 friction = 0.0
@@ -129,6 +130,10 @@ fov = 90.0
 
 [node name="HeadRemoteTransform" type="RemoteTransform3D" parent="CameraYawTarget/CameraPitchTarget" index="1"]
 remote_path = NodePath("../../../PhysicsSmoother/player_rig_default/PlayerHead")
+
+[node name="RayCast3D" type="RayCast3D" parent="CameraYawTarget/CameraPitchTarget" index="2"]
+target_position = Vector3(0, 0, 2000)
+script = ExtResource("5_ptte0")
 
 [node name="MouseLookRotationTarget" type="Node3D" parent="." index="5"]
 transform = Transform3D(1, -2.91323e-13, 2.38419e-07, 1.7053e-13, 1, 5.0664e-07, -2.38419e-07, -5.06639e-07, 1, 0, 0, 0)

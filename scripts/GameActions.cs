@@ -12,5 +12,8 @@ public static class GameActions
     public static readonly StringName PLAYER_ROLL_LEFT = new("player_roll_left");
     public static readonly StringName PLAYER_JUMP = new("player_jump");
 
+    public static readonly StringName PLAYER_PRIMARY_USE = new("player_primary_use");
+    public static readonly StringName PLAYER_SECONDARY_USE = new("player_secondary_use");
+
     public static readonly StringName PAUSE_GAME = new("pause_game");
 }

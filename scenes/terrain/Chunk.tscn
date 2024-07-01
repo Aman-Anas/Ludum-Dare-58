@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/terrain/Chunk.cs" id="1_nbiym"]
 [ext_resource type="Material" uid="uid://dour81aelbrs3" path="res://assets/materials/test_material.tres" id="2_doj3x"]
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_beka1"]
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_gqt8f"]
 
 [node name="Chunk" type="MeshInstance3D" node_paths=PackedStringArray("physicsBody", "collider")]
 process_mode = 4
@@ -17,4 +17,6 @@ process_mode = 1
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
 process_mode = 4
-shape = SubResource("CapsuleShape3D_beka1")
+shape = SubResource("ConcavePolygonShape3D_gqt8f")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]

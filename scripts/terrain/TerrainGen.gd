@@ -150,7 +150,7 @@ func run_compute():
 	waiting_for_compute = true
 
 func fetch_and_process_compute_data():
-	rendering_device.sync()
+	rendering_device. sync ()
 	waiting_for_compute = false
 	# Get output
 	triangle_data_bytes = rendering_device.buffer_get_data(triangle_buffer)

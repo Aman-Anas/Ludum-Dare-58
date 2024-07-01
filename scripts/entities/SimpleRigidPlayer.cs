@@ -2,6 +2,7 @@ using System.Linq;
 using Game;
 using Godot;
 
+[GlobalClass]
 public partial class SimpleRigidPlayer : RigidBody3D
 {
     public bool MovementEnabled { get; set; } = true;
@@ -12,15 +13,18 @@ public partial class SimpleRigidPlayer : RigidBody3D
     // Movement
     const float MOVEMENT_FORCE = 30;
     const float MAX_MOVEMENT_SPEED = 5;
-    Vector3 movementVec = new(0, 0, 0);
     const float AIR_MOVEMENT_MULTIPLIER = 0.1f;
     const float GRAVITY_CORRECTION_SPEED = 4.0f;
+    const bool DEV_MODE = true;
+
+    Vector3 movementVec = new(0, 0, 0);
 
     // Jumping
     readonly Vector3 JUMP_IMPULSE = new(0, 4.5f, 0);
+    readonly ulong MIN_JUMP_RESET_TIME = 1000; // ms
+
     bool justJumped;
     ulong timeJumped;
-    readonly ulong MIN_JUMP_RESET_TIME = 1000; // ms
 
     // Mouselook
     [Export]
@@ -145,6 +149,12 @@ public partial class SimpleRigidPlayer : RigidBody3D
         if ((!touchingFloor) || ((Time.GetTicksMsec() - timeJumped) > MIN_JUMP_RESET_TIME))
         {
             justJumped = false;
+        }
+
+        // Dev mode jetpack
+        if (DEV_MODE && Input.IsActionPressed(GameActions.PLAYER_JUMP))
+        {
+            state.ApplyCentralImpulse(GlobalBasis * Vector3.Up * 0.3f);
         }
 
         if (Input.IsActionPressed(GameActions.PLAYER_JUMP) && touchingFloor && !justJumped)

@@ -31,6 +31,7 @@ public partial class Chunk : MeshInstance3D
     readonly List<Vector3> normals = [];
     int[] indices = [];
     int numIndices;
+    const int INDICES_PER_TRI = 3;
 
     public ChunkID CurrentChunkID { get; set; }
 
@@ -45,31 +46,45 @@ public partial class Chunk : MeshInstance3D
 
     void ProcessMeshData(Span<Triangle> triangles, uint count)
     {
-        numIndices = (int)(count * 3);
+        numIndices = (int)(count * INDICES_PER_TRI);
         existingVertexIDs.Clear();
         verts.Clear();
         normals.Clear();
 
+        // GD.Print("count ", count);
         if (numIndices > indices.Length)
         {
             Array.Resize(ref indices, numIndices);
         }
 
+        int currentIndex = 0;
         for (int triIndex = 0; triIndex < count; triIndex++)
         {
             var currentTri = triangles[triIndex];
             int aIndex = GetVertexIndex(currentTri.vertexA);
             int bIndex = GetVertexIndex(currentTri.vertexB);
             int cIndex = GetVertexIndex(currentTri.vertexC);
-            indices[(triIndex * 3) + 0] = aIndex;
-            indices[(triIndex * 3) + 1] = bIndex;
-            indices[(triIndex * 3) + 2] = cIndex;
+
+            // If two indices are identical, that means something is wack
+            // because that's not a triangle
+            if ((aIndex == bIndex) || (aIndex == cIndex) || (bIndex == cIndex))
+            {
+                numIndices -= INDICES_PER_TRI;
+                continue;
+            }
+
+            indices[currentIndex] = aIndex;
+            currentIndex++;
+            indices[currentIndex] = bIndex;
+            currentIndex++;
+            indices[currentIndex] = cIndex;
+            currentIndex++;
         }
     }
 
     void CreateMesh()
     {
-        if (verts.Count > 0)
+        if (numIndices >= INDICES_PER_TRI)
         {
             // TODO: Test that using AsSpan doesn't cause issues if I re-use a chunk
             // later... hopefully not
@@ -77,8 +92,8 @@ public partial class Chunk : MeshInstance3D
             meshData[(int)Mesh.ArrayType.Vertex] = CollectionsMarshal.AsSpan(verts);
             meshData[(int)Mesh.ArrayType.Normal] = CollectionsMarshal.AsSpan(normals);
             meshData[(int)Mesh.ArrayType.Index] = indices.AsSpan(0, numIndices);
-            chunkMesh.ClearSurfaces();
         }
+        chunkMesh.ClearSurfaces();
     }
 
     static (int, int, int) GetVertexID(Vertex v)
@@ -115,22 +130,40 @@ public partial class Chunk : MeshInstance3D
 
     public void FinalizeInScene()
     {
-        if (verts.Count == 0)
+        Position = CurrentChunkID.GetSampleVector() * TerrainParams.CHUNK_SIZE;
+
+        // Sometimes we'll have not enough vertices for a triangle
+        if (numIndices < INDICES_PER_TRI)
         {
             return;
         }
+
         chunkMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, meshData);
-        collider.Shape = chunkMesh.CreateTrimeshShape();
         chunkMesh.SurfaceSetMaterial(0, chunkMaterial);
+        collider.Shape = chunkMesh.CreateTrimeshShape();
+
+        physicsBody.SetPhysicsProcess(true);
+        physicsBody.SetProcess(true);
+
+        // can also check length of meshdata vertices but wanted to be sure
+        // GD.Print("vertex count ", ((ArrayMesh)Mesh).SurfaceGetArrayLen(0));
+    }
+
+    public void HibernateChunk()
+    {
+        physicsBody.SetPhysicsProcess(false);
+        physicsBody.SetProcess(false);
+        collider.Shape = null;
     }
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        // Ensure this chunk has an ArrayMesh
+        // Ensure this chunk has the ArrayMesh
         this.Mesh = chunkMesh;
     }
 
-    // Called every frame. 'delta' is the elapsed time since the previous frame.
-    public override void _Process(double delta) { }
+    // Not needed
+    // // Called every frame. 'delta' is the elapsed time since the previous frame.
+    // public override void _Process(double delta) { }
 }

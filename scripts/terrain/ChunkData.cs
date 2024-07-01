@@ -8,37 +8,38 @@ using Godot;
 public static class ChunkData
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Vertex
+    public readonly struct Vertex
     {
-        public float posX;
-        public float posY;
-        public float posZ;
+        public readonly float posX;
+        public readonly float posY;
+        public readonly float posZ;
 
-        public float normX;
-        public float normY;
-        public float normZ;
+        public readonly float normX;
+        public readonly float normY;
+        public readonly float normZ;
     }
 
     // Csharp structure to use for chunks
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Triangle
+    public readonly record struct Triangle
     {
-        public Vertex vertexA;
-        public Vertex vertexB;
-        public Vertex vertexC;
+        public readonly Vertex vertexA;
+        public readonly Vertex vertexB;
+        public readonly Vertex vertexC;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public readonly struct ChunkID(int x, int y, int z)
+    public readonly record struct ChunkID
     {
-        public readonly int posX = x;
-        public readonly int posY = y;
-        public readonly int posZ = z;
+        public readonly int posX;
+        public readonly int posY;
+        public readonly int posZ;
 
-        // For debug
-        public override readonly string ToString()
+        public ChunkID(int X, int Y, int Z)
         {
-            return posX + " " + posY + " " + posZ;
+            posX = X;
+            posY = Y;
+            posZ = Z;
         }
 
         public static ChunkID GetNearestID(Vector3 position)
@@ -53,10 +54,15 @@ public static class ChunkData
                 Mathf.RoundToInt(position.Z)
             );
         }
+
+        public Vector3 GetSampleVector()
+        {
+            return new Vector3(posX, posY, posZ);
+        }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct ChunkParameters
+    public record struct ChunkParameters
     {
         public float noiseScale;
         public float isoLevel;
@@ -68,6 +74,6 @@ public static class ChunkData
         public float noiseOffsetX;
         public float noiseOffsetY;
         public float noiseOffsetZ;
-        public int useMods; // negative if don't positive if do
+        public int useMods; // 0 if don't 1 if do
     }
 }

@@ -15,6 +15,10 @@ public static class DataUtils
     { // Initialize MessagePack resolvers
         var resolver = MessagePack.Resolvers.CompositeResolver.Create(
             // enable extension packages first (and put any other extensions you use in this section)
+
+            // Auto-generated static resolver for AOT compilation (so no JIT needed)
+            MessagePack.Resolvers.GeneratedResolver.Instance,
+            // Godot-specific structs etc resolver
             GodotResolver.Instance,
             // finally use standard (default) resolver
             MessagePack.Resolvers.StandardResolver.Instance
