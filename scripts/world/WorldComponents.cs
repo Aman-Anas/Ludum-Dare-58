@@ -1,3 +1,5 @@
+namespace Game.World;
+
 using Game.Terrain;
 
 // This class provides references to the main parts of a world

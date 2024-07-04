@@ -1,5 +1,6 @@
 namespace Game;
 
+using Game.World;
 using Godot;
 using NathanHoad;
 using Utilities.Collections;

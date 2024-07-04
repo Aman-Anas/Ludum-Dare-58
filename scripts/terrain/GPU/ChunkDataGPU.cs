@@ -1,17 +1,32 @@
-namespace Game.Terrain;
+namespace Game.Terrain.Old;
 
 using System.Runtime.InteropServices;
 using Godot;
 
 // If needed, refactor to non-public struct fields, only
 // set up that way for simplicity + testing
-public static class ChunkData
+public static class ChunkDataGPU
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public readonly record struct Vertex(Vector3 Position, Vector3 Normal);
+    public readonly struct Vertex
+    {
+        public readonly float posX;
+        public readonly float posY;
+        public readonly float posZ;
 
+        public readonly float normX;
+        public readonly float normY;
+        public readonly float normZ;
+    }
+
+    // Csharp structure to use for chunks
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public readonly record struct TriangleIndex(int A, int B, int C);
+    public readonly record struct Triangle
+    {
+        public readonly Vertex vertexA;
+        public readonly Vertex vertexB;
+        public readonly Vertex vertexC;
+    }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public readonly record struct ChunkID
@@ -25,13 +40,6 @@ public static class ChunkData
             posX = X;
             posY = Y;
             posZ = Z;
-        }
-
-        public ChunkID(Vector3I coord)
-        {
-            posX = coord.X;
-            posY = coord.Y;
-            posZ = coord.Z;
         }
 
         public static ChunkID GetNearestID(Vector3 position)
@@ -51,24 +59,21 @@ public static class ChunkData
         {
             return new Vector3(posX, posY, posZ);
         }
-
-        public Vector3I GetSampleVector3I()
-        {
-            return new Vector3I(posX, posY, posZ);
-        }
     }
 
-    // [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public record struct TerrainParameters(float NoiseScale, Vector3 NoiseOffset);
-    // {
-    //     // public float noiseScale;
-    //     // public float isoLevel;
-    //     // public int numVoxelsPerAxis;
-    //     // public float chunkScale;
-    //     // public ChunkID id;
-    //     // public float noiseOffsetX;
-    //     // public float noiseOffsetY;
-    //     // public float noiseOffsetZ;
-    //     // public int useMods; // 0 if don't 1 if do
-    // }
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public record struct ChunkParameters
+    {
+        public float noiseScale;
+        public float isoLevel;
+        public int numVoxelsPerAxis;
+        public float chunkScale;
+        public float chunkX;
+        public float chunkY;
+        public float chunkZ;
+        public float noiseOffsetX;
+        public float noiseOffsetY;
+        public float noiseOffsetZ;
+        public int useMods; // 0 if don't 1 if do
+    }
 }

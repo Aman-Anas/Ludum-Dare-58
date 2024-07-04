@@ -1,10 +1,12 @@
 namespace Game.Terrain;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Game.Terrain.Noise;
 using Godot;
 using static Game.Terrain.ChunkData;
 
@@ -21,189 +23,52 @@ public partial class ChunkManager : Node3D
     Node3D terraformMarker;
 
     // Manage the current chunks
-    readonly Dictionary<ChunkID, Chunk> loadedChunks = [];
-    readonly Queue<ChunkID> chunksToReload = new(); // If it doesn't exist, load it, otherwise reload
-    readonly HashSet<ChunkID> queuedChunkIDs = [];
+    readonly ConcurrentDictionary<ChunkID, Chunk> loadedChunks = [];
 
-    readonly Queue<Chunk> freeChunks = new(); // For object pooling
+    readonly ConcurrentQueue<ChunkID> chunksToReload = new(); // If it doesn't exist, load it, otherwise reload
+    readonly ConcurrentDictionary<ChunkID, byte> queuedChunkSet = [];
+
+    readonly ConcurrentQueue<Chunk> freeChunks = new(); // For object pooling
+
+    bool currentlyProcessing = false;
 
     // Minimum time before triggering a queue, so it doesnt happen too often at chunk borders
-    const int MIN_QUEUE_INTERVAL = 100; //ms
-    ulong lastQueueMs = Time.GetTicksMsec();
+    const int MIN_REFRESH_INTERVAL = 100; //ms
+    ulong lastRefreshMs = Time.GetTicksMsec();
 
     ChunkID currentPlayerChunk = new();
-    const float CHUNK_UNLOAD_DIST = 4f;
 
     // Chunk generation
     // We'll have to clear this after some limit and on area changes
-    readonly Dictionary<ChunkID, byte[]> knownChunkMods = [];
+    readonly ConcurrentDictionary<ChunkID, float[]> knownChunkData = [];
 
-    // This is the task tracking whether we already are processing a chunk
+    [Export]
+    PackedScene testMarkerScene;
+
+    // This is the var tracking whether we already are processing a chunk
     bool currentlyComputing;
 
-    // Index of the bufferset for the shader
-    const int BUFFER_SET_INDEX = 0;
+    TerrainParameters terrainParams = new(1.0f, new Vector3(0, 0, 0));
+    readonly FastNoiseLiteSharp noiseGenerator = new();
 
-    // Bind Indices
-    const int TRIANGLE_BIND_INDEX = 0;
-    const int PARAMS_BIND_INDEX = 1;
-    const int COUNTER_BIND_INDEX = 2;
-    const int LUT_BIND_INDEX = 3;
-    const int MODDATA_BIND_INDEX = 4;
-
-    // Compute shader path
-    const string SHADER_PATH = "res://scripts/terrain/ChunkGenerator.glsl";
-
-    RenderingDevice renderDevice;
-
-    // Resource IDs
-    Rid shader;
-    Rid pipeline;
-    Rid bufferSet;
-    Rid triangleBuffer;
-    Rid paramsBuffer;
-    Rid counterBuffer;
-    Rid lutBuffer;
-    Rid modBuffer;
-
-    // Buffer data
-    byte[] counterDataBytes = new byte[sizeof(uint)];
-    byte[] chunkParamBytes = new byte[Marshal.SizeOf<ChunkParameters>()];
-
-    void InitializeCompute()
-    {
-        renderDevice = RenderingServer.CreateLocalRenderingDevice();
-        var shaderFile = GD.Load<RDShaderFile>(SHADER_PATH);
-        var shaderBytecode = shaderFile.GetSpirV();
-        var shader = renderDevice.ShaderCreateFromSpirV(shaderBytecode);
-
-        // Make triangle buffer
-        GD.Print("MAX_TRIANGLE_BYTES ", TerrainParams.MAX_TRIANGLE_BYTES);
-        // eeesh this is a lot of bytes
-
-        // Make our storage buffers (this one for triangles)
-        triangleBuffer = InitStorageBuffer(
-            out var trianglesUniform,
-            TerrainParams.MAX_TRIANGLE_BYTES,
-            TRIANGLE_BIND_INDEX
-        );
-
-        // Buffer for our adjustable parameters
-        UpdateChunkParams(new ChunkID(0, 0, 0), false);
-
-        paramsBuffer = InitStorageBuffer(
-            out var paramsUniform,
-            (uint)chunkParamBytes.Length,
-            PARAMS_BIND_INDEX,
-            chunkParamBytes
-        );
-
-        // So much boilerplate.... :(
-        // Make a buffer for a counter (?)
-        ResetTriangleCounter();
-        counterBuffer = InitStorageBuffer(
-            out var counterUniform,
-            (uint)counterDataBytes.Length,
-            COUNTER_BIND_INDEX,
-            counterDataBytes
-        );
-
-        // make our marching cubes LUT table buffer (shouldn't need to touch this later)
-        var lutBytes = new byte[MarchingCubesLUT.LUT_ARRAY.Length * sizeof(int)];
-        Buffer.BlockCopy(MarchingCubesLUT.LUT_ARRAY, 0, lutBytes, 0, lutBytes.Length);
-
-        lutBuffer = InitStorageBuffer(
-            out var lutUniform,
-            (uint)lutBytes.Length,
-            LUT_BIND_INDEX,
-            lutBytes
-        );
-
-        modBuffer = InitStorageBuffer(
-            out var modUniform,
-            (uint)TerrainParams.MAX_MOD_BYTES,
-            MODDATA_BIND_INDEX
-        );
-
-        bufferSet = renderDevice.UniformSetCreate(
-            [trianglesUniform, paramsUniform, counterUniform, lutUniform, modUniform],
-            shader,
-            BUFFER_SET_INDEX
-        );
-
-        pipeline = renderDevice.ComputePipelineCreate(shader);
-    }
-
-    void UpdateChunkParams(ChunkID cID, bool useMods)
-    {
-        ref var chunkParams = ref MemoryMarshal.AsRef<ChunkParameters>(chunkParamBytes);
-        chunkParams.noiseScale = 1.0f;
-        chunkParams.isoLevel = 0.00f;
-        chunkParams.numVoxelsPerAxis = TerrainParams.NUM_VOXELS_PER_AXIS;
-        chunkParams.chunkScale = TerrainParams.CHUNK_SIZE;
-        chunkParams.chunkX = cID.posX;
-        chunkParams.chunkY = cID.posY;
-        chunkParams.chunkZ = cID.posZ;
-        chunkParams.noiseOffsetX = 0;
-        chunkParams.noiseOffsetY = 0;
-        chunkParams.noiseOffsetZ = 0;
-
-        // Why not a boolean? this is just an easy optimization that avoids
-        // an if-statement on the GPU. (multiply by 0 -> no effect)
-        // Plus if needed, I can make this a float later and adjust how
-        // much of the modifications show up (shouldn't be needed though)
-        if (useMods)
-        {
-            chunkParams.useMods = 1;
-        }
-        else
-        {
-            chunkParams.useMods = 0;
-        }
-    }
-
-    void ResetTriangleCounter()
-    {
-        var counter = new uint[] { 0 };
-        Buffer.BlockCopy(counter, 0, counterDataBytes, 0, counterDataBytes.Length);
-    }
-
-    // Helper function to auto setup a storage buffer
-    Rid InitStorageBuffer(out RDUniform uniform, uint size, int bindIndex, byte[] data = null)
-    {
-        var newBuffer = renderDevice.StorageBufferCreate(size, data);
-        var newUniform = new RDUniform
-        {
-            UniformType = RenderingDevice.UniformType.StorageBuffer,
-            Binding = bindIndex
-        };
-        newUniform.AddId(newBuffer);
-        uniform = newUniform;
-        return newBuffer;
-    }
-
-    // Helper to queue up a chunk
     public void QueueChunk(ChunkID chunkID)
     {
+        if (!queuedChunkSet.TryAdd(chunkID, 0))
+        {
+            return;
+        }
         chunksToReload.Enqueue(chunkID);
-        queuedChunkIDs.Add(chunkID);
     }
 
     // For when we receive some chunk mods from the server
-    public void ApplyChunkMods(ChunkID chunkID, byte[] chunkMods)
+    public void UpdateChunkData(ChunkID chunkID, float[] chunkData)
     {
-        // GD.Print(chunkID);
-        knownChunkMods[chunkID] = chunkMods;
+        knownChunkData[chunkID] = chunkData;
         if (loadedChunks.ContainsKey(chunkID))
         {
-            QueueChunk(chunkID);
+            ReloadChunk(chunkID).Wait();
+            player.ForceUpdateTransform();
         }
-    }
-
-    // Simple helper to start reloading the next chunk
-    void ReloadNextChunk()
-    {
-        _ = ReloadChunk(chunksToReload.Dequeue());
     }
 
     Task ReloadChunk(ChunkID chunkID)
@@ -214,83 +79,104 @@ public partial class ChunkManager : Node3D
         if (!loadedChunks.TryGetValue(chunkID, out Chunk chunkToLoad))
         {
             chunkToLoad = GetNewChunk();
-            loadedChunks[chunkID] = chunkToLoad;
+        }
+        // var s = Stopwatch.StartNew();
+
+        return Task.Run(() =>
+        {
+            loadedChunks[chunkID] = ComputeChunk(chunkID, chunkToLoad);
+
+            currentlyComputing = false;
+
+            // s.Stop();
+            // GD.Print("chunk time ", s.ElapsedMilliseconds);
+        });
+    }
+
+    float EvaluateNoise(Vector3I coordinate, Vector3I chunkCoord)
+    {
+        // -0.5 to 0.5  position relative to chunk
+        Vector3 percentPos =
+            (((Vector3)coordinate) / TerrainData.VoxelAxisLengths) - new Vector3(0.5f, 0.5f, 0.5f);
+        //TerrainData.CoordToChunkSpace(coordinate);
+
+        // Position of this coord in sample space
+        Vector3 samplePos =
+            ((percentPos + chunkCoord) * terrainParams.NoiseScale) + terrainParams.NoiseOffset;
+
+        float sum = 0;
+        float amplitude = 1;
+        float weight = 1;
+
+        Vector3 fbmSample = samplePos;
+        noiseGenerator.SetFrequency(2.0f);
+        noiseGenerator.SetNoiseType(FastNoiseLiteSharp.NoiseType.Perlin);
+
+        for (int i = 0; i < 3; i++) // 6
+        {
+            float noise = noiseGenerator.GetNoise(fbmSample.X, fbmSample.Y, fbmSample.Z);
+            noise *= weight;
+            weight = Math.Max(0, Math.Min(1, noise * 10));
+            weight *= 0.5f;
+            sum += noise * amplitude;
+            fbmSample *= 2;
+            amplitude *= 0.5f;
         }
 
-        return Task.Run(() => ComputeChunk(chunkID, chunkToLoad));
+        float density = Math.Clamp(sum, 0.0f, 1.0f);
+        density += Math.Clamp(SDFUtils.SdSphere(samplePos, 3f), -1.0f, 0.1f);
+
+        // GD.Print(density);
+        return Math.Clamp(density, -1.0f, 1.0f);
+    }
+
+    float[] PopulateNewSampleData(ChunkID cID)
+    {
+        var newData = new float[TerrainData.SAMPLE_ARRAY_SIZE];
+        var chunkCoord = cID.GetSampleVector3I();
+
+        Parallel.For(
+            0,
+            newData.Length,
+            (int index) =>
+            {
+                var currentCoord = TerrainData.IndexToCoord3D(
+                    index,
+                    TerrainData.SAMPLE_ARRAY_PER_AXIS
+                );
+                currentCoord -= Vector3I.One;
+
+                newData[index] = EvaluateNoise(currentCoord, chunkCoord);
+            }
+        );
+
+        return newData;
     }
 
     // This method should run in a Task
-    void ComputeChunk(ChunkID cID, Chunk c)
+    Chunk ComputeChunk(ChunkID cID, Chunk c)
     {
-        c.CurrentChunkID = cID;
-        var useMods = knownChunkMods.ContainsKey(cID);
-        // First let's update our buffers
-        UpdateChunkParams(cID, useMods);
-        ResetTriangleCounter();
+        var chunkData = knownChunkData.GetOrAdd(cID, PopulateNewSampleData);
 
-        renderDevice.BufferUpdate(paramsBuffer, 0, (uint)chunkParamBytes.Length, chunkParamBytes);
-        renderDevice.BufferUpdate(
-            counterBuffer,
-            0,
-            (uint)counterDataBytes.Length,
-            counterDataBytes
-        );
+        // Chuck the data over to the chunk and let it finish processing
+        c.ProcessChunk(cID, chunkData);
 
-        if (useMods)
-        {
-            var modData = knownChunkMods[cID];
-            renderDevice.BufferUpdate(modBuffer, 0, (uint)modData.Length, modData);
-        }
-
-        // Now that they're updated, let's start the compute
-        var computeList = renderDevice.ComputeListBegin();
-        renderDevice.ComputeListBindComputePipeline(computeList, pipeline);
-        renderDevice.ComputeListBindUniformSet(computeList, bufferSet, BUFFER_SET_INDEX);
-        renderDevice.ComputeListDispatch(
-            computeList,
-            TerrainParams.TERRAIN_RESOLUTION,
-            TerrainParams.TERRAIN_RESOLUTION,
-            TerrainParams.TERRAIN_RESOLUTION
-        );
-        renderDevice.ComputeListEnd();
-
-        // Submit it and wait (should be fine since we're in an async task/thread thing)
-        renderDevice.Submit();
-        renderDevice.Sync();
-
-        // Get our data back
-        counterDataBytes = renderDevice.BufferGetData(counterBuffer);
-        uint count = MemoryMarshal.Cast<byte, uint>(counterDataBytes)[0];
-
-        // Only get the number of triangles that actually exist
-        var triangleDataBytes = renderDevice.BufferGetData(
-            triangleBuffer,
-            0,
-            TerrainParams.BYTES_PER_TRI * count
-        );
-
-        Span<Triangle> triangles = MemoryMarshal.Cast<byte, Triangle>(triangleDataBytes);
-
-        // Chuck the data over to the new chunk and let it finish processing
-        c.ProcessChunk(triangles, count);
-
-        // It's fine if it returns false, that just means the chunkID
+        // It's fine if this returns false, that just means the chunkID
         // was (re)loaded manually instead of being in the queue
-        queuedChunkIDs.Remove(cID);
 
-        currentlyComputing = false;
+        return c;
     }
 
     // Grab an available new chunk
     Chunk GetNewChunk()
     {
-        if (freeChunks.Count > 0)
+        if (!freeChunks.TryDequeue(out var newChunk))
         {
-            return freeChunks.Dequeue();
+            // Otherwise instantiate a new one
+            newChunk = InstantiateChunk();
         }
-        // Otherwise instantiate a new one
-        return InstantiateChunk();
+
+        return newChunk;
     }
 
     // Manually instantiate a new chunk
@@ -315,11 +201,12 @@ public partial class ChunkManager : Node3D
     public override void _Ready()
     {
         Manager.Instance.MainWorld.chunkManager = this;
+        GD.Print("Size ", Marshal.SizeOf<TerrainParameters>());
 
-        InitializeCompute();
+        // InitializeCompute();
 
-        // // make an initial pool of chunk nodes
-        // const int PoolChunks = 400;
+        // make an initial pool of chunk nodes
+        // const int PoolChunks = 40;
         // for (int x = 0; x < PoolChunks; x++)
         // {
         //     var c = InstantiateChunk();
@@ -327,16 +214,20 @@ public partial class ChunkManager : Node3D
         // }
         // GD.Print("pool ", freeChunks.Count);
 
-        QueueChunk(new(0, 2, 0));
-        // QueueChunk(new(0, 2, 1));
-        QueuePlayerChunks();
-        GD.Print("Max Mod Bytes ", TerrainParams.MAX_MOD_BYTES);
+        // ReloadChunk(new(0, 0, 0)).Wait();
+
+        // ReloadChunk(new(0, 1, 0));
+        // ReloadChunk(new(0, -1, 0));
+        // QueueChunk(new(0, 0, 0));
+        // // QueueChunk(new(0, 2, 1));
+        RefreshPlayerChunks();
+        // GD.Print("Max Mod Bytes ", TerrainParams.MAX_MOD_BYTES);
     }
 
-    void QueuePlayerChunks()
+    void RefreshPlayerChunks()
     {
         // make the loop bigger by one to remove the outermost chunk IDs
-        const int GenerateDistance = TerrainParams.CHUNK_VIEW_DIST;
+        const int GenerateDistance = TerrainData.CHUNK_VIEW_DIST;
 
         for (int x = -GenerateDistance; x <= GenerateDistance; x++)
         {
@@ -352,10 +243,11 @@ public partial class ChunkManager : Node3D
                         );
 
                     bool chunkIsLoaded = loadedChunks.ContainsKey(toQueue);
-                    bool chunkIsQueued = queuedChunkIDs.Contains(toQueue);
+                    bool chunkIsQueued = queuedChunkSet.ContainsKey(toQueue);
+
                     if (!chunkIsLoaded && !chunkIsQueued)
                     {
-                        // Queue only if the chunk is not there and it's not already queued
+                        // queue only if the chunk is not there and it's not already queued
                         QueueChunk(toQueue);
                         // GD.Print("Queueing ", toQueue);
                     }
@@ -364,23 +256,28 @@ public partial class ChunkManager : Node3D
         }
 
         // Unload far chunks
-        const float SquareUnloadDist = CHUNK_UNLOAD_DIST * CHUNK_UNLOAD_DIST;
-        var playerPos = currentPlayerChunk.GetSampleVector();
+        var playerPos = currentPlayerChunk.GetSampleVector3I();
 
         foreach (ChunkID cID in loadedChunks.Keys)
         {
-            if (playerPos.DistanceSquaredTo(cID.GetSampleVector()) >= SquareUnloadDist)
+            var disp = playerPos - cID.GetSampleVector3I();
+            for (int x = 0; x < 3; x++)
             {
-                TryUnloadChunk(cID);
+                if (Math.Abs(disp[x]) > TerrainData.CHUNK_VIEW_DIST + 1)
+                {
+                    TryUnloadChunk(cID);
+                }
             }
         }
     }
 
     public override void _PhysicsProcess(double delta)
     {
-        // GD.Print("loaded ", loadedChunks.Count);
-        // GD.Print("free ", freeChunks.Count);
-        // GD.Print("queued ", queuedChunkIDs.Count);
+        if (!loadedChunks.ContainsKey(currentPlayerChunk))
+        {
+            ReloadChunk(currentPlayerChunk).Wait();
+        }
+
         var newPlayerChunk = ChunkID.GetNearestID(player.Position);
 
         if (currentPlayerChunk != newPlayerChunk)
@@ -388,14 +285,14 @@ public partial class ChunkManager : Node3D
             // Update our current chunk
             currentPlayerChunk = newPlayerChunk;
 
-            if ((Time.GetTicksMsec() - lastQueueMs) >= MIN_QUEUE_INTERVAL)
+            if ((Time.GetTicksMsec() - lastRefreshMs) >= MIN_REFRESH_INTERVAL)
             {
-                QueuePlayerChunks();
+                RefreshPlayerChunks();
 
                 // the timer is so we don't trigger a ton of reloads
                 // when near the edge of two chunks. Shouldn't cause a problem
                 // because we already ensure the current player chunk is loaded.
-                lastQueueMs = Time.GetTicksMsec();
+                lastRefreshMs = Time.GetTicksMsec();
             }
         }
     }
@@ -403,59 +300,12 @@ public partial class ChunkManager : Node3D
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta)
     {
-        // See if there's something to reload, and make sure there isn't a chunk computing already
-        if ((chunksToReload.Count > 0) && (!currentlyComputing))
+        // Reload a chunk if it's in the queue
+        if (!currentlyComputing && chunksToReload.TryDequeue(out var chunkID))
         {
-            if (!loadedChunks.ContainsKey(currentPlayerChunk))
-            {
-                // wait for this chunk because we at least
-                // need the chunk the player is in to be loaded
-                ReloadChunk(currentPlayerChunk).Wait();
-            }
-            else
-            {
-                ReloadNextChunk();
-            }
+            queuedChunkSet.Remove(chunkID, out _);
+            _ = ReloadChunk(chunkID);
         }
-
-        // if (Input.IsActionJustPressed(GameActions.PLAYER_ROLL_RIGHT))
-        // {
-        //     var readableMods = MemoryMarshal.Cast<byte, float>(funnyMods);
-        //     for (int idx = 0; idx < readableMods.Length; idx++)
-        //     {
-        //         const int numVoxels = TerrainParams.NUM_VOXELS_PER_AXIS;
-        //         var zQuotient = Math.DivRem(idx, numVoxels, out var zPos);
-        //         var yQuotient = Math.DivRem(zQuotient, numVoxels, out var yPos);
-        //         var xPos = yQuotient % numVoxels;
-        //         var calcPos = new Vector3(xPos, yPos, zPos);
-        //         if (
-        //             xPos > 0
-        //             && xPos < numVoxels
-        //             && yPos > 0
-        //             && yPos < numVoxels
-        //             && zPos > 0
-        //             && zPos < numVoxels
-        //         )
-        //         {
-        //             readableMods[idx] = 20; // * (xPos / numVoxels);
-        //         }
-        //     }
-        //     ApplyChunkMods(currentPlayerChunk, funnyMods);
-        // }
-    }
-
-    static int GetPointID(Vector3 pointPosition)
-    {
-        const int lengthArrayPerAxis = TerrainParams.LENGTH_MOD_ARRAY_PER_AXIS;
-
-        pointPosition += new Vector3(1, 1, 1);
-
-        // The ones are to leave space for normal vertices
-        return Mathf.RoundToInt(
-            (pointPosition.Z * lengthArrayPerAxis * lengthArrayPerAxis)
-                + (pointPosition.Y * lengthArrayPerAxis)
-                + pointPosition.X
-        );
     }
 
     public void TerraformPoint(Vector3 worldPoint, float strength)
@@ -463,89 +313,110 @@ public partial class ChunkManager : Node3D
         terraformMarker.Position = worldPoint;
 
         var closestChunk = ChunkID.GetNearestID(worldPoint);
-        // GD.Print("closest ", closestChunk);
-        for (int x = -1; x <= 1; x++)
+        var closestChunkPos = closestChunk.GetSampleVector3I();
+
+        // Might as well hard code it since it's easier that way
+        Span<Vector3I> offsetsToUpdate =
+        [
+            new Vector3I(-1, -1, -1),
+            new Vector3I(-1, -1, 0),
+            new Vector3I(-1, -1, 1),
+            new Vector3I(-1, 0, -1),
+            new Vector3I(-1, 0, 0),
+            new Vector3I(-1, 0, 1),
+            new Vector3I(-1, 1, -1),
+            new Vector3I(-1, 1, 0),
+            new Vector3I(-1, 1, 1),
+            new Vector3I(0, -1, -1),
+            new Vector3I(0, -1, 0),
+            new Vector3I(0, -1, 1),
+            new Vector3I(0, 0, -1),
+            new Vector3I(0, 0, 0),
+            new Vector3I(0, 0, 1),
+            new Vector3I(0, 1, -1),
+            new Vector3I(0, 1, 0),
+            new Vector3I(0, 1, 1),
+            new Vector3I(1, -1, -1),
+            new Vector3I(1, -1, 0),
+            new Vector3I(1, -1, 1),
+            new Vector3I(1, 0, -1),
+            new Vector3I(1, 0, 0),
+            new Vector3I(1, 0, 1),
+            new Vector3I(1, 1, -1),
+            new Vector3I(1, 1, 0),
+            new Vector3I(1, 1, 1)
+        ];
+
+        foreach (var chunkOffset in offsetsToUpdate)
         {
-            for (int y = -1; y <= 1; y++)
+            bool modified = false;
+            var currentChunkID = new ChunkID(closestChunkPos + chunkOffset);
+
+            // Either get the existing data array or make a new one
+            var chunkData = knownChunkData.GetOrAdd(currentChunkID, PopulateNewSampleData);
+
+            var chunkWorldPos = currentChunkID.GetSampleVector() * TerrainData.CHUNK_SIZE;
+            var localTerraformPos = (worldPoint - chunkWorldPos) / TerrainData.CHUNK_SIZE;
+
+            // Now the terraform pos is from 0 to 1
+            localTerraformPos += new Vector3(0.5f, 0.5f, 0.5f);
+
+            // Scale it to the number of sample points per chunk
+            localTerraformPos *= TerrainData.VOXELS_PER_AXIS;
+
+            localTerraformPos = localTerraformPos.Round();
+
+            foreach (var terraformOffset in offsetsToUpdate)
             {
-                for (int z = -1; z <= 1; z++)
+                var curTerraformPos = localTerraformPos + terraformOffset;
+                // If this point isn't in range, we should ignore it
+                bool validPosition = true;
+
+                // Check the X, Y, Z for out of range
+                for (int element = 0; element < 3; element++)
                 {
-                    ChunkID currentChunkID =
-                        new(closestChunk.posX + x, closestChunk.posY + y, closestChunk.posZ + z);
-
-                    var chunkWorldPos = currentChunkID.GetSampleVector() * TerrainParams.CHUNK_SIZE;
-                    var localTerraformPos = (worldPoint - chunkWorldPos) / TerrainParams.CHUNK_SIZE;
-
-                    // Now the terraform pos is from 0 to 1
-                    localTerraformPos += new Vector3(0.5f, 0.5f, 0.5f);
-
-                    // Scale it to the number of sample points
-                    localTerraformPos *= TerrainParams.NUM_VOXELS_PER_AXIS;
-
-                    localTerraformPos = localTerraformPos.Round();
-
-                    // If this point isn't in range, ignore it
-                    bool validPosition = true;
-                    for (int coord = 0; coord < 3; coord++)
+                    if (
+                        (curTerraformPos[element] < -1)
+                        || (curTerraformPos[element] > TerrainData.VOXELS_PER_AXIS + 1)
+                    )
                     {
-                        if (localTerraformPos[coord] < -1)
-                        {
-                            validPosition = false;
-                        }
-                        if (localTerraformPos[coord] > TerrainParams.NUM_VOXELS_PER_AXIS + 1)
-                        {
-                            validPosition = false;
-                        }
+                        validPosition = false;
+                    }
+                }
+
+                if (!validPosition)
+                {
+                    continue;
+                }
+
+                // GD.Print(localTerraformPos, " local ", currentChunkID);
+
+                var correctedCoord = curTerraformPos + Vector3.One;
+
+                int modIndex = TerrainData.Coord3DToIndex(
+                    (Vector3I)correctedCoord.Round(),
+                    TerrainData.SAMPLE_ARRAY_PER_AXIS
+                );
+
+                if (modIndex >= 0 && modIndex < chunkData.Length)
+                {
+                    if (terraformOffset.LengthSquared() != 0)
+                    {
+                        chunkData[modIndex] += (-strength) * 0.1f;
+                    }
+                    else
+                    {
+                        chunkData[modIndex] += -strength;
                     }
 
-                    if (!validPosition)
-                    {
-                        continue;
-                    }
-
-                    // GD.Print(localTerraformPos, " local ", currentChunkID);
-
-                    // Either get the existing mod array or make a new one
-                    if (!knownChunkMods.TryGetValue(currentChunkID, out var chunkMods))
-                    {
-                        chunkMods = new byte[TerrainParams.MAX_MOD_BYTES];
-                    }
-
-                    var chunkModData = MemoryMarshal.Cast<byte, float>(chunkMods);
-
-                    int modIndex = GetPointID(localTerraformPos);
-                    // GD.Print(modIndex);
-
-                    if (modIndex >= 0 && modIndex < chunkModData.Length)
-                    {
-                        chunkModData[modIndex] -= strength;
-                    }
-
-                    ApplyChunkMods(currentChunkID, chunkMods);
+                    chunkData[modIndex] = Math.Clamp(chunkData[modIndex], -1.0f, 1.0f);
+                    modified = true;
                 }
             }
+            if (modified)
+            {
+                UpdateChunkData(currentChunkID, chunkData);
+            }
         }
-    }
-
-    public override void _Notification(int what)
-    {
-        if (what == NotificationPredelete)
-        {
-            ReleaseData();
-        }
-    }
-
-    // I don't know if this is necessary, but it does say to free RIDs
-    // when you're done with them in the docs.
-    void ReleaseData()
-    {
-        renderDevice.FreeRid(pipeline);
-        renderDevice.FreeRid(triangleBuffer);
-        renderDevice.FreeRid(paramsBuffer);
-        renderDevice.FreeRid(counterBuffer);
-        renderDevice.FreeRid(lutBuffer);
-        renderDevice.FreeRid(shader);
-        renderDevice.Free();
-        renderDevice = null;
     }
 }

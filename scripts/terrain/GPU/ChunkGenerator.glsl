@@ -213,12 +213,12 @@ vec4 evaluate(ivec3 coord) {
     }
 
     // take our sum and mask out 0 to 1 (add holes)
-    float density = clamp(samplePos.y + (sum * 0.0), -1.0, 1.0);
+    float density = clamp(sum, 0.0, 1.0);
     // clamp(sum, -1.0, 1.0); // clamp(sum, -1.0, 1.0);//
 
     // // Add our sphere SDF, mask out -1 to 0 (add ground)
-    // const int sphereRadius = 4;
-    // density += clamp(sdSphere(samplePos, sphereRadius), -1.0, 0.1);
+    const int sphereRadius = 2;
+    density += clamp(sdSphere(samplePos, sphereRadius), -1.0, 0.1);
 
     int numPointsPerAxis = params.numVoxelsPerAxis + 1;
     int lengthArrayPerAxis = numPointsPerAxis + 2;

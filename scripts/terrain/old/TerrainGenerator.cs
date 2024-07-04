@@ -175,8 +175,8 @@ public partial class TerrainGenerator : Node3D
         );
 
         // make our marching cubes LUT table buffer
-        var lutBytes = new byte[MarchingCubesLUT.LUT_ARRAY.Length * sizeof(int)];
-        Buffer.BlockCopy(MarchingCubesLUT.LUT_ARRAY, 0, lutBytes, 0, lutBytes.Length);
+        var lutBytes = new byte[MarchingCubeTables.EdgeTable.Length * sizeof(int)];
+        Buffer.BlockCopy(MarchingCubeTables.EdgeTable, 0, lutBytes, 0, lutBytes.Length);
 
         lutBuffer = InitStorageBuffer(
             out var lutUniform,

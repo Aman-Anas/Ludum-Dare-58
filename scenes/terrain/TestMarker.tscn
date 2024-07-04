@@ -1,0 +1,3 @@
+[gd_scene format=3 uid="uid://bhxvr8rdh7dei"]
+
+[node name="TestMarker" type="CSGBox3D"]

@@ -13,6 +13,7 @@ friction = 0.0
 collision_layer = 2
 collision_mask = 3
 physics_material_override = SubResource("PhysicsMaterial_lt2x0")
+continuous_cd = true
 script = ExtResource("2_x2qyr")
 floorSensors = NodePath("FootRays")
 yawTarget = NodePath("CameraYawTarget")

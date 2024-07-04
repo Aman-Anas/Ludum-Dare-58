@@ -1,3 +1,5 @@
+namespace Game.World;
+
 using System;
 using Godot;
 

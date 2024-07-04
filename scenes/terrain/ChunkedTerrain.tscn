@@ -1,7 +1,8 @@
-[gd_scene load_steps=11 format=3 uid="uid://ce4a07ov21gnq"]
+[gd_scene load_steps=12 format=3 uid="uid://ce4a07ov21gnq"]
 
 [ext_resource type="Script" path="res://scripts/terrain/ChunkManager.cs" id="1_8512h"]
 [ext_resource type="PackedScene" uid="uid://cemklg2tr1ud8" path="res://scenes/terrain/Chunk.tscn" id="2_v3kne"]
+[ext_resource type="PackedScene" uid="uid://bhxvr8rdh7dei" path="res://scenes/terrain/TestMarker.tscn" id="3_17knn"]
 [ext_resource type="PackedScene" uid="uid://be68kkhnkgb6u" path="res://scenes/main_menu/Pause.tscn" id="3_qxdqc"]
 [ext_resource type="PackedScene" uid="uid://5tfng4tp7c4" path="res://scenes/test_game/player.tscn" id="4_h72e6"]
 [ext_resource type="PackedScene" uid="uid://crf33aqia24q7" path="res://scenes/test_game/test_ball.tscn" id="5_hgi0l"]
@@ -26,7 +27,7 @@ glow_bloom = 1.0
 volumetric_fog_density = 0.024
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_myfvk"]
-radius = 130.0
+radius = 40.0
 
 [node name="ChunkedTerrain" type="Node3D"]
 
@@ -39,6 +40,7 @@ script = ExtResource("1_8512h")
 chunkTemplate = ExtResource("2_v3kne")
 player = NodePath("../Player")
 terraformMarker = NodePath("../CSGSphere3D")
+testMarkerScene = ExtResource("3_17knn")
 
 [node name="CSGBox3D" type="CSGBox3D" parent="."]
 
@@ -47,12 +49,14 @@ environment = SubResource("Environment_3bldx")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.712069, 0.12941, -0.69008, 0.656913, 0.224144, 0.719878, 0.247837, -0.965926, 0.0745951, 0, 9, 0)
+shadow_enabled = true
 
 [node name="Pause" parent="." instance=ExtResource("3_qxdqc")]
 
 [node name="Area3D" type="Area3D" parent="."]
 collision_layer = 3
 collision_mask = 3
+gravity_space_override = 3
 gravity_point = true
 gravity_point_center = Vector3(0, 0, 0)
 gravity_direction = Vector3(0, 0, 0)
@@ -62,16 +66,16 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0634308, -0.237083, -0.011
 shape = SubResource("SphereShape3D_myfvk")
 
 [node name="Player" parent="." instance=ExtResource("4_h72e6")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.90874, 7.3497, 0.839481)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.90874, 44.3279, 0.839481)
 
 [node name="CSGBox3D2" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.180176, 30.5573, 1.76606)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.180176, 35.3175, 1.76606)
 use_collision = true
 size = Vector3(10, 0.001, 4)
 material = ExtResource("5_iy1ah")
 
 [node name="TestBall2" parent="." instance=ExtResource("5_hgi0l")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 43.4216, 2.50608)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 48.1818, 2.50608)
 
 [node name="TestBall3" parent="." instance=ExtResource("5_hgi0l")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 43.4216, 2.50608)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 48.1818, 2.50608)

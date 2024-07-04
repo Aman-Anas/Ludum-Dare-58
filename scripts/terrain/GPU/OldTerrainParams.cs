@@ -1,8 +1,6 @@
-namespace Game.Terrain;
-
 using System;
 
-public static class TerrainParams
+public static class OldTerrainParams
 {
     // Terrain size and resolution
     public const float CHUNK_SIZE = 10;
