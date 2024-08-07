@@ -63,7 +63,7 @@ public partial class Chunk : MeshInstance3D
         // GD.Print("clear lists ", s.Elapsed.TotalMicroseconds);
         // s.Restart();
 
-        Parallel.For(0, TerrainData.VOXELS_PER_CHUNK + 1, (x) => ProcessVoxel(x, terrainData));
+        Parallel.For(0, TerrainData.VOXELS_PER_CHUNK, (x) => ProcessVoxel(x, terrainData));
         // for (int x = 0; x < TerrainData.VOXELS_PER_CHUNK; x++)
         // {
         //     ProcessVoxel(x, terrainData);
