@@ -1,6 +1,6 @@
 ﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMarchingCubesGen", "TestMarchingCubesGen.csproj", "{D9302047-CECE-444F-8F82-74FBC262E006}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceGame", "SpaceGame.csproj", "{D9302047-CECE-444F-8F82-74FBC262E006}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

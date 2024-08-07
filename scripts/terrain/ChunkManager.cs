@@ -81,11 +81,11 @@ public partial class ChunkManager : Node3D
         {
             chunkToLoad = GetNewChunk();
         }
-        var s = Stopwatch.StartNew();
 
         // normally threaded below
         return Task.Run(() =>
         {
+            // var s = Stopwatch.StartNew();
             // s.Restart();
             var chunkData = knownChunkData.GetOrAdd(chunkID, PopulateNewSampleData);
             // s.Stop();
@@ -99,8 +99,8 @@ public partial class ChunkManager : Node3D
 
             currentlyComputing = false;
 
-            s.Stop();
-            GD.Print("chunk time ", s.Elapsed.TotalMicroseconds);
+            // s.Stop();
+            // GD.Print("chunk time ", s.Elapsed.TotalMicroseconds);
         });
     }
 
@@ -129,7 +129,7 @@ public partial class ChunkManager : Node3D
         const float PERSISTENCE = 0.5f;
         const float LACUNARITY = 2.0f;
         float amplitude = 1.0f;
-        Vector3 frequency = new(100.0f, 100.0f, 100.0f);
+        Vector3 frequency = new(1.0f, 1.0f, 1.0f);
         // NoisePeriod period = new(2, 2, 2);
 
         float noiseValue2D = 0;

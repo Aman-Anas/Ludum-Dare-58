@@ -32,7 +32,7 @@ public partial class Chunk : MeshInstance3D
     Godot.Collections.Array meshData = [];
 
     // Maps vertex IDs to their index in the surface array
-    readonly Dictionary<(int, int), int> existingVertexIDs = new();
+    readonly Dictionary<(int, int), int> existingVertexIDs = [];
 
     // For the Godot surface array
     readonly List<Vector3> verts = [];
@@ -300,12 +300,12 @@ public partial class Chunk : MeshInstance3D
 
         Vector3 derivative =
             new(
-                GetFloatAtCoord((coord + offsetX), terrainData)
-                    - GetFloatAtCoord((coord - offsetX), terrainData),
-                GetFloatAtCoord((coord + offsetY), terrainData)
-                    - GetFloatAtCoord((coord - offsetY), terrainData),
-                GetFloatAtCoord((coord + offsetZ), terrainData)
-                    - GetFloatAtCoord((coord - offsetZ), terrainData)
+                GetFloatAtCoord(coord + offsetX, terrainData)
+                    - GetFloatAtCoord(coord - offsetX, terrainData),
+                GetFloatAtCoord(coord + offsetY, terrainData)
+                    - GetFloatAtCoord(coord - offsetY, terrainData),
+                GetFloatAtCoord(coord + offsetZ, terrainData)
+                    - GetFloatAtCoord(coord - offsetZ, terrainData)
             );
         // GD.Print(derivative);
 

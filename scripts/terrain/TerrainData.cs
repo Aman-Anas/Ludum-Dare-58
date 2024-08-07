@@ -10,7 +10,7 @@ public static class TerrainData
     public const float CHUNK_SIZE = 15;
 
     // Resolution on each axis per chunk
-    public const int VOXELS_PER_AXIS = 384; //16;
+    public const int VOXELS_PER_AXIS = 16;
 
     // Median byte value for isolevel
     public const byte CENTER_ISOLEVEL = 128;
