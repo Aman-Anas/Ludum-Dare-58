@@ -62,6 +62,7 @@ public partial class SimpleRigidPlayer : RigidBody3D
     public override void _Process(double delta)
     {
         RunAnimations();
+        UpdateHeadOrientation();
     }
 
     void UpdateHeadOrientation()
@@ -198,8 +199,6 @@ public partial class SimpleRigidPlayer : RigidBody3D
         but velocity is a bit easier to work with. If needed, torque can be used though.
         */
         state.AngularVelocity = newLocalAngVelo;
-
-        UpdateHeadOrientation();
     }
 
     void RunAnimations()

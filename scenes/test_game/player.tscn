@@ -29,7 +29,8 @@ target = NodePath("..")
 [node name="player_rig_default" parent="PhysicsSmoother" index="0" instance=ExtResource("2_jjmcg")]
 
 [node name="PlayerHead" parent="PhysicsSmoother/player_rig_default" index="0"]
-transform = Transform3D(1, -2.91323e-13, 2.38419e-07, 1.7053e-13, 1, 5.0664e-07, -2.38419e-07, -5.06639e-07, 1, -2.70511e-14, 1.74628, 0.0246999)
+transform = Transform3D(1, -2.91322e-13, 2.38419e-07, 1.7053e-13, 1, 5.06639e-07, -2.38419e-07, -5.06639e-07, 1, -2.70511e-14, 1.74628, 0.0246999)
+top_level = true
 
 [node name="Skeleton3D" parent="PhysicsSmoother/player_rig_default/rig_player" index="0"]
 bones/2/rotation = Quaternion(-0.0568479, 2.86901e-14, -1.35536e-08, 0.998383)
@@ -58,7 +59,6 @@ bones/20/rotation = Quaternion(-0.0376549, -0.106292, 0.990933, -0.0730493)
 bones/20/scale = Vector3(1, 1, 1)
 bones/21/rotation = Quaternion(-4.88944e-08, 6.56582e-08, 9.0804e-08, 1)
 bones/22/scale = Vector3(1, 1, 1)
-bones/23/rotation = Quaternion(1.58325e-08, -4.19095e-09, -1.04774e-08, 1)
 bones/25/rotation = Quaternion(-0.493167, 0.451538, 0.359942, 0.650647)
 bones/25/scale = Vector3(1, 1, 1)
 bones/26/scale = Vector3(1, 1, 1)
@@ -70,7 +70,7 @@ bone_name = "DEF-spine.006"
 bone_idx = 4
 
 [node name="CameraTargetPosition" type="RemoteTransform3D" parent="PhysicsSmoother/player_rig_default/rig_player/Skeleton3D/BoneAttachment3D" index="0"]
-transform = Transform3D(1, 6.77626e-21, 0, -2.42338e-27, 1, 0, 0, 0, 1, -8.88178e-16, 0.2, 0)
+transform = Transform3D(1, 0, 0, 2.71051e-20, 1, 0, 0, 0, 1, -8.88178e-16, 0.2, 0)
 remote_path = NodePath("../../../../../../CameraYawTarget")
 update_rotation = false
 update_scale = false
@@ -123,18 +123,33 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 transform = Transform3D(1, -2.91323e-13, 2.38419e-07, 1.7053e-13, 1, 5.0664e-07, -2.38419e-07, -5.06639e-07, 1, -2.70511e-14, 1.74628, 0.0246999)
 top_level = true
 
-[node name="CameraPitchTarget" type="Node3D" parent="CameraYawTarget" index="0"]
+[node name="HeadPosition" type="RemoteTransform3D" parent="CameraYawTarget" index="0"]
+remote_path = NodePath("../../PhysicsSmoother/player_rig_default/PlayerHead")
+update_rotation = false
+update_scale = false
+
+[node name="CameraPitchTarget" type="Node3D" parent="CameraYawTarget" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.77636e-15, -1.19209e-07, 0.1)
 
 [node name="MainPlayerCamera" type="Camera3D" parent="CameraYawTarget/CameraPitchTarget" index="0"]
-transform = Transform3D(-1, 8.13152e-19, -1.50996e-07, 4.06576e-20, 1, 9.66338e-13, 1.50996e-07, 0, -1, 1.50996e-08, -1.19209e-07, 0.1)
+transform = Transform3D(-1, 8.40257e-19, -1.50996e-07, 6.77626e-20, 1, 9.66338e-13, 1.50996e-07, 0, -1, 1.50996e-08, 0, 0.1)
 fov = 90.0
+near = 0.02
 
-[node name="HeadRemoteTransform" type="RemoteTransform3D" parent="CameraYawTarget/CameraPitchTarget" index="1"]
-remote_path = NodePath("../../../PhysicsSmoother/player_rig_default/PlayerHead")
-
-[node name="RayCast3D" type="RayCast3D" parent="CameraYawTarget/CameraPitchTarget" index="2"]
+[node name="RayCast3D" type="RayCast3D" parent="CameraYawTarget/CameraPitchTarget/MainPlayerCamera" index="0"]
+transform = Transform3D(-1, 8.13152e-19, 1.50996e-07, 1.76183e-19, 1, 9.66338e-13, -1.50996e-07, 0, -1, 0, 0, 0)
 target_position = Vector3(0, 0, 2000)
 script = ExtResource("5_ptte0")
+
+[node name="CSGTorus3D" type="CSGTorus3D" parent="CameraYawTarget/CameraPitchTarget/MainPlayerCamera/RayCast3D" index="0"]
+transform = Transform3D(1, 2.38419e-07, 1.80952e-13, -2.91323e-13, 4.62929e-07, 1, 2.38419e-07, -1, 4.62928e-07, 0, 0, 2)
+inner_radius = 0.086
+outer_radius = 0.105
+
+[node name="HeadTransformRotation" type="RemoteTransform3D" parent="CameraYawTarget/CameraPitchTarget" index="1"]
+remote_path = NodePath("../../../PhysicsSmoother/player_rig_default/PlayerHead")
+update_position = false
+update_scale = false
 
 [node name="MouseLookRotationTarget" type="Node3D" parent="." index="5"]
 transform = Transform3D(1, -2.91323e-13, 2.38419e-07, 1.7053e-13, 1, 5.0664e-07, -2.38419e-07, -5.06639e-07, 1, 0, 0, 0)

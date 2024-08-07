@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://c528dv4slqbn7"]
+[gd_scene load_steps=16 format=3 uid="uid://c528dv4slqbn7"]
 
 [ext_resource type="PackedScene" uid="uid://6j8jju0bod6n" path="res://scenes/test_game/world_background.tscn" id="1_bhp6h"]
 [ext_resource type="Material" uid="uid://dour81aelbrs3" path="res://assets/materials/test_material.tres" id="1_yyfb3"]
@@ -10,19 +10,9 @@
 [ext_resource type="PackedScene" uid="uid://crf33aqia24q7" path="res://scenes/test_game/test_ball.tscn" id="7_gwbvi"]
 [ext_resource type="Material" uid="uid://c83mmu5mwg41i" path="res://scenes/test_game/background_view_material.tres" id="9_sylqv"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_k0nhx"]
-sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
-ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
-
-[sub_resource type="Sky" id="Sky_8kvws"]
-sky_material = SubResource("ProceduralSkyMaterial_k0nhx")
-
 [sub_resource type="Environment" id="Environment_xgs2d"]
 background_mode = 3
 background_canvas_max_layer = -100
-sky = SubResource("Sky_8kvws")
-ambient_light_source = 3
-reflected_light_source = 2
 tonemap_mode = 2
 ssil_enabled = true
 glow_enabled = true

@@ -7,7 +7,7 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <!--Enable NativeAOT-->
     <!-- <PublishAot>true</PublishAot> -->
-
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="LiteNetLib" Version="1.2.0" />

@@ -7,5 +7,5 @@ public class WorldComponents
 {
     // Chunk manager for world generation (might want to integrate it
     // into a worldGenerator class or something later)
-    public ChunkManager chunkManager { get; set; } = null;
+    public ChunkManager ChunkManager { get; set; } = null;
 }

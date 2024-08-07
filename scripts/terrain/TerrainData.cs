@@ -7,10 +7,13 @@ using Godot;
 public static class TerrainData
 {
     // Terrain chunk size
-    public const float CHUNK_SIZE = 8;
+    public const float CHUNK_SIZE = 15;
 
     // Resolution on each axis per chunk
-    public const int VOXELS_PER_AXIS = 16;
+    public const int VOXELS_PER_AXIS = 384; //16;
+
+    // Median byte value for isolevel
+    public const byte CENTER_ISOLEVEL = 128;
 
     public static readonly Vector3 VoxelAxisLengths =
         new(VOXELS_PER_AXIS, VOXELS_PER_AXIS, VOXELS_PER_AXIS);
@@ -27,15 +30,12 @@ public static class TerrainData
     public const int SAMPLE_ARRAY_SIZE =
         SAMPLE_ARRAY_PER_AXIS * SAMPLE_ARRAY_PER_AXIS * SAMPLE_ARRAY_PER_AXIS;
 
-    // // The maximum number of triangles per voxel
-    // public const int MAX_TRIANGLES_PER_VOXEL = 5;
-
-    public const int CHUNK_VIEW_DIST = 4; // Distance of viewable chunks (in 3 dimensions)
+    public const int CHUNK_VIEW_DIST = 3; // Distance of viewable chunks (in each 3 dimensions)
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int Coord3DToIndex(Vector3I coord, int axisLength)
     {
-        return ((coord.Z) * axisLength * axisLength) + ((coord.Y) * axisLength) + (coord.X);
+        return (coord.Z * axisLength * axisLength) + (coord.Y * axisLength) + coord.X;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -51,7 +51,7 @@ public static class TerrainData
     public static Vector3 CoordToChunkSpace(Vector3I coord)
     {
         // -0.5 to 0.5  position relative to chunk
-        return (((Vector3)coord) / TerrainData.VoxelAxisLengths) - new Vector3(0.5f, 0.5f, 0.5f);
+        return (((Vector3)coord) / VoxelAxisLengths) - new Vector3(0.5f, 0.5f, 0.5f);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

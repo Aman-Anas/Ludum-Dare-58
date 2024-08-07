@@ -66,7 +66,6 @@ public partial class TerrainGenerator : Node3D
     bool waitingForMeshthread;
 
     Task meshProcess;
-    Task newTask;
 
     CollisionShape3D testShape;
     Stopwatch stopwatch;

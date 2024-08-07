@@ -5,9 +5,9 @@ using Godot;
 
 public partial class InteractionRay : RayCast3D
 {
-    const float MIN_DISTANCE_SQ = 2.1f;
+    const float MIN_DISTANCE_SQ = 2.1f * 2.1f;
     ulong lastTerraform = Time.GetTicksMsec();
-    const ulong TERRAFORM_INTERVAL = 10; //ms
+    const ulong TERRAFORM_INTERVAL = 30; //ms
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready() { }
@@ -25,34 +25,39 @@ public partial class InteractionRay : RayCast3D
 
         // GD.Print(collisionObj);
         // CSGBoxes are detected, but aren't actually CollisionObject3Ds
-        if (GetCollider() is not CollisionObject3D collisionObj)
+        if (GetCollider() is not CollisionObject3D)
         {
             return;
         }
 
-        if (
-            ((Time.GetTicksMsec() - lastTerraform) >= TERRAFORM_INTERVAL)
-            && collisionObj.GetParent<Node3D>() is Chunk
+        if ((Time.GetTicksMsec() - lastTerraform) >= TERRAFORM_INTERVAL
+        //&& collisionObj.GetParent<Node3D>() is Chunk
         )
         {
-            float strength;
+            bool add;
             if (Input.IsActionPressed(GameActions.PLAYER_PRIMARY_USE))
             {
                 if ((GetCollisionPoint() - GlobalPosition).LengthSquared() < MIN_DISTANCE_SQ)
                 {
                     return;
                 }
-                strength = 0.1f;
+                add = true;
             }
             else if (Input.IsActionPressed(GameActions.PLAYER_SECONDARY_USE))
             {
-                strength = -0.1f;
+                add = false;
             }
             else
             {
                 return;
             }
-            Manager.Instance.MainWorld.chunkManager?.TerraformPoint(GetCollisionPoint(), strength);
+
+            // var pos = (GlobalBasis.Z * 2) + GlobalPosition;
+            // if (IsColliding()) // && (GetCollisionPoint() - GlobalPosition).Length() <= 2)
+            // {
+            var pos = GetCollisionPoint();
+            // }
+            Manager.Instance.MainWorld.ChunkManager?.TerraformPoint(pos, 0.1f, add);
             // GD.Print("hi", GetCollisionPoint(), GetCollisionNormal());
 
             lastTerraform = Time.GetTicksMsec();

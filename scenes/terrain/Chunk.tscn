@@ -1,16 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://cemklg2tr1ud8"]
+[gd_scene load_steps=4 format=3 uid="uid://cemklg2tr1ud8"]
 
 [ext_resource type="Script" path="res://scripts/terrain/Chunk.cs" id="1_nbiym"]
-[ext_resource type="Shader" uid="uid://ws6se3cgoxym" path="res://scripts/shaders/NewTerrainShader.tres" id="2_lvmup"]
-[ext_resource type="Texture2D" uid="uid://bc88socc8jsxe" path="res://addons/kenney_prototype_textures/dark/texture_03.png" id="4_5lhr4"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_dbc8c"]
-render_priority = 0
-shader = ExtResource("2_lvmup")
-shader_parameter/triplanar_scale = Vector3(1, 1, 1)
-shader_parameter/triplanar_offset = null
-shader_parameter/triplanar_sharpness = 0.5
-shader_parameter/Rock = ExtResource("4_5lhr4")
+[ext_resource type="Material" uid="uid://wkas6nlfxkul" path="res://assets/materials/terrain_material.tres" id="2_q45wv"]
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_gqt8f"]
 
@@ -19,7 +10,7 @@ process_mode = 4
 script = ExtResource("1_nbiym")
 physicsBody = NodePath("StaticBody3D")
 collider = NodePath("StaticBody3D/CollisionShape3D")
-chunkMaterial = SubResource("ShaderMaterial_dbc8c")
+chunkMaterial = ExtResource("2_q45wv")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="."]
 process_mode = 1

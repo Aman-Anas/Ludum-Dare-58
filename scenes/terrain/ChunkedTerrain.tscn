@@ -20,10 +20,12 @@ background_mode = 2
 background_canvas_max_layer = -100
 sky = SubResource("Sky_4th22")
 tonemap_mode = 2
-ssr_enabled = true
 ssao_enabled = true
 glow_enabled = true
 glow_bloom = 1.0
+glow_blend_mode = 4
+fog_enabled = true
+fog_aerial_perspective = 1.0
 volumetric_fog_density = 0.024
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_myfvk"]

@@ -32,42 +32,59 @@ public partial class Chunk : MeshInstance3D
     Godot.Collections.Array meshData = [];
 
     // Maps vertex IDs to their index in the surface array
-    readonly ConcurrentDictionary<(int, int), int> existingVertexIDs = new();
+    readonly Dictionary<(int, int), int> existingVertexIDs = new();
 
     // For the Godot surface array
     readonly List<Vector3> verts = [];
     readonly List<Vector3> normals = [];
     readonly List<TriangleIndex> indices = [];
 
-    Vector3[] collisionVertices = [];
+    readonly List<Vector3> collisionVertices = [];
+    Vector3[] collisionVertexArray;
 
     const int INDICES_PER_TRI = 3;
 
     ChunkID currentChunkID;
     Vector3I chunkSampleCoord;
 
-    // Stopwatch s = new();
-
-    public void ProcessChunk(ChunkID cID, float[] terrainData)
+    public void ProcessChunk(ChunkID cID, byte[] terrainData) //, Stopwatch s)
     {
-        // s.Restart();
         currentChunkID = cID;
         chunkSampleCoord = currentChunkID.GetSampleVector3I();
 
+        // s.Restart();
         existingVertexIDs.Clear();
         verts.Clear();
         normals.Clear();
         indices.Clear();
+        collisionVertices.Clear();
 
-        Parallel.For(0, TerrainData.VOXELS_PER_CHUNK, (x) => ProcessVoxel(x, terrainData));
+        // s.Stop();
+        // GD.Print("clear lists ", s.Elapsed.TotalMicroseconds);
+        // s.Restart();
+
+        Parallel.For(0, TerrainData.VOXELS_PER_CHUNK + 1, (x) => ProcessVoxel(x, terrainData));
         // for (int x = 0; x < TerrainData.VOXELS_PER_CHUNK; x++)
         // {
         //     ProcessVoxel(x, terrainData);
         // }
+        // s.Stop();
+        // GD.Print("process voxels ", s.Elapsed.TotalMicroseconds);
+        // s.Restart();
+
         CreateMesh();
 
+        // s.Stop();
+        // GD.Print("create mesh ", s.Elapsed.TotalMicroseconds);
+        // s.Restart();
+
         // Now that the mesh has been generated, let's assign the mesh
-        CallDeferredThreadGroup(finalizeName);
+        // FinalizeInScene();
+        CallDeferred(finalizeName);
+
+        // s.Stop();
+        // GD.Print("finalize mesh ", s.Elapsed.TotalMicroseconds);
+        // s.Restart();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -77,11 +94,22 @@ public partial class Chunk : MeshInstance3D
         return TerrainData.Coord3DToIndex(coord, TerrainData.SAMPLE_ARRAY_PER_AXIS);
     }
 
-    void ProcessVoxel(int voxelIndex, ReadOnlySpan<float> terrainData)
+    static float GetFloatAtCoord(Vector3I coord, ReadOnlySpan<byte> data)
+    {
+        return Mathf.Remap(
+            (float)(data[GetSampleIndex(coord)]),
+            byte.MinValue,
+            byte.MaxValue,
+            -1.0f,
+            1.0f
+        );
+    }
+
+    void ProcessVoxel(int voxelIndex, ReadOnlySpan<byte> terrainData)
     {
         // this voxel coord from 0-15
         var voxelCoord = TerrainData.IndexToCoord3D(voxelIndex, TerrainData.VOXELS_PER_AXIS);
-        const float isoLevel = 0;
+        const byte isoLevel = TerrainData.CENTER_ISOLEVEL;
 
         // 8 corner positions of the current cube
         Span<Vector3I> cubeCorners =
@@ -102,46 +130,31 @@ public partial class Chunk : MeshInstance3D
         // A value of 0 means cube is entirely inside surface; 255 entirely outside.
         // The value is used to look up the edge table, which indicates which edges
         // of the cube are cut by the isosurface.
-        int cubeConfig = 0;
-        for (int i = 0; i < cubeCorners.Length; i++)
-        {
-            // Think of the configuration as an 8-bit binary number (each bit represents the state of a corner point).
-            // The state of each corner point is either 0: above the surface, or 1: below the surface.
-            // The code below sets the corresponding bit to 1, if the point is below the surface.
-            if (terrainData[GetSampleIndex(cubeCorners[i])] < isoLevel)
-            {
-                cubeConfig |= 1 << i;
-            }
-        }
-        // if (terrainData[GetSampleIndex(cubeCorners[0])] < isoLevel)
-        //     cubeConfig |= 1;
-        // if (terrainData[GetSampleIndex(cubeCorners[1])] < isoLevel)
-        //     cubeConfig |= 2;
-        // if (terrainData[GetSampleIndex(cubeCorners[2])] < isoLevel)
-        //     cubeConfig |= 4;
-        // if (terrainData[GetSampleIndex(cubeCorners[3])] < isoLevel)
-        //     cubeConfig |= 8;
-        // if (terrainData[GetSampleIndex(cubeCorners[4])] < isoLevel)
-        //     cubeConfig |= 16;
-        // if (terrainData[GetSampleIndex(cubeCorners[5])] < isoLevel)
-        //     cubeConfig |= 32;
-        // if (terrainData[GetSampleIndex(cubeCorners[6])] < isoLevel)
-        //     cubeConfig |= 64;
-        // if (terrainData[GetSampleIndex(cubeCorners[7])] < isoLevel)
-        //     cubeConfig |= 128;
+        byte cubeConfig = 0;
+        if (terrainData[GetSampleIndex(cubeCorners[0])] < isoLevel)
+            cubeConfig |= 1;
+        if (terrainData[GetSampleIndex(cubeCorners[1])] < isoLevel)
+            cubeConfig |= 2;
+        if (terrainData[GetSampleIndex(cubeCorners[2])] < isoLevel)
+            cubeConfig |= 4;
+        if (terrainData[GetSampleIndex(cubeCorners[3])] < isoLevel)
+            cubeConfig |= 8;
+        if (terrainData[GetSampleIndex(cubeCorners[4])] < isoLevel)
+            cubeConfig |= 16;
+        if (terrainData[GetSampleIndex(cubeCorners[5])] < isoLevel)
+            cubeConfig |= 32;
+        if (terrainData[GetSampleIndex(cubeCorners[6])] < isoLevel)
+            cubeConfig |= 64;
+        if (terrainData[GetSampleIndex(cubeCorners[7])] < isoLevel)
+            cubeConfig |= 128;
 
         // Create triangles for current cube configuration
         // int numIndices = MarchingCubeTables.LUT_INDEX_LENGTHS[cubeConfig];
         // int offset = MarchingCubeTables.LUT_OFFSETS[cubeConfig];
-        Span<int> currentTriangulation = MarchingCubeTables.EdgeTable[cubeConfig];
+        Span<byte> currentTriangulation = MarchingCubeTables.EdgeTable[cubeConfig];
 
-        for (int i = 0; i < 16; i += 3)
+        for (int i = 0; i < currentTriangulation.Length; i += 3)
         {
-            // If edge index is -1, then no further vertices exist in this configuration
-            if (currentTriangulation[i] == -1)
-            {
-                break;
-            }
             // Get indices of corner points A and B for each of the three edges
             // of the cube that need to be joined to form the triangle.
             int v0 = currentTriangulation[i];
@@ -159,38 +172,26 @@ public partial class Chunk : MeshInstance3D
             // Calculate vertex positions and add indices
             TriangleIndex newTriIndex =
                 new(
-                    GenerateVertex(
-                        cubeCorners[a2],
-                        cubeCorners[b2],
-                        terrainData,
-                        isoLevel,
-                        out var pos1
-                    ),
-                    GenerateVertex(
-                        cubeCorners[a1],
-                        cubeCorners[b1],
-                        terrainData,
-                        isoLevel,
-                        out var pos2
-                    ),
-                    GenerateVertex(
-                        cubeCorners[a0],
-                        cubeCorners[b0],
-                        terrainData,
-                        isoLevel,
-                        out var pos3
-                    )
+                    GenerateVertex(cubeCorners[a2], cubeCorners[b2], terrainData, out var pos1),
+                    GenerateVertex(cubeCorners[a1], cubeCorners[b1], terrainData, out var pos2),
+                    GenerateVertex(cubeCorners[a0], cubeCorners[b0], terrainData, out var pos3)
                 );
-
-            // lock (collisionVertices)
-            // {
-            //     collisionVertices.Add(pos1);
-            //     collisionVertices.Add(pos2);
-            //     collisionVertices.Add(pos3);
-            // }
             lock (indices)
             {
                 indices.Add(newTriIndex);
+            }
+
+            // shouldn't be necessary
+            // if (pos1.IsEqualApprox(pos2) || pos1.IsEqualApprox(pos3) || pos2.IsEqualApprox(pos3))
+            // {
+            //     continue;
+            // }
+
+            lock (collisionVertices)
+            {
+                collisionVertices.Add(pos1);
+                collisionVertices.Add(pos2);
+                collisionVertices.Add(pos3);
             }
 
             // flat normals
@@ -204,11 +205,12 @@ public partial class Chunk : MeshInstance3D
     int GenerateVertex(
         Vector3I localPosA,
         Vector3I localPosB,
-        ReadOnlySpan<float> terrainData,
-        float isoLevel,
+        ReadOnlySpan<byte> terrainData,
         out Vector3 vertexPos
     )
     {
+        const float isoLevel = 0;
+
         var worldVec1 = TerrainData.ChunkToRelativeWorldSpace(
             TerrainData.CoordToChunkSpace(localPosA)
         );
@@ -216,8 +218,9 @@ public partial class Chunk : MeshInstance3D
             TerrainData.CoordToChunkSpace(localPosB)
         );
 
-        float n1 = terrainData[GetSampleIndex(localPosA)];
-        float n2 = terrainData[GetSampleIndex(localPosB)];
+        float n1 = GetFloatAtCoord(localPosA, terrainData);
+        float n2 = GetFloatAtCoord(localPosB, terrainData);
+        // GD.Print(n1);
 
         float t = (isoLevel - n1) / (n2 - n1);
 
@@ -238,6 +241,7 @@ public partial class Chunk : MeshInstance3D
         {
             // position = (worldVec1 + worldVec2) * 0.5f; // blocky version
             position = worldVec1 + (t * (worldVec2 - worldVec1));
+            // position = MCInterpolateNoCracks(worldVec1, worldVec2, n1, n2, isoLevel);
         }
         // Vector3 position = worldVec1 + (t * (worldVec2 - worldVec1));
 
@@ -252,17 +256,18 @@ public partial class Chunk : MeshInstance3D
         // }
 
         var posID = GetVertexID(localPosA, localPosB);
+        vertexPos = position;
 
         // GD.Print(position);
         Vector3 normalA = GetCoordinateNormal(localPosA, terrainData);
         Vector3 normalB = GetCoordinateNormal(localPosB, terrainData);
         Vector3 normal = (normalA + (t * (normalB - normalA))).Normalized();
 
-        vertexPos = position;
+        int thisVertexID;
 
-        return existingVertexIDs.GetOrAdd(
-            posID,
-            (_) =>
+        lock (existingVertexIDs)
+        {
+            if (!existingVertexIDs.TryGetValue(posID, out thisVertexID))
             {
                 lock (verts)
                 {
@@ -270,11 +275,13 @@ public partial class Chunk : MeshInstance3D
                     {
                         verts.Add(position);
                         normals.Add(normal);
-                        return verts.Count - 1;
+                        existingVertexIDs[posID] = verts.Count - 1;
+                        thisVertexID = verts.Count - 1;
                     }
                 }
             }
-        );
+        }
+        return thisVertexID;
 
         // if (!existingVertexIDs.ContainsKey(posID))
         // {
@@ -285,7 +292,7 @@ public partial class Chunk : MeshInstance3D
         // return existingVertexIDs[posID];
     }
 
-    static Vector3 GetCoordinateNormal(Vector3I coord, ReadOnlySpan<float> terrainData)
+    static Vector3 GetCoordinateNormal(Vector3I coord, ReadOnlySpan<byte> terrainData)
     {
         Vector3I offsetX = new(1, 0, 0);
         Vector3I offsetY = new(0, 1, 0);
@@ -293,13 +300,14 @@ public partial class Chunk : MeshInstance3D
 
         Vector3 derivative =
             new(
-                terrainData[GetSampleIndex(coord + offsetX)]
-                    - terrainData[GetSampleIndex(coord - offsetX)],
-                terrainData[GetSampleIndex(coord + offsetY)]
-                    - terrainData[GetSampleIndex(coord - offsetY)],
-                terrainData[GetSampleIndex(coord + offsetZ)]
-                    - terrainData[GetSampleIndex(coord - offsetZ)]
+                GetFloatAtCoord((coord + offsetX), terrainData)
+                    - GetFloatAtCoord((coord - offsetX), terrainData),
+                GetFloatAtCoord((coord + offsetY), terrainData)
+                    - GetFloatAtCoord((coord - offsetY), terrainData),
+                GetFloatAtCoord((coord + offsetZ), terrainData)
+                    - GetFloatAtCoord((coord - offsetZ), terrainData)
             );
+        // GD.Print(derivative);
 
         return derivative.Normalized();
     }
@@ -312,44 +320,6 @@ public partial class Chunk : MeshInstance3D
         return (Math.Min(index1, index2), Math.Max(index1, index2));
     }
 
-    // void ProcessMeshData(Span<Triangle> triangles, uint count)
-    // {
-    //     numIndices = (int)(count * INDICES_PER_TRI);
-    //     existingVertexIDs.Clear();
-    //     verts.Clear();
-    //     normals.Clear();
-
-    //     // GD.Print("count ", count);
-    //     if (numIndices > indices.Length)
-    //     {
-    //         Array.Resize(ref indices, numIndices);
-    //     }
-
-    //     int currentIndex = 0;
-    //     for (int triIndex = 0; triIndex < count; triIndex++)
-    //     {
-    //         var currentTri = triangles[triIndex];
-    //         int aIndex = GetVertexIndex(currentTri.vertexA);
-    //         int bIndex = GetVertexIndex(currentTri.vertexB);
-    //         int cIndex = GetVertexIndex(currentTri.vertexC);
-
-    //         // If two indices are identical, that means something is wack
-    //         // because that's not a triangle
-    //         if ((aIndex == bIndex) || (aIndex == cIndex) || (bIndex == cIndex))
-    //         {
-    //             numIndices -= INDICES_PER_TRI;
-    //             continue;
-    //         }
-
-    //         indices[currentIndex] = aIndex;
-    //         currentIndex++;
-    //         indices[currentIndex] = bIndex;
-    //         currentIndex++;
-    //         indices[currentIndex] = cIndex;
-    //         currentIndex++;
-    //     }
-    // }
-
     void CreateMesh()
     {
         if (indices.Count >= INDICES_PER_TRI)
@@ -359,46 +329,16 @@ public partial class Chunk : MeshInstance3D
                 CollectionsMarshal.AsSpan(indices)
             );
             // Make our Godot array and throw the data in
-            meshData.Resize((int)Mesh.ArrayType.Max);
+
             meshData[(int)Mesh.ArrayType.Vertex] = vertexSpan;
             meshData[(int)Mesh.ArrayType.Normal] = CollectionsMarshal.AsSpan(normals);
             meshData[(int)Mesh.ArrayType.Index] = indexSpan;
 
-            if (collisionVertices.Length != indexSpan.Length)
-            {
-                collisionVertices = new Vector3[indexSpan.Length];
-            }
-            for (int x = 0; x < collisionVertices.Length; x++)
-            {
-                collisionVertices[x] = vertexSpan[indexSpan[x]];
-            }
+            collisionVertexArray = [.. collisionVertices];
         }
 
         chunkMesh.ClearSurfaces();
     }
-
-    // int GetVertexIndex(Vertex v)
-    // {
-    //     (int, int, int) id = GetVertexID(v);
-
-    //     if (!existingVertexIDs.TryGetValue(id, out int index))
-    //     {
-    //         // If it doesn't exist yet, add it
-    //         index = verts.Count;
-    //         existingVertexIDs[id] = index;
-    //         verts.Add(MemoryMarshal.AsRef<Vector3>(v.Position.));
-    //         normals.Add(new Vector3(v.normX, v.normY, v.normZ));
-    //     }
-    //     // Yes, this is kind of a waste of data (duplicate verts coming from gpu) but
-    //     // triangles are constructed in parallel on the GPU so we can't
-    //     // know how they fit together ahead of time
-
-    //     // An alternative to GetVertexID is to have a nice hashable ID for each voxel edge and
-    //     // include it in the GPU data per vertex, but that balloons the total amount of data
-    //     // coming from the GPU and GetVertexID() is simple and fast enough
-
-    //     return index;
-    // }
 
     public void FinalizeInScene()
     {
@@ -411,10 +351,11 @@ public partial class Chunk : MeshInstance3D
             return;
         }
         collider.Disabled = false;
+
         chunkMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, meshData);
         chunkMesh.SurfaceSetMaterial(0, chunkMaterial);
 
-        chunkShape.Data = collisionVertices;
+        chunkShape.Data = collisionVertexArray;
         // s.Stop();
         // GD.Print(s.ElapsedMilliseconds);
 
@@ -440,6 +381,7 @@ public partial class Chunk : MeshInstance3D
         // Ensure this chunk has the ArrayMesh
         this.Mesh = chunkMesh;
         collider.Shape = chunkShape;
+        meshData.Resize((int)Mesh.ArrayType.Max);
     }
 
     // Not needed
