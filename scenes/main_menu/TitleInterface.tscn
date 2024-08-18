@@ -2,8 +2,8 @@
 
 [ext_resource type="Theme" uid="uid://cmeyu4ofgl2c0" path="res://theme/main_UI_theme.tres" id="1_sshgn"]
 [ext_resource type="Script" path="res://scripts/main_menu/MainMenu.cs" id="1_x8ln0"]
-[ext_resource type="PackedScene" uid="uid://c528dv4slqbn7" path="res://scenes/test_game/main_test_game.tscn" id="2_1ruh2"]
-[ext_resource type="PackedScene" uid="uid://86na0e3npoj5" path="res://scenes/main_menu/settings.tscn" id="3_t7x32"]
+[ext_resource type="PackedScene" uid="uid://jhxffeocg326" path="res://scenes/main_menu/NetSetupScreen.tscn" id="2_dxp7w"]
+[ext_resource type="PackedScene" uid="uid://86na0e3npoj5" path="res://scenes/main_menu/Settings.tscn" id="3_t7x32"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gj8vk"]
 content_margin_left = 14.0
@@ -31,7 +31,7 @@ HomeButton = NodePath("Home")
 MainMenuRoot = NodePath("TitleMargin")
 HelpMenu = NodePath("Help")
 SettingsMenu = NodePath("Settings")
-mainGameScene = ExtResource("2_1ruh2")
+netSelectScreen = ExtResource("2_dxp7w")
 metadata/_edit_lock_ = true
 
 [node name="Version" type="Label" parent="."]
@@ -72,7 +72,7 @@ layout_mode = 2
 size_flags_horizontal = 4
 theme = ExtResource("1_sshgn")
 theme_type_variation = &"TitleLarge"
-text = "The Game"
+text = "SpaceGame"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -85,10 +85,13 @@ theme_override_constants/margin_right = 15
 
 [node name="Columns" type="HBoxContainer" parent="TitleMargin/VBoxContainer/ContentMargin"]
 layout_mode = 2
+alignment = 1
 
 [node name="PanelContainer" type="PanelContainer" parent="TitleMargin/VBoxContainer/ContentMargin/Columns"]
 layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 4
+size_flags_stretch_ratio = 0.63
 theme_override_styles/panel = SubResource("StyleBoxFlat_gj8vk")
 
 [node name="ButtonList" type="VBoxContainer" parent="TitleMargin/VBoxContainer/ContentMargin/Columns/PanelContainer"]
@@ -113,11 +116,25 @@ theme = ExtResource("1_sshgn")
 theme_type_variation = &"TitleButton"
 text = "Quit"
 
+[node name="HostOnly" type="Button" parent="TitleMargin/VBoxContainer/ContentMargin/Columns/PanelContainer/ButtonList"]
+layout_mode = 2
+theme = ExtResource("1_sshgn")
+theme_override_styles/normal = SubResource("StyleBoxFlat_p3c23")
+text = " Host Only"
+
 [node name="Settings" type="Button" parent="TitleMargin/VBoxContainer/ContentMargin/Columns/PanelContainer/ButtonList"]
 layout_mode = 2
 theme = ExtResource("1_sshgn")
 theme_override_styles/normal = SubResource("StyleBoxFlat_p3c23")
 text = " Settings"
+
+[node name="Control2" type="Control" parent="TitleMargin/VBoxContainer/ContentMargin/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Control" type="Control" parent="TitleMargin/VBoxContainer/ContentMargin/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="Help" type="PanelContainer" parent="."]
 visible = false

@@ -1,18 +1,24 @@
-[gd_scene load_steps=16 format=3 uid="uid://c528dv4slqbn7"]
+[gd_scene load_steps=18 format=3 uid="uid://c528dv4slqbn7"]
 
-[ext_resource type="PackedScene" uid="uid://6j8jju0bod6n" path="res://scenes/test_game/world_background.tscn" id="1_bhp6h"]
-[ext_resource type="Material" uid="uid://dour81aelbrs3" path="res://assets/materials/test_material.tres" id="1_yyfb3"]
-[ext_resource type="Material" uid="uid://ddulokmr8s0l7" path="res://assets/materials/test_transparent_fade.tres" id="2_vmhml"]
-[ext_resource type="PackedScene" uid="uid://5tfng4tp7c4" path="res://scenes/test_game/player.tscn" id="4_pc65c"]
-[ext_resource type="PackedScene" uid="uid://be68kkhnkgb6u" path="res://scenes/main_menu/Pause.tscn" id="4_tod67"]
-[ext_resource type="Script" path="res://utility/Node/LocalGravityArea.cs" id="4_x4bi2"]
-[ext_resource type="Texture2D" uid="uid://c6yiplbg4g5yr" path="res://addons/kenney_prototype_textures/light/texture_07.png" id="5_b517f"]
-[ext_resource type="PackedScene" uid="uid://crf33aqia24q7" path="res://scenes/test_game/test_ball.tscn" id="7_gwbvi"]
-[ext_resource type="Material" uid="uid://c83mmu5mwg41i" path="res://scenes/test_game/background_view_material.tres" id="9_sylqv"]
+[ext_resource type="PackedScene" uid="uid://6j8jju0bod6n" path="res://scenes/test_game/WorldBackground.tscn" id="1_hln4w"]
+[ext_resource type="Material" uid="uid://dour81aelbrs3" path="res://assets/materials/test_material.tres" id="2_ks5h1"]
+[ext_resource type="Material" uid="uid://ddulokmr8s0l7" path="res://assets/materials/test_transparent_fade.tres" id="3_445kk"]
+[ext_resource type="Texture2D" uid="uid://c6yiplbg4g5yr" path="res://addons/kenney_prototype_textures/light/texture_07.png" id="4_8an4d"]
+[ext_resource type="Script" path="res://utility/Node/LocalGravityArea.cs" id="5_lxk3v"]
+[ext_resource type="PackedScene" uid="uid://be68kkhnkgb6u" path="res://scenes/main_menu/Pause.tscn" id="6_euigh"]
+[ext_resource type="PackedScene" uid="uid://5tfng4tp7c4" path="res://scenes/test_game/Player.tscn" id="7_fvyis"]
+[ext_resource type="PackedScene" uid="uid://crf33aqia24q7" path="res://scenes/test_game/TestBall.tscn" id="8_gbhpy"]
+[ext_resource type="Material" uid="uid://c83mmu5mwg41i" path="res://scenes/test_game/background_view_material.tres" id="9_t3xt2"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_4rm7k"]
+
+[sub_resource type="Sky" id="Sky_gf606"]
+sky_material = SubResource("ProceduralSkyMaterial_4rm7k")
 
 [sub_resource type="Environment" id="Environment_xgs2d"]
-background_mode = 3
+background_mode = 2
 background_canvas_max_layer = -100
+sky = SubResource("Sky_gf606")
 tonemap_mode = 2
 ssil_enabled = true
 glow_enabled = true
@@ -20,7 +26,7 @@ glow_bloom = 1.0
 volumetric_fog_density = 0.024
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lltu2"]
-albedo_texture = ExtResource("5_b517f")
+albedo_texture = ExtResource("4_8an4d")
 uv1_triplanar = true
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1yjjr"]
@@ -45,9 +51,11 @@ size = Vector3(0.917912, 9.98205, 2.91571)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 layer = -100
+visible = false
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="CanvasLayer"]
 process_mode = 3
+visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -62,9 +70,10 @@ own_world_3d = true
 handle_input_locally = false
 physics_object_picking = true
 size = Vector2i(1152, 648)
-render_target_update_mode = 4
+render_target_update_mode = 0
 
-[node name="TestBackground" parent="CanvasLayer/SubViewportContainer/SubViewport" node_paths=PackedStringArray("mainScene") instance=ExtResource("1_bhp6h")]
+[node name="TestBackground" parent="CanvasLayer/SubViewportContainer/SubViewport" node_paths=PackedStringArray("mainScene") instance=ExtResource("1_hln4w")]
+visible = false
 mainScene = NodePath("../../../..")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -77,7 +86,7 @@ shadow_enabled = true
 [node name="TestLevel" type="Node" parent="."]
 
 [node name="WallsEnvironment" type="CSGCombiner3D" parent="TestLevel"]
-material_override = ExtResource("1_yyfb3")
+material_override = ExtResource("2_ks5h1")
 use_collision = true
 
 [node name="CSGCylinder3D3" type="CSGCylinder3D" parent="TestLevel/WallsEnvironment"]
@@ -235,11 +244,11 @@ size = Vector3(1, 0.7, 1)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.6077, -1.19248, -7.67205)
 operation = 2
 size = Vector3(3.86652, 2.26515, 4.82773)
-material = ExtResource("2_vmhml")
+material = ExtResource("3_445kk")
 
 [node name="Water" type="CSGBox3D" parent="TestLevel"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.5775, -0.0617128, -7.67768)
-material_override = ExtResource("2_vmhml")
+material_override = ExtResource("3_445kk")
 size = Vector3(3.77992, 0.104688, 4.9209)
 
 [node name="CSGSphere3D" type="CSGSphere3D" parent="TestLevel"]
@@ -273,7 +282,7 @@ transform = Transform3D(0.347286, 0.359713, 0.866026, -0.719426, 0.694572, 0, -0
 collision_layer = 3
 collision_mask = 3
 gravity_space_override = 3
-script = ExtResource("4_x4bi2")
+script = ExtResource("5_lxk3v")
 localGravityValue = Vector3(1, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="TestLevel/Area3D"]
@@ -285,7 +294,7 @@ transform = Transform3D(0.499928, -0.00855155, 0.866026, 0.0171036, 0.999856, 0,
 collision_layer = 3
 collision_mask = 3
 gravity_space_override = 3
-script = ExtResource("4_x4bi2")
+script = ExtResource("5_lxk3v")
 localGravityValue = Vector3(1, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="TestLevel/Area3D2"]
@@ -297,44 +306,44 @@ transform = Transform3D(0.347455, -0.359549, 0.866026, 0.719099, 0.694911, 0, -0
 collision_layer = 3
 collision_mask = 3
 gravity_space_override = 3
-script = ExtResource("4_x4bi2")
+script = ExtResource("5_lxk3v")
 localGravityValue = Vector3(1, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="TestLevel/Area3D3"]
 transform = Transform3D(1, -1.19209e-07, -1.49012e-07, -1.78814e-07, 1, 2.98023e-08, 2.92063e-06, 0, 1, 0, 0, 0)
 shape = SubResource("BoxShape3D_hjowt")
 
-[node name="Pause" parent="." instance=ExtResource("4_tod67")]
+[node name="Pause" parent="." instance=ExtResource("6_euigh")]
 
-[node name="Player" parent="." instance=ExtResource("4_pc65c")]
+[node name="Player" parent="." instance=ExtResource("7_fvyis")]
 transform = Transform3D(0.384086, 0, 0.923297, 0, 1, 0, -0.923297, 0, 0.384086, 12.9, 0.1, -4.4)
 
-[node name="TestBall2" parent="." instance=ExtResource("7_gwbvi")]
+[node name="TestBall2" parent="." instance=ExtResource("8_gbhpy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 125.095, 1.84353)
 
-[node name="TestBall3" parent="." instance=ExtResource("7_gwbvi")]
+[node name="TestBall3" parent="." instance=ExtResource("8_gbhpy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 125.095, 1.84353)
 
-[node name="TestBall" parent="." instance=ExtResource("7_gwbvi")]
+[node name="TestBall" parent="." instance=ExtResource("8_gbhpy")]
 
 [node name="Windoge" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.481134, 2, -22)
 use_collision = true
 size = Vector3(0.963269, 1, 1)
-material = ExtResource("9_sylqv")
+material = ExtResource("9_t3xt2")
 
 [node name="Windoge2" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.481134, 2, -12)
 use_collision = true
 size = Vector3(0.963269, 1, 1)
-material = ExtResource("9_sylqv")
+material = ExtResource("9_t3xt2")
 
 [node name="Windoge3" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.5189, 2, -12)
 use_collision = true
 size = Vector3(0.963269, 1, 1)
-material = ExtResource("9_sylqv")
+material = ExtResource("9_t3xt2")
 
 [node name="CSGSphere3D" type="CSGSphere3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.59547, 1.73429, -1.92402)
-material = ExtResource("9_sylqv")
+material = ExtResource("9_t3xt2")

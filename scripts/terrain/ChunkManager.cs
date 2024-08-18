@@ -42,9 +42,6 @@ public partial class ChunkManager : Node3D
     // We'll have to clear this after some limit and on area changes
     readonly ConcurrentDictionary<ChunkID, byte[]> knownChunkData = [];
 
-    [Export]
-    PackedScene testMarkerScene;
-
     // This is the var tracking whether we already are processing a chunk
     bool currentlyComputing;
 
@@ -221,7 +218,7 @@ public partial class ChunkManager : Node3D
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        Manager.Instance.MainWorld.ChunkManager = this;
+        // Manager.Instance.MainWorld.ChunkManager = this;
         // GD.Print("Size ", Marshal.SizeOf<TerrainParameters>());
 
         // InitializeCompute();
@@ -258,9 +255,9 @@ public partial class ChunkManager : Node3D
                 {
                     ChunkID toQueue =
                         new(
-                            x + currentPlayerChunk.posX,
-                            y + currentPlayerChunk.posY,
-                            z + currentPlayerChunk.posZ
+                            x + currentPlayerChunk.X,
+                            y + currentPlayerChunk.Y,
+                            z + currentPlayerChunk.Z
                         );
 
                     bool chunkIsLoaded = loadedChunks.ContainsKey(toQueue);

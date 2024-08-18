@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://6j8jju0bod6n"]
 
-[ext_resource type="Script" path="res://scripts/world/WorldBackgroundScene.cs" id="1_rf1hq"]
-[ext_resource type="Material" uid="uid://dour81aelbrs3" path="res://assets/materials/test_material.tres" id="2_nc25l"]
+[ext_resource type="Script" path="res://scripts/world/WorldBackgroundScene.cs" id="1_hwlo2"]
+[ext_resource type="Material" uid="uid://dour81aelbrs3" path="res://assets/materials/test_material.tres" id="2_rsln2"]
 
 [sub_resource type="Environment" id="Environment_vx1kb"]
 background_mode = 1
@@ -12,14 +12,14 @@ glow_bloom = 1.0
 volumetric_fog_density = 0.024
 
 [node name="TestBackground" type="Node3D"]
-script = ExtResource("1_rf1hq")
+script = ExtResource("1_hwlo2")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_vx1kb")
 
 [node name="CSGBox3D" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.48386, -0.0288463)
-material_override = ExtResource("2_nc25l")
+material_override = ExtResource("2_rsln2")
 size = Vector3(18, 0.001, 18)
 
 [node name="CSGBox3D" type="CSGBox3D" parent="CSGBox3D"]

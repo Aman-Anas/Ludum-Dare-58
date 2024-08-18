@@ -1,0 +1,180 @@
+[gd_scene load_steps=3 format=3 uid="uid://jhxffeocg326"]
+
+[ext_resource type="Theme" uid="uid://cmeyu4ofgl2c0" path="res://theme/main_UI_theme.tres" id="1_d1alf"]
+[ext_resource type="Script" path="res://scripts/main_menu/NetSetupScreen.cs" id="1_xpr30"]
+
+[node name="NetSetupScreen" type="Control" node_paths=PackedStringArray("backToTitle", "joinIP", "joinPort", "joinButton", "makeNewWorld", "hostPort", "hostPlayButton", "hostOnlyButton", "refreshList", "usernameBox", "pwordBox", "worldList", "serverList", "errorWindow", "createWorldWindow", "enterWorldName")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_xpr30")
+backToTitle = NodePath("VBoxContainer/HBoxContainer2/BackToTitle")
+titleScene = "res://scenes/main_menu/Title.tscn"
+joinIP = NodePath("VBoxContainer/HBoxContainer/VBoxContainer2/HBoxContainer/JoinIp")
+joinPort = NodePath("VBoxContainer/HBoxContainer/VBoxContainer2/HBoxContainer/joinport")
+joinButton = NodePath("VBoxContainer/HBoxContainer/VBoxContainer2/Joinbtn")
+makeNewWorld = NodePath("VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer2/newworld")
+hostPort = NodePath("VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/serverport")
+hostPlayButton = NodePath("VBoxContainer/HBoxContainer/VBoxContainer/Host")
+hostOnlyButton = NodePath("VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer2/HostOnly")
+refreshList = NodePath("VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer2/refreshlist")
+usernameBox = NodePath("VBoxContainer/HBoxContainer3/username")
+pwordBox = NodePath("VBoxContainer/HBoxContainer3/password")
+worldList = NodePath("VBoxContainer/HBoxContainer/VBoxContainer/worldlist")
+serverList = NodePath("VBoxContainer/HBoxContainer/VBoxContainer2/serverlist")
+errorWindow = NodePath("ErrorWindow")
+createWorldWindow = NodePath("WorldNameWindow")
+enterWorldName = NodePath("WorldNameWindow/LineEdit")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+offset_right = 1152.0
+offset_bottom = 23.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+text = "Server Select"
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 2
+
+[node name="BackToTitle" type="Button" parent="VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "Back to Title"
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="username" type="LineEdit" parent="VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Username"
+
+[node name="password" type="LineEdit" parent="VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+placeholder_text = "Password"
+secret = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="worldlist" type="ItemList" parent="VBoxContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="HostOnly" type="Button" parent="VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("1_d1alf")
+text = " Host Only"
+
+[node name="newworld" type="Button" parent="VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "New World..."
+
+[node name="refreshlist" type="Button" parent="VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = ""
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="serverhostip" type="LineEdit" parent="VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "localhost"
+placeholder_text = "IP Address"
+editable = false
+
+[node name="serverport" type="SpinBox" parent="VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+max_value = 9.22337e+18
+value = 8303.0
+
+[node name="Host" type="Button" parent="VBoxContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme = ExtResource("1_d1alf")
+theme_type_variation = &"NetButton"
+text = "Host and Play"
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="serverlist" type="ItemList" parent="VBoxContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+
+[node name="servername" type="LineEdit" parent="VBoxContainer/HBoxContainer/VBoxContainer2/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Server Name (optional)"
+editable = false
+
+[node name="AddServer" type="Button" parent="VBoxContainer/HBoxContainer/VBoxContainer2/HBoxContainer2"]
+layout_mode = 2
+disabled = true
+text = "Add"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+
+[node name="JoinIp" type="LineEdit" parent="VBoxContainer/HBoxContainer/VBoxContainer2/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "IP Address"
+
+[node name="joinport" type="SpinBox" parent="VBoxContainer/HBoxContainer/VBoxContainer2/HBoxContainer"]
+layout_mode = 2
+max_value = 1e+13
+value = 8303.0
+
+[node name="Joinbtn" type="Button" parent="VBoxContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+theme_type_variation = &"NetButton"
+text = "Join Game"
+
+[node name="ErrorWindow" type="AcceptDialog" parent="."]
+initial_position = 2
+size = Vector2i(262, 100)
+dialog_text = "Failed to connect to server!"
+
+[node name="WorldNameWindow" type="ConfirmationDialog" parent="."]
+initial_position = 1
+
+[node name="LineEdit" type="LineEdit" parent="WorldNameWindow"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 192.0
+offset_bottom = 58.0
+placeholder_text = "Enter World Name..."

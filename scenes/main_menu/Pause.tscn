@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://be68kkhnkgb6u"]
 
 [ext_resource type="Script" path="res://scripts/main_menu/Pause.cs" id="1_344uv"]
-[ext_resource type="PackedScene" uid="uid://86na0e3npoj5" path="res://scenes/main_menu/settings.tscn" id="2_3mfmm"]
+[ext_resource type="PackedScene" uid="uid://86na0e3npoj5" path="res://scenes/main_menu/Settings.tscn" id="2_3mfmm"]
 
 [node name="Pause" type="Control" node_paths=PackedStringArray("resumeButton", "settingsButton", "quitButton", "backButton", "pauseMenuRoot", "settingsMenuRoot")]
 process_mode = 3

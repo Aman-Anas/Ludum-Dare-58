@@ -17,6 +17,8 @@ corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
 [resource]
+NetButton/base_type = &"Button"
+NetButton/font_sizes/font_size = 45
 TitleButton/base_type = &"Button"
 TitleButton/font_sizes/font_size = 50
 TitleButton/styles/normal = ExtResource("1_whl0w")

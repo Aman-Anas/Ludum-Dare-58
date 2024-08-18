@@ -15,6 +15,7 @@ public partial class InteractionRay : RayCast3D
     // Called every physics frame. 'delta' is the elapsed time since the previous frame.
     public override void _PhysicsProcess(double delta)
     {
+        return;
         // Should get the currently held item and call its use/run method. (interface)
         // just testing for now though, so let's assume terraforming
 
@@ -57,7 +58,7 @@ public partial class InteractionRay : RayCast3D
             // {
             var pos = GetCollisionPoint();
             // }
-            Manager.Instance.MainWorld.ChunkManager?.TerraformPoint(pos, 0.1f, add);
+            // Manager.Instance.MainWorld.ChunkManager?.TerraformPoint(pos, 0.1f, add);
             // GD.Print("hi", GetCollisionPoint(), GetCollisionNormal());
 
             lastTerraform = Time.GetTicksMsec();

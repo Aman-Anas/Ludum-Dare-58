@@ -1,3 +1,5 @@
+using System;
+using Game;
 using Godot;
 using Utilities.Logic;
 
@@ -30,7 +32,7 @@ public partial class MainMenu : Control
     Control SettingsMenu;
 
     [Export]
-    PackedScene mainGameScene;
+    PackedScene netSelectScreen;
 
     // Helper to manage side menus
     SubMenuHelper mainHelper;
@@ -40,15 +42,9 @@ public partial class MainMenu : Control
     {
         mainHelper = new(HomeButton, MainMenuRoot);
 
-        PlayButton.Pressed += StartGame;
+        PlayButton.Pressed += () => GetTree().ChangeSceneToPacked(netSelectScreen);
         HelpButton.Pressed += () => mainHelper.SetSubMenu(HelpMenu);
         SettingsButton.Pressed += () => mainHelper.SetSubMenu(SettingsMenu);
         QuitButton.Pressed += () => GetTree().Quit();
-    }
-
-    void StartGame()
-    {
-        //start the game
-        GetTree().ChangeSceneToPacked(mainGameScene);
     }
 }

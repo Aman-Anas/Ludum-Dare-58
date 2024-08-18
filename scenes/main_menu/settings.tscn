@@ -1,11 +1,11 @@
 [gd_scene load_steps=7 format=3 uid="uid://86na0e3npoj5"]
 
-[ext_resource type="Theme" uid="uid://cmeyu4ofgl2c0" path="res://theme/main_UI_theme.tres" id="1_g5i38"]
-[ext_resource type="Script" path="res://scripts/main_menu/SettingsMenu.cs" id="1_s8jac"]
-[ext_resource type="Script" path="res://scripts/main_menu/Graphics.cs" id="2_44ats"]
-[ext_resource type="Script" path="res://scripts/main_menu/Controls.cs" id="4_vf0ja"]
-[ext_resource type="PackedScene" uid="uid://dyqtb418xwk78" path="res://scenes/main_menu/keymap_line.tscn" id="5_l7o5b"]
-[ext_resource type="Script" path="res://scripts/main_menu/Gameplay.cs" id="6_1r1sa"]
+[ext_resource type="Script" path="res://scripts/main_menu/SettingsMenu.cs" id="1_k1ybd"]
+[ext_resource type="Script" path="res://scripts/main_menu/Graphics.cs" id="2_bu8qk"]
+[ext_resource type="Theme" uid="uid://cmeyu4ofgl2c0" path="res://theme/main_UI_theme.tres" id="3_4brjy"]
+[ext_resource type="Script" path="res://scripts/main_menu/Controls.cs" id="4_dvcq0"]
+[ext_resource type="PackedScene" uid="uid://dyqtb418xwk78" path="res://scenes/main_menu/KeymapLine.tscn" id="5_qwwfi"]
+[ext_resource type="Script" path="res://scripts/main_menu/Gameplay.cs" id="6_67h65"]
 
 [node name="Settings" type="MarginContainer" node_paths=PackedStringArray("applyButton", "settingsSelect", "menuRoot", "resetAllButton", "revertButton")]
 anchors_preset = 15
@@ -15,7 +15,7 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-script = ExtResource("1_s8jac")
+script = ExtResource("1_k1ybd")
 applyButton = NodePath("PanelContainer/MarginContainer/VBoxContainer/ApplyButton")
 settingsSelect = NodePath("PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ItemList")
 menuRoot = NodePath("PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/MenuRoot")
@@ -77,7 +77,7 @@ size_flags_vertical = 3
 theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 10
 columns = 2
-script = ExtResource("2_44ats")
+script = ExtResource("2_bu8qk")
 windowModeDropdown = NodePath("ModeDropdown")
 resolutionX = NodePath("HBoxContainer/Res_X")
 resolutionY = NodePath("HBoxContainer/Res_Y")
@@ -88,7 +88,7 @@ locale = NodePath("OptionButton")
 
 [node name="ModeLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/MenuRoot/Graphics"]
 layout_mode = 2
-theme = ExtResource("1_g5i38")
+theme = ExtResource("3_4brjy")
 theme_type_variation = &"HeaderMedium"
 text = "Window mode
 "
@@ -99,7 +99,7 @@ size_flags_horizontal = 8
 
 [node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/MenuRoot/Graphics"]
 layout_mode = 2
-theme = ExtResource("1_g5i38")
+theme = ExtResource("3_4brjy")
 theme_type_variation = &"HeaderMedium"
 text = "Resolution"
 
@@ -119,7 +119,7 @@ update_on_text_changed = true
 
 [node name="V-Sync" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/MenuRoot/Graphics"]
 layout_mode = 2
-theme = ExtResource("1_g5i38")
+theme = ExtResource("3_4brjy")
 theme_type_variation = &"HeaderMedium"
 text = "V-Sync Mode"
 
@@ -129,7 +129,7 @@ size_flags_horizontal = 8
 
 [node name="FPS" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/MenuRoot/Graphics"]
 layout_mode = 2
-theme = ExtResource("1_g5i38")
+theme = ExtResource("3_4brjy")
 theme_type_variation = &"HeaderMedium"
 text = "Max FPS (0 unlimited)"
 
@@ -139,7 +139,7 @@ size_flags_horizontal = 8
 
 [node name="Antialias" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/MenuRoot/Graphics"]
 layout_mode = 2
-theme = ExtResource("1_g5i38")
+theme = ExtResource("3_4brjy")
 theme_type_variation = &"HeaderMedium"
 text = "Anti-Aliasing"
 
@@ -149,7 +149,7 @@ size_flags_horizontal = 8
 
 [node name="TranslationLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/MenuRoot/Graphics"]
 layout_mode = 2
-theme = ExtResource("1_g5i38")
+theme = ExtResource("3_4brjy")
 theme_type_variation = &"HeaderMedium"
 text = "Translation Locale"
 
@@ -167,21 +167,21 @@ popup/item_0/disabled = true
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
-script = ExtResource("4_vf0ja")
-keymapScene = ExtResource("5_l7o5b")
+script = ExtResource("4_dvcq0")
+keymapScene = ExtResource("5_qwwfi")
 keyPressOverlay = NodePath("../../../../../../../KeyPressOverlay")
 
 [node name="Gameplay" type="GridContainer" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/MenuRoot" node_paths=PackedStringArray("mouseSensitivityBox")]
 visible = false
 layout_mode = 2
 columns = 2
-script = ExtResource("6_1r1sa")
+script = ExtResource("6_67h65")
 mouseSensitivityBox = NodePath("MouseSens")
 
 [node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/ScrollContainer/MenuRoot/Gameplay"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme = ExtResource("1_g5i38")
+theme = ExtResource("3_4brjy")
 theme_type_variation = &"HeaderMedium"
 text = "Mouse Sensitivity"
 

@@ -1,11 +1,10 @@
-[gd_scene load_steps=12 format=3 uid="uid://ce4a07ov21gnq"]
+[gd_scene load_steps=11 format=3 uid="uid://ce4a07ov21gnq"]
 
 [ext_resource type="Script" path="res://scripts/terrain/ChunkManager.cs" id="1_8512h"]
 [ext_resource type="PackedScene" uid="uid://cemklg2tr1ud8" path="res://scenes/terrain/Chunk.tscn" id="2_v3kne"]
-[ext_resource type="PackedScene" uid="uid://bhxvr8rdh7dei" path="res://scenes/terrain/TestMarker.tscn" id="3_17knn"]
 [ext_resource type="PackedScene" uid="uid://be68kkhnkgb6u" path="res://scenes/main_menu/Pause.tscn" id="3_qxdqc"]
-[ext_resource type="PackedScene" uid="uid://5tfng4tp7c4" path="res://scenes/test_game/player.tscn" id="4_h72e6"]
-[ext_resource type="PackedScene" uid="uid://crf33aqia24q7" path="res://scenes/test_game/test_ball.tscn" id="5_hgi0l"]
+[ext_resource type="PackedScene" uid="uid://5tfng4tp7c4" path="res://scenes/test_game/Player.tscn" id="4_h72e6"]
+[ext_resource type="PackedScene" uid="uid://crf33aqia24q7" path="res://scenes/test_game/TestBall.tscn" id="5_hgi0l"]
 [ext_resource type="Material" uid="uid://cs3ge67ertec7" path="res://assets/materials/test_transparent_fade_inverted.tres" id="5_iy1ah"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_cs2r6"]
@@ -42,7 +41,6 @@ script = ExtResource("1_8512h")
 chunkTemplate = ExtResource("2_v3kne")
 player = NodePath("../Player")
 terraformMarker = NodePath("../CSGSphere3D")
-testMarkerScene = ExtResource("3_17knn")
 
 [node name="CSGBox3D" type="CSGBox3D" parent="."]
 
@@ -64,7 +62,6 @@ gravity_point_center = Vector3(0, 0, 0)
 gravity_direction = Vector3(0, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0634308, -0.237083, -0.0112991)
 shape = SubResource("SphereShape3D_myfvk")
 
 [node name="Player" parent="." instance=ExtResource("4_h72e6")]

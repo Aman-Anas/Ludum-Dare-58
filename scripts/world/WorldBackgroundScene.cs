@@ -23,6 +23,7 @@ public partial class WorldBackgroundScene : Node3D
     {
         var backCam = backgroundView.GetCamera3D();
         var mainCam = mainView.GetCamera3D();
+        backCam.Fov = mainCam.Fov;
         backCam.GlobalBasis = mainCam.GlobalBasis;
         backCam.GlobalPosition = mainCam.GlobalPosition; // * 0.5f;
     }

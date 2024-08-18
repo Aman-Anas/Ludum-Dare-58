@@ -11,11 +11,15 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="LiteNetLib" Version="1.2.0" />
-    <PackageReference Include="MessagePack" Version="2.5.140" />
-    <PackageReference Include="MessagePack.MSBuild.Tasks" Version="2.5.168">
+    <PackageReference Include="MessagePack" Version="2.5.172" />
+    <PackageReference Include="MessagePackAnalyzer" Version="2.5.172">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <!-- <PackageReference Include="MessagePack.MSBuild.Tasks" Version="2.5.172">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference> -->
     <PackageReference Include="MessagePackGodot" Version="1.0.1" />
     <!-- Root the assemblies to avoid trimming. -->
     <TrimmerRootAssembly Include="GodotSharp" />

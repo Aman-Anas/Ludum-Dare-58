@@ -1,0 +1,12 @@
+[gd_scene load_steps=5 format=3 uid="uid://8oenexyfi21p"]
+
+[ext_resource type="Script" path="res://scripts/Manager.cs" id="1_up5no"]
+[ext_resource type="PackedScene" uid="uid://dd7wtsnynoibe" path="res://scenes/main_menu/Title.tscn" id="2_wdahu"]
+[ext_resource type="PackedScene" uid="uid://c528dv4slqbn7" path="res://scenes/test_game/MainTestGame.tscn" id="3_f8gw8"]
+[ext_resource type="PackedScene" uid="uid://b8wst84ngcpj" path="res://scenes/main_menu/ServerOnlyScene.tscn" id="4_tnfw3"]
+
+[node name="Manager" type="Node"]
+script = ExtResource("1_up5no")
+titleScene = ExtResource("2_wdahu")
+mainClientScene = ExtResource("3_f8gw8")
+serverOnlyScene = ExtResource("4_tnfw3")
