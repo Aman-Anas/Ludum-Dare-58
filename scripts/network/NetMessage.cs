@@ -53,7 +53,7 @@ public static class NetMessageProcessor
         ServerManager server,
         ClientManager client
     )
-        where T : struct, INetMessage
+        where T : INetMessage
     {
         DecodeData<T>(reader).OnReceived(peer, server, client);
     }
@@ -61,7 +61,7 @@ public static class NetMessageProcessor
     // Encode a network message to send to a peer. This will encode the message type
     // first as a uint.
     public static NetDataWriter EncodeNetMessage<T>(T message)
-        where T : struct, INetMessage
+        where T : INetMessage
     {
         BufferedNetDataWriter writer = new();
         writer.Put((uint)message.GetMessageType());
@@ -72,7 +72,7 @@ public static class NetMessageProcessor
 
 public class BufferedNetDataWriter : NetDataWriter, IBufferWriter<byte>
 {
-    const int MIN_BUFFER_SIZE = 64;
+    const int MIN_BUFFER_SIZE = 56;
 
     public void Advance(int count)
     {
