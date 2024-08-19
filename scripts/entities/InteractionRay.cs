@@ -15,7 +15,7 @@ public partial class InteractionRay : RayCast3D
     // Called every physics frame. 'delta' is the elapsed time since the previous frame.
     public override void _PhysicsProcess(double delta)
     {
-        return;
+        // return;
         // Should get the currently held item and call its use/run method. (interface)
         // just testing for now though, so let's assume terraforming
 
