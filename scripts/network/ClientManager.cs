@@ -1,6 +1,7 @@
 namespace Game.Networking;
 
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using Godot;
@@ -18,12 +19,11 @@ public partial class ClientManager : Node, INetEventListener
 
     public NetPeer Server { get; private set; }
 
+    public Queue<Action> EventQueue { get; set; } = new();
+
     public ClientManager()
     {
-        NetClient = new(this)
-        {
-            // UnsyncedEvents = true
-        };
+        NetClient = new(this) { UnsyncedEvents = true };
     }
 
     public bool StartClient(string address, int port, LoginPacket loginInfo)
@@ -45,7 +45,10 @@ public partial class ClientManager : Node, INetEventListener
 
     public override void _Process(double delta)
     {
-        NetClient.PollEvents();
+        while (EventQueue.TryDequeue(out Action currentEvent))
+        {
+            currentEvent();
+        }
     }
 
     public void Stop()

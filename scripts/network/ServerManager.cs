@@ -1,5 +1,7 @@
 namespace Game.Networking;
 
+using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using Game.Setup;
@@ -19,12 +21,11 @@ public partial class ServerManager : Node, INetEventListener
 
     ServerData WorldData { get; set; }
 
+    public Queue<Action> EventQueue { get; set; } = new();
+
     public ServerManager()
     {
-        NetServer = new(this)
-        {
-            // UnsyncedEvents = true
-        };
+        NetServer = new(this) { UnsyncedEvents = true };
     }
 
     public bool StartServer(int port)
@@ -37,7 +38,10 @@ public partial class ServerManager : Node, INetEventListener
 
     public override void _Process(double delta)
     {
-        NetServer.PollEvents();
+        while (EventQueue.TryDequeue(out Action currentEvent))
+        {
+            currentEvent();
+        }
     }
 
     public void Stop()
