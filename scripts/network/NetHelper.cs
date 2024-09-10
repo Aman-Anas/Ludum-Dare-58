@@ -1,27 +1,40 @@
 namespace Game.Networking;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Game.World.Data;
 using Godot;
 using LiteNetLib;
 using LiteNetLib.Utils;
-using MessagePack;
+using MemoryPack;
 
-public static class NetUtils
+// ;
+
+public static class NetHelper
 {
-    // Basic utility Encode/Decode calls. For better performance use
-    // a more specific serialize method.
+    // Basic utility Encode/Decode calls. For better performance you might need to use
+    // more specific serialize/deserialize methods
 
-    public static T DecodeData<T>(NetDataReader reader)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static T DecodeData<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
+        NetDataReader reader
+    )
     {
-        return MessagePackSerializer.Deserialize<T>(
-            reader.RawData.AsMemory(reader.Position, reader.AvailableBytes)
+        return MemoryPackSerializer.Deserialize<T>(
+            reader.RawData.AsSpan(reader.Position, reader.AvailableBytes)
         );
     }
 
     public static byte[] EncodeData<T>(T data)
     {
-        return MessagePackSerializer.Serialize<T>(data);
+        return MemoryPackSerializer.Serialize<T>(data);
+    }
+
+    public static T InstanceFromScene<T>(string path)
+        where T : Node3D
+    {
+        return GD.Load<PackedScene>(path).Instantiate<T>();
     }
 }
 

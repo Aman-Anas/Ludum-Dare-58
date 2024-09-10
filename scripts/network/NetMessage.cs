@@ -2,26 +2,35 @@ namespace Game.Networking;
 
 using System;
 using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
+using Game.Entities;
 using LiteNetLib;
 using LiteNetLib.Utils;
-using MessagePack;
-using static NetUtils;
+using MemoryPack;
+// ;
+using static NetHelper;
 
 public interface INetMessage
 {
-    public void OnReceived(NetPeer peer, ServerManager server, ClientManager client);
+    public void OnServer(NetPeer peer, ServerManager server);
+    public void OnClient(ClientManager client);
     public MessageType GetMessageType();
 }
 
 // Adding a new message type:
 // Add a type enum here, and add it to the
 // processing switch below.
-public enum MessageType
+public enum MessageType : uint
 {
-    ClientInitializer
+    ClientInitializer,
+    EntityTransformUpdate,
+
+    // Component updates
+    HealthUpdate,
+    DoorUpdate
 }
 
-public static class NetMessageProcessor
+public static class NetMessageUtil
 {
     // Process packets in a way that prevents any struct boxing
     // To do so, we have to make sure types are known statically.
@@ -40,22 +49,31 @@ public static class NetMessageProcessor
         switch ((MessageType)reader.GetUInt())
         {
             case MessageType.ClientInitializer:
-                ProcessNetMessage<ClientInitializer>(reader, peer, server, client);
+                break;
+            case MessageType.HealthUpdate:
+                ProcessNetMessage<HealthUpdate>(reader, peer, server, client);
+                // ProcessNetMessage<ClientInitializer>(reader, peer, server, client);
                 break;
         }
     }
 
     // Process a network message with known type (use the where opcode to prevent boxing :D)
     // TODO: Investigate using MemoryPack instead of MessagePack for network data.
-    public static void ProcessNetMessage<T>(
-        NetDataReader reader,
-        NetPeer peer,
-        ServerManager server,
-        ClientManager client
-    )
+    public static void ProcessNetMessage<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T
+    >(NetDataReader reader, NetPeer peer, ServerManager server, ClientManager client)
         where T : INetMessage
     {
-        DecodeData<T>(reader).OnReceived(peer, server, client);
+        T data = DecodeData<T>(reader);
+
+        if (server != null)
+        {
+            data.OnServer(peer, server);
+        }
+        else
+        {
+            data.OnClient(client);
+        }
     }
 
     // Encode a network message to send to a peer. This will encode the message type
@@ -65,8 +83,40 @@ public static class NetMessageProcessor
     {
         BufferedNetDataWriter writer = new();
         writer.Put((uint)message.GetMessageType());
-        MessagePackSerializer.Serialize(writer, message);
+        MemoryPackSerializer.Serialize(writer, message);
         return writer;
+    }
+
+    // Extension methods for cleaner message sending and encoding
+
+    public static void EncodeAndSend<T>(
+        this NetPeer peer,
+        T message,
+        DeliveryMethod method = DeliveryMethod.Unreliable
+    )
+        where T : INetMessage
+    {
+        peer.Send(EncodeNetMessage(message), method);
+    }
+
+    /// <summary>
+    /// Helper extension method to call UpdateEntity() for the correct entity on the server
+    /// </summary>
+    public static void UpdateEntity<T>(this T message, NetPeer peer, ServerManager server)
+        where T : IEntityUpdate
+    {
+        message.UpdateEntity(
+            server.GetPlayerState(peer).CurrentSector.EntitiesData[message.EntityID]
+        );
+    }
+
+    /// <summary>
+    /// Helper extension method to call UpdateEntity() for the correct entity on the client
+    /// </summary>
+    public static void UpdateEntity<T>(this T message, ClientManager client)
+        where T : IEntityUpdate
+    {
+        message.UpdateEntity(client.EntitiesData[message.EntityID]);
     }
 }
 
@@ -96,4 +146,18 @@ public class BufferedNetDataWriter : NetDataWriter, IBufferWriter<byte>
         ResizeIfNeed(_position + sizeHint);
         return _data.AsSpan(_position, sizeHint);
     }
+}
+
+/// <summary>
+/// <para>Helper class to define a "entity update" type of message</para>
+/// <para>
+/// This makes it easy to send small bits of data between entities and their data.
+/// For example, an entity data that implements IHealth could use the HealthUpdate message
+/// to send a HP update to the server or to a client
+/// </para>
+/// </summary>
+public interface IEntityUpdate : INetMessage
+{
+    public uint EntityID { get; init; }
+    void UpdateEntity(EntityData data);
 }

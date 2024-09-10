@@ -51,7 +51,7 @@ public partial class Manager : Node
             Instance = this;
 
             // Initialize MessagePack configuration
-            DataUtils.InitMessagePack();
+            // DataUtils.InitMessagePack();
 
             NetDebug.Logger = new GDNetLogger();
         }

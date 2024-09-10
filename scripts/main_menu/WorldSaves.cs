@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Game.World.Data;
 using Godot;
-using MessagePack;
+using MemoryPack;
+// ;
 using Utilities.Collections;
 
 namespace Game.Setup;
@@ -67,11 +68,8 @@ public static class WorldSaves
     }
 }
 
-[MessagePackObject]
-public record WorldMetadata(
-    [property: Key(0)] string Nickname,
-    [property: Key(1)] DateTime CreationTime
-);
+[MemoryPackable]
+public partial record WorldMetadata(string Nickname, DateTime CreationTime);
 
 public class WorldDateSorter : IComparer<(string, WorldMetadata)>
 {

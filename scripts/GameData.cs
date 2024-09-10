@@ -1,9 +1,9 @@
 namespace Game;
 
-using MessagePack;
+using MemoryPack;
 
-[MessagePackObject]
-public class GameData
+[MemoryPackable]
+public partial class GameData
 {
 
     // Add game-related save data here

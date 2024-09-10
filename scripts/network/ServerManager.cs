@@ -9,8 +9,8 @@ using Game.World.Data;
 using Godot;
 using LiteNetLib;
 using LiteNetLib.Utils;
-using static NetMessageProcessor;
-using static NetUtils;
+using static NetHelper;
+using static NetMessageUtil;
 
 public partial class ServerManager : Node, INetEventListener
 {
@@ -19,7 +19,7 @@ public partial class ServerManager : Node, INetEventListener
     public NetManager NetServer { get; set; }
     readonly NetDataWriter rejectWriter = new();
 
-    ServerData WorldData { get; set; }
+    public ServerData WorldData { get; set; }
 
     public Queue<Action> EventQueue { get; set; } = new();
 
@@ -69,14 +69,19 @@ public partial class ServerManager : Node, INetEventListener
         if (valid)
         {
             var newPeer = request.Accept();
+            var playerData = WorldData.PlayerData[loginData.Username];
+            var currentSector = WorldData.SectorWorldData[playerData.CurrentSectorID];
+
+            // Store the username in the peer tag
             newPeer.Tag = loginData.Username;
             WorldData.ActivePlayers[loginData.Username] = newPeer;
+            WorldData.CurrentPlayerState[newPeer] = new(newPeer, currentSector, playerData);
 
             GD.Print($"Accepted login from user {loginData.Username}");
-            newPeer.Send(
-                EncodeNetMessage(new ClientInitializer(Vector3.One, Vector3.Forward, false)),
-                DeliveryMethod.ReliableUnordered
-            );
+            // newPeer.Send(
+            //     // EncodeNetMessage(new ClientInitializer(Vector3.One, Vector3.Forward, false, [])),
+            //     DeliveryMethod.ReliableUnordered
+            // );
         }
         else
         {
@@ -117,4 +122,9 @@ public partial class ServerManager : Node, INetEventListener
     ) { }
 
     public void OnNetworkLatencyUpdate(NetPeer peer, int latency) { }
+
+    public LivePlayerState GetPlayerState(NetPeer peer)
+    {
+        return WorldData.CurrentPlayerState[peer];
+    }
 }

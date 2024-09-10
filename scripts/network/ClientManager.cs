@@ -7,8 +7,8 @@ using System.Net.Sockets;
 using Godot;
 using LiteNetLib;
 using LiteNetLib.Utils;
-using static NetMessageProcessor;
-using static NetUtils;
+using static NetHelper;
+using static NetMessageUtil;
 
 public partial class ClientManager : Node, INetEventListener
 {
@@ -16,10 +16,13 @@ public partial class ClientManager : Node, INetEventListener
     public int ConnectPort { get; private set; }
 
     public NetManager NetClient { get; private set; }
-
     public NetPeer Server { get; private set; }
 
     public Queue<Action> EventQueue { get; set; } = new();
+
+    // Replace with a ClientData class for "world" info?
+    public Dictionary<uint, EntityData> EntitiesData { get; set; } = [];
+    public Dictionary<uint, INetEntity> Entities { get; set; } = [];
 
     public ClientManager()
     {
@@ -88,4 +91,10 @@ public partial class ClientManager : Node, INetEventListener
     public void OnNetworkLatencyUpdate(NetPeer peer, int latency) { }
 
     public void OnConnectionRequest(ConnectionRequest request) { }
+
+    public void SpawnEntity(EntityData data)
+    {
+        var newEntity = (Node3D)data.GetInstance(false);
+        this.AddChild(newEntity);
+    }
 }

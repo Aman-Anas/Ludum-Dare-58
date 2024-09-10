@@ -1,9 +1,6 @@
 namespace Game.Networking;
 
-using MessagePack;
+using MemoryPack;
 
-[MessagePackObject]
-public readonly record struct LoginPacket(
-    [property: Key(0)] string Username,
-    [property: Key(1)] string Password
-);
+[MemoryPackable]
+public readonly partial record struct LoginPacket(string Username, string Password);

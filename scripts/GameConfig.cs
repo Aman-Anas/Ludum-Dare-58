@@ -1,11 +1,11 @@
 namespace Game;
 
 using Godot;
-using MessagePack;
+using MemoryPack;
 using NathanHoad;
 
-[MessagePackObject(keyAsPropertyName: true)]
-public class GameConfig : IMessagePackSerializationCallbackReceiver
+[MemoryPackable]
+public partial class GameConfig
 {
     public string GameInputMap { get; set; }
     public Vector2I Resolution { get; set; }
@@ -62,11 +62,13 @@ public class GameConfig : IMessagePackSerializationCallbackReceiver
         );
     }
 
+    [MemoryPackOnSerializing]
     public void OnBeforeSerialize()
     {
         GameInputMap = InputHelper.SerializeInputsForActions();
     }
 
+    [MemoryPackOnDeserialized]
     public void OnAfterDeserialize()
     {
         if (GameInputMap != null)
