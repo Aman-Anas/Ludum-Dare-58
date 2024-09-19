@@ -45,7 +45,7 @@ public partial class ChunkManager : Node3D
     // This is the var tracking whether we already are processing a chunk
     bool currentlyComputing;
 
-    TerrainParameters terrainParams = new(1.0f, new Vector3(0, 0, 0));
+    TerrainParameters terrainParams = new(true, 1.0f, new Vector3(0, 0, 0));
 
     // readonly FastNoiseLiteSharp noiseGenerator = new();
 

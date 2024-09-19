@@ -46,6 +46,8 @@ public partial class ServerManager : Node, INetEventListener
 
     public void Stop()
     {
+        // TODO: Save world state
+
         NetServer.Stop();
     }
 
@@ -70,12 +72,20 @@ public partial class ServerManager : Node, INetEventListener
         {
             var newPeer = request.Accept();
             var playerData = WorldData.PlayerData[loginData.Username];
+
+            if (!WorldData.SectorWorldData.ContainsKey(playerData.CurrentSectorID))
+            {
+                // If the sector doesn't exist, load it up
+            }
+
             var currentSector = WorldData.SectorWorldData[playerData.CurrentSectorID];
 
-            // Store the username in the peer tag
-            newPeer.Tag = loginData.Username;
+            // make a LivePlayerState to provide easy access to the player's current sector etc
+            LivePlayerState state = new(newPeer, loginData.Username, currentSector, playerData);
+
             WorldData.ActivePlayers[loginData.Username] = newPeer;
-            WorldData.CurrentPlayerState[newPeer] = new(newPeer, currentSector, playerData);
+
+            newPeer.Tag = state;
 
             GD.Print($"Accepted login from user {loginData.Username}");
             // newPeer.Send(
@@ -122,9 +132,12 @@ public partial class ServerManager : Node, INetEventListener
     ) { }
 
     public void OnNetworkLatencyUpdate(NetPeer peer, int latency) { }
+}
 
-    public LivePlayerState GetPlayerState(NetPeer peer)
+public static class PlayerStateExt
+{
+    public static LivePlayerState GetPlayerState(this NetPeer peer)
     {
-        return WorldData.CurrentPlayerState[peer];
+        return (LivePlayerState)peer.Tag;
     }
 }

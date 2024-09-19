@@ -12,21 +12,20 @@ public readonly partial record struct DoorUpdate(uint EntityID, bool DoorState) 
 
     public readonly void OnClient(ClientManager client) => this.UpdateEntity(client);
 
-    public readonly void OnServer(NetPeer peer, ServerManager server) =>
-        this.UpdateEntity(peer, server);
+    public readonly void OnServer(NetPeer peer, ServerManager server) => this.UpdateEntity(peer);
 
-    public readonly void UpdateEntity(EntityData data)
+    public void UpdateEntity(INetEntity entity)
     {
-        ((IDoor)data).DoorState = DoorState;
+        ((IDoor)entity.Data).DoorState = DoorState;
     }
 }
 
-public interface IDoor : INetEntity
+public interface IDoor : IEntityData
 {
     public bool DoorState { get; set; }
 
-    public void UpdateHealth(NetPeer peer)
+    public virtual void Toggle()
     {
-        peer.EncodeAndSend(new DoorUpdate(EntityID, DoorState));
+        this.SendMessage(new DoorUpdate(EntityID, DoorState));
     }
 }

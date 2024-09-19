@@ -14,9 +14,10 @@ public partial class ClientManager : Node, INetEventListener
 {
     public string ConnectAddress { get; private set; }
     public int ConnectPort { get; private set; }
+    public string Username { get; set; }
 
     public NetManager NetClient { get; private set; }
-    public NetPeer Server { get; private set; }
+    public NetPeer ServerLink { get; private set; }
 
     public Queue<Action> EventQueue { get; set; } = new();
 
@@ -33,15 +34,16 @@ public partial class ClientManager : Node, INetEventListener
     {
         ConnectAddress = address;
         ConnectPort = port;
+        Username = loginInfo.Username;
 
         NetClient.Start();
-        Server = NetClient.Connect(
+        ServerLink = NetClient.Connect(
             ConnectAddress,
             ConnectPort,
             NetDataWriter.FromBytes(EncodeData(loginInfo), false)
         );
 
-        return Server != null;
+        return ServerLink != null;
     }
 
     public bool IsRunning() => NetClient.IsRunning;
@@ -94,7 +96,18 @@ public partial class ClientManager : Node, INetEventListener
 
     public void SpawnEntity(EntityData data)
     {
-        var newEntity = (Node3D)data.GetInstance(false);
-        this.AddChild(newEntity);
+        var newEntity = data.SpawnInstance(false);
+        this.AddChild((Node3D)newEntity);
+
+        Entities[data.EntityID] = newEntity;
+    }
+
+    public void DestroyEntity(uint entityID)
+    {
+        EntitiesData.Remove(entityID);
+        if (Entities.Remove(entityID, out var entity))
+        {
+            entity.GetNode().QueueFree();
+        }
     }
 }

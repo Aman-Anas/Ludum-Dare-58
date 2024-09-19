@@ -8,9 +8,6 @@ using Godot;
 using LiteNetLib;
 using MemoryPack;
 
-// ;
-// using static Game.Terrain.ChunkData;
-
 [MemoryPackable]
 public partial class ServerData
 {
@@ -23,9 +20,6 @@ public partial class ServerData
     // Dynamic store of active (logged in) players
     [MemoryPackIgnore]
     public Dictionary<string, NetPeer> ActivePlayers { get; set; } = [];
-
-    [MemoryPackIgnore]
-    public Dictionary<NetPeer, LivePlayerState> CurrentPlayerState { get; set; } = [];
 
     public uint EntityIDCounter { get; set; } = 0;
 
@@ -42,7 +36,7 @@ public partial class ServerData
 }
 
 // Data to be stored about a player that is live
-public record LivePlayerState(NetPeer Peer, Sector CurrentSector, PlayerData Data);
+public record LivePlayerState(NetPeer Peer, string Username, Sector CurrentSector, PlayerData Data);
 
 [MemoryPackable]
 public partial class SectorMetadata
@@ -55,32 +49,38 @@ public partial class SectorMetadata
 [MemoryPackable]
 public partial class Sector
 {
-    // [Key(0)]
     public uint SectorID { get; set; }
 
-    // [Key(1)]
     public bool ContainsTerrain { get; set; }
 
-    // [Key(2)]
     public Dictionary<ChunkID, byte[]> ChunkData { get; set; }
 
-    // [Key(3)]
     public TerrainParameters Parameters { get; set; }
 
-    // [Key(4)]
     public Dictionary<uint, EntityData> EntitiesData { get; set; }
 
-    // [Key(5)]
     public Dictionary<uint, SecretData> EntitySecrets { get; set; }
 
     [MemoryPackIgnore]
     public Dictionary<uint, INetEntity> Entities { get; set; } = [];
 
     [MemoryPackIgnore]
+    public List<NetPeer> Players { get; set; } = [];
+
+    [MemoryPackIgnore]
     public ServerData WorldDataRef { get; private set; }
 
     [MemoryPackIgnore]
     public Node3D SectorSceneRoot { get; private set; }
+
+    public void EchoToSector<T>(T message, DeliveryMethod method = DeliveryMethod.Unreliable)
+        where T : INetMessage
+    {
+        foreach (var player in Players)
+        {
+            player.EncodeAndSend(message, method);
+        }
+    }
 
     public void ReloadArea(ServerData worldData, Node3D sectorRoot)
     {
@@ -116,11 +116,13 @@ public partial class Sector
         // get the secret data from the entity resource
         var secrets = data.GetSecrets();
 
-        // Usually there won't be any secret data
+        // Usually there won't be any secret data, if there is, save it
         if (secrets != null)
         {
             EntitySecrets[data.EntityID] = secrets;
         }
+
+        // TODO: Send message to client about new entity
 
         InstanceEntity(data);
     }
@@ -134,6 +136,7 @@ public partial class Sector
         // Remove entity if it's instanced
         if (Entities.Remove(entityID, out var entity))
         {
+            // TODO: Send message to client to remove entity
             var node = entity.GetNode();
             node.QueueFree();
         }
@@ -144,7 +147,7 @@ public partial class Sector
     /// </summary>
     void InstanceEntity(EntityData data)
     {
-        var newInstance = data.GetInstance(true);
+        var newInstance = data.SpawnInstance(true);
         SectorSceneRoot.AddChild(newInstance.GetNode());
 
         Entities[data.EntityID] = newInstance;

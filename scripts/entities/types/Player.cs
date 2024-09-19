@@ -58,3 +58,55 @@
 //         playerTorsoPivot.Rotation = rot;
 //     }
 // }
+namespace Game.Entities;
+
+using System;
+using Game.Networking;
+using Godot;
+using MemoryPack;
+
+[MemoryPackable]
+public partial class PlayerEntityData : EntityData, IHealth
+{
+    [Export]
+    public int Health { get; set; }
+
+    [MemoryPackIgnore]
+    public Action HealthDepleted { get; set; }
+}
+
+public partial class PlayerServer : StaticBody3D, INetEntity
+{
+    public uint EntityID { get; set; }
+
+    public EntityData Data
+    {
+        get => _data;
+        set => _data = (PlayerEntityData)value;
+    }
+
+    PlayerEntityData _data;
+
+    public override void _Ready()
+    {
+        _data.HealthDepleted += _data.DestroyEntity;
+    }
+}
+
+public partial class PlayerClient : RigidBody3D, INetEntity
+{
+    public uint EntityID { get; set; }
+
+    public EntityData Data
+    {
+        get => _data;
+        set => _data = (PlayerEntityData)value;
+    }
+
+    PlayerEntityData _data;
+
+    public override void _Ready()
+    {
+        _data.HealthDepleted += _data.DestroyEntity;
+    }
+}

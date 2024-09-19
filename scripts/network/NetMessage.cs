@@ -4,6 +4,7 @@ using System;
 using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 using Game.Entities;
+using Game.World.Data;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using MemoryPack;
@@ -23,7 +24,9 @@ public interface INetMessage
 public enum MessageType : uint
 {
     ClientInitializer,
-    EntityTransformUpdate,
+    TransformUpdate,
+    DestroyEntity,
+    SpawnEntity,
 
     // Component updates
     HealthUpdate,
@@ -49,10 +52,22 @@ public static class NetMessageUtil
         switch ((MessageType)reader.GetUInt())
         {
             case MessageType.ClientInitializer:
+                ProcessNetMessage<ClientInitializer>(reader, peer, server, client);
+                break;
+            case MessageType.TransformUpdate:
+                ProcessNetMessage<TransformUpdate>(reader, peer, server, client);
+                break;
+            case MessageType.DestroyEntity:
+                ProcessNetMessage<DestroyEntity>(reader, peer, server, client);
+                break;
+            case MessageType.SpawnEntity:
+                ProcessNetMessage<SpawnEntity>(reader, peer, server, client);
                 break;
             case MessageType.HealthUpdate:
                 ProcessNetMessage<HealthUpdate>(reader, peer, server, client);
-                // ProcessNetMessage<ClientInitializer>(reader, peer, server, client);
+                break;
+            case MessageType.DoorUpdate:
+                ProcessNetMessage<ClientInitializer>(reader, peer, server, client);
                 break;
         }
     }
@@ -102,12 +117,10 @@ public static class NetMessageUtil
     /// <summary>
     /// Helper extension method to call UpdateEntity() for the correct entity on the server
     /// </summary>
-    public static void UpdateEntity<T>(this T message, NetPeer peer, ServerManager server)
+    public static void UpdateEntity<T>(this T message, NetPeer peer)
         where T : IEntityUpdate
     {
-        message.UpdateEntity(
-            server.GetPlayerState(peer).CurrentSector.EntitiesData[message.EntityID]
-        );
+        message.UpdateEntity(peer.GetLocalEntity(message.EntityID));
     }
 
     /// <summary>
@@ -116,7 +129,22 @@ public static class NetMessageUtil
     public static void UpdateEntity<T>(this T message, ClientManager client)
         where T : IEntityUpdate
     {
-        message.UpdateEntity(client.EntitiesData[message.EntityID]);
+        message.UpdateEntity(client.Entities[message.EntityID]);
+    }
+
+    /// <summary>
+    /// Helper extension method to get some entity's data on the server
+    /// </summary>
+    public static INetEntity GetLocalEntity(this NetPeer peer, uint entityID)
+    {
+        var currentSector = peer.GetPlayerState().CurrentSector;
+        return currentSector.Entities[entityID];
+    }
+
+    public static bool OwnsEntity(this NetPeer peer, uint entityID)
+    {
+        var foundEntity = peer.GetLocalEntity(entityID);
+        return foundEntity.Data.Owners.Contains(peer.GetPlayerState().Username);
     }
 }
 
@@ -159,5 +187,5 @@ public class BufferedNetDataWriter : NetDataWriter, IBufferWriter<byte>
 public interface IEntityUpdate : INetMessage
 {
     public uint EntityID { get; init; }
-    void UpdateEntity(EntityData data);
+    void UpdateEntity(INetEntity entity);
 }

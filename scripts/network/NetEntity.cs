@@ -1,50 +1,60 @@
 namespace Game.Networking;
 
 using System;
+using System.Collections.Generic;
 using Game.Entities;
 using Game.World.Data;
 using Godot;
 using LiteNetLib;
 using MemoryPack;
 
-public static class NetEntityUtil
+public interface IEntityData
 {
-    public static EntityData GetEntityData(uint id, ServerManager server, ClientManager client)
-    {
-        // if (client != null)
-        // {
-        return client.EntitiesData[id];
-        // }
-    }
-
-    // Use to spawn an entity into the world
+    public uint EntityID { get; set; }
+    public Sector CurrentSector { get; set; }
+    public ClientManager Client { get; set; }
 }
 
-// [Union(0, typeof(PropData))]
-[MemoryPackUnion(1, typeof(DestructiblePropData))]
-[MemoryPackable(SerializeLayout.Explicit)]
-public abstract partial class EntityData : Resource //, IEntityData
+[MemoryPackUnion(0, typeof(DestructiblePropData))]
+[MemoryPackUnion(1, typeof(BigProjectileData))]
+[MemoryPackable]
+public abstract partial class EntityData : Resource, IEntityData
 {
     /// <summary>
     /// Entity ID for this entity's data. NOTE: This is ONLY "set"-enabled for
     /// /// de-serialization purposes. Should only be set once at entity initialization.
     /// </summary>
-    // [Key(0)]
     public uint EntityID { get; set; }
 
-    // [Key(1)]
     public Vector3 Position { get; set; }
 
-    // [Key(2)]
     public Vector3 Rotation { get; set; }
 
-    // [Key(3)]
+    /// <summary>
+    /// The godot scene for this entity on the server.
+    /// This currently gets serialized to client as well, but it's
+    /// not a big deal
+    /// </summary>
     [Export(PropertyHint.File)]
     public string ServerScene { get; set; }
 
-    // [Key(4)]
+    /// <summary>
+    /// The godot scene for this entity on the client
+    /// </summary>
     [Export(PropertyHint.File)]
     public string ClientScene { get; set; }
+
+    [MemoryPackIgnore]
+    public Sector CurrentSector { get; set; } // Only accessible on server
+
+    [MemoryPackIgnore]
+    public ClientManager Client { get; set; } // Only accessible on client
+
+    /// <summary>
+    /// Set of all usernames allowed to mess with this entity. Used for client packet validation
+    /// (so you can't just move around whatever entity you want)
+    /// </summary>
+    public HashSet<string> Owners { get; set; }
 
     // For secrets, use these two flags to avoid unneeded serialization
     // and allow resource storage
@@ -60,7 +70,7 @@ public abstract partial class EntityData : Resource //, IEntityData
     /// <summary>
     /// Get an instantiated entity
     /// </summary>
-    public INetEntity GetInstance(bool onServer)
+    public INetEntity SpawnInstance(bool onServer)
     {
         string scene = onServer ? ServerScene : ClientScene;
 
@@ -71,16 +81,63 @@ public abstract partial class EntityData : Resource //, IEntityData
 
         return newEntity;
     }
+
+    public void DestroyEntity()
+    {
+        if (CurrentSector == null)
+        {
+            Client.DestroyEntity(EntityID);
+        }
+        else
+        {
+            CurrentSector.DestroyEntity(EntityID);
+        }
+    }
 }
 
 public interface INetEntity
 {
-    public uint EntityID { get; set; }
     public Vector3 Position { get; set; }
     public Vector3 Rotation { get; set; }
-    public EntityData Data { set; }
+    public EntityData Data { get; set; }
 
     public Node3D GetNode() => (Node3D)this;
+}
+
+public static class EntityExtensions
+{
+    public static void UpdateTransform<T>(this T entity)
+        where T : INetEntity
+    {
+        var transformUpdate = new TransformUpdate(
+            entity.Data.EntityID,
+            entity.Position,
+            entity.Rotation
+        );
+
+        if (entity.Data.CurrentSector == null)
+        {
+            entity.Data.Client.ServerLink.EncodeAndSend(transformUpdate);
+        }
+        else
+        {
+            entity.Data.CurrentSector.EchoToSector(transformUpdate);
+        }
+    }
+
+    public static void SendMessage<TData, TMessage>(this TData Data, TMessage message)
+        where TData : IEntityData
+        where TMessage : INetMessage
+    {
+        if (Data.CurrentSector == null)
+        {
+            Data.Client.ServerLink.EncodeAndSend(message);
+        }
+        else
+        {
+            Data.CurrentSector.EchoToSector(message);
+        }
+    }
 }
 
 /// <summary>

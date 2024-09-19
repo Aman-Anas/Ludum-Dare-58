@@ -6,17 +6,16 @@ using System.Collections.Generic;
 // Credit to GodotUtilities! https://github.com/firebelley/GodotUtilities/
 public class DoubleDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 {
-    private readonly Dictionary<TKey, TValue> _keyToValue = new();
-    private readonly Dictionary<TValue, TKey> _valueToKey = new();
+    private readonly Dictionary<TKey, TValue> _keyToValue = [];
+    private readonly Dictionary<TValue, TKey> _valueToKey = [];
 
     public TValue this[TKey key]
     {
         get => _keyToValue[key];
         set
         {
-            if (_keyToValue.ContainsKey(key))
+            if (_keyToValue.TryGetValue(key, out TValue oldVal))
             {
-                var oldVal = _keyToValue[key];
                 _valueToKey.Remove(oldVal);
             }
             _keyToValue[key] = value;
@@ -29,9 +28,8 @@ public class DoubleDictionary<TKey, TValue> : IDictionary<TKey, TValue>
         get => _valueToKey[val];
         set
         {
-            if (_valueToKey.ContainsKey(val))
+            if (_valueToKey.TryGetValue(val, out TKey oldVal))
             {
-                var oldVal = _valueToKey[val];
                 _keyToValue.Remove(oldVal);
             }
             _valueToKey[val] = value;
@@ -78,9 +76,8 @@ public class DoubleDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 
     public bool Remove(TKey key)
     {
-        if (_keyToValue.ContainsKey(key))
+        if (_keyToValue.TryGetValue(key, out TValue val))
         {
-            var val = _keyToValue[key];
             _keyToValue.Remove(key);
             _valueToKey.Remove(val);
             return true;
@@ -90,9 +87,8 @@ public class DoubleDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 
     public bool Remove(TValue value)
     {
-        if (_valueToKey.ContainsKey(value))
+        if (_valueToKey.TryGetValue(value, out TKey key))
         {
-            var key = _valueToKey[value];
             _valueToKey.Remove(value);
             _keyToValue.Remove(key);
             return true;
@@ -104,9 +100,8 @@ public class DoubleDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 
     public bool TryGetValue(TKey key, out TValue value)
     {
-        if (_keyToValue.ContainsKey(key))
+        if (_keyToValue.TryGetValue(key, out value))
         {
-            value = _keyToValue[key];
             return true;
         }
         value = default;
@@ -115,9 +110,8 @@ public class DoubleDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 
     public bool TryGetValue(TValue value, out TKey key)
     {
-        if (_valueToKey.ContainsKey(value))
+        if (_valueToKey.TryGetValue(value, out key))
         {
-            key = _valueToKey[value];
             return true;
         }
         key = default;

@@ -66,4 +66,8 @@ public readonly partial record struct ChunkID
 }
 
 [MemoryPackable]
-public partial record struct TerrainParameters(float NoiseScale, Vector3 NoiseOffset);
+public partial record struct TerrainParameters(
+    bool HasTerrain,
+    float NoiseScale,
+    Vector3 NoiseOffset
+);

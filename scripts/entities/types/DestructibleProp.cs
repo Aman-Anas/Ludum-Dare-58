@@ -5,19 +5,23 @@ using Game.Networking;
 using Godot;
 using MemoryPack;
 
-[MemoryPackable(GenerateType.VersionTolerant)]
-public partial class DestructiblePropData : EntityData
+[MemoryPackable]
+public partial class DestructiblePropData : EntityData, IHealth
 {
     [Export]
-    public uint Health { get; set; }
+    public int Health { get; set; }
+
+    [MemoryPackIgnore]
+    public Action HealthDepleted { get; set; }
 }
 
 public partial class DestructibleProp : StaticBody3D, INetEntity
 {
     public uint EntityID { get; set; }
-    public uint Health { get; set; }
+
     public EntityData Data
     {
+        get => _data;
         set => _data = (DestructiblePropData)value;
     }
 
@@ -25,6 +29,6 @@ public partial class DestructibleProp : StaticBody3D, INetEntity
 
     public override void _Ready()
     {
-        // ((IHealth)_data).UpdateHealth();
+        _data.HealthDepleted += _data.DestroyEntity;
     }
 }
