@@ -39,9 +39,6 @@ public partial class Manager : Node
     [Export]
     PackedScene serverOnlyScene;
 
-    // // Add a second one for background world maybe
-    // public WorldComponents MainWorld { get; set; } = new();
-
     public Manager()
     {
         // Just so that other scripts can cache a reference.

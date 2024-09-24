@@ -21,16 +21,14 @@ public partial class ServerManager : Node, INetEventListener
 
     public ServerData WorldData { get; set; }
 
-    public Queue<Action> EventQueue { get; set; } = new();
-
     public ServerManager()
     {
-        NetServer = new(this) { UnsyncedEvents = true };
+        NetServer = new(this);
     }
 
     public bool StartServer(int port)
     {
-        WorldData = WorldSaves.GetWorldData(CurrentSaveName);
+        WorldData = WorldSaves.LoadWorld(CurrentSaveName);
         return NetServer.Start(port);
     }
 
@@ -38,15 +36,19 @@ public partial class ServerManager : Node, INetEventListener
 
     public override void _Process(double delta)
     {
-        while (EventQueue.TryDequeue(out Action currentEvent))
-        {
-            currentEvent();
-        }
+        NetServer.PollEvents();
+    }
+
+    public SubViewport GetNewSectorViewport()
+    {
+        var newViewport = new SubViewport { OwnWorld3D = true };
+        AddChild(newViewport);
+        return newViewport;
     }
 
     public void Stop()
     {
-        // TODO: Save world state
+        WorldData.SaveServerData();
 
         NetServer.Stop();
     }
@@ -65,6 +67,11 @@ public partial class ServerManager : Node, INetEventListener
         {
             // If the username is not in the registry, then let's add it
             WorldData.LoginData[loginData.Username] = loginData.Password;
+            WorldData.PlayerData[loginData.Username] = new()
+            {
+                CurrentSectorID = 0,
+                CurrentEntityID = 15 // TODO: Make a new player entity for each lad
+            };
             valid = true;
         }
 
@@ -73,12 +80,13 @@ public partial class ServerManager : Node, INetEventListener
             var newPeer = request.Accept();
             var playerData = WorldData.PlayerData[loginData.Username];
 
-            if (!WorldData.SectorWorldData.ContainsKey(playerData.CurrentSectorID))
+            if (!WorldData.LoadedSectors.ContainsKey(playerData.CurrentSectorID))
             {
                 // If the sector doesn't exist, load it up
+                WorldData.LoadSector(playerData.CurrentSectorID);
             }
 
-            var currentSector = WorldData.SectorWorldData[playerData.CurrentSectorID];
+            var currentSector = WorldData.LoadedSectors[playerData.CurrentSectorID];
 
             // make a LivePlayerState to provide easy access to the player's current sector etc
             LivePlayerState state = new(newPeer, loginData.Username, currentSector, playerData);
@@ -132,12 +140,4 @@ public partial class ServerManager : Node, INetEventListener
     ) { }
 
     public void OnNetworkLatencyUpdate(NetPeer peer, int latency) { }
-}
-
-public static class PlayerStateExt
-{
-    public static LivePlayerState GetPlayerState(this NetPeer peer)
-    {
-        return (LivePlayerState)peer.Tag;
-    }
 }

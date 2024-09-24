@@ -19,15 +19,13 @@ public partial class ClientManager : Node, INetEventListener
     public NetManager NetClient { get; private set; }
     public NetPeer ServerLink { get; private set; }
 
-    public Queue<Action> EventQueue { get; set; } = new();
-
     // Replace with a ClientData class for "world" info?
     public Dictionary<uint, EntityData> EntitiesData { get; set; } = [];
     public Dictionary<uint, INetEntity> Entities { get; set; } = [];
 
     public ClientManager()
     {
-        NetClient = new(this) { UnsyncedEvents = true };
+        NetClient = new(this);
     }
 
     public bool StartClient(string address, int port, LoginPacket loginInfo)
@@ -50,10 +48,7 @@ public partial class ClientManager : Node, INetEventListener
 
     public override void _Process(double delta)
     {
-        while (EventQueue.TryDequeue(out Action currentEvent))
-        {
-            currentEvent();
-        }
+        NetClient.PollEvents();
     }
 
     public void Stop()
@@ -107,7 +102,11 @@ public partial class ClientManager : Node, INetEventListener
         EntitiesData.Remove(entityID);
         if (Entities.Remove(entityID, out var entity))
         {
-            entity.GetNode().QueueFree();
+            var node = entity.GetNode();
+            if (IsInstanceValid(node))
+            {
+                node.QueueFree();
+            }
         }
     }
 }

@@ -2,15 +2,26 @@ namespace Game.World.Data;
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Game.Entities;
 using Game.Networking;
+using Game.Setup;
 using Game.Terrain;
 using Godot;
 using LiteNetLib;
 using MemoryPack;
+using Utilities.Collections;
 
 [MemoryPackable]
 public partial class ServerData
 {
+    public const string WORLD_DATA_FILE = "world.dat";
+    public const string SECTOR_DIR_NAME = "sectors";
+
+    // This is used to save/load data for sectors
+    [MemoryPackIgnore]
+    public string SaveDirectory { get; set; }
+
     // Store player login data (username -> pword)
     public Dictionary<string, string> LoginData { get; set; } = [];
 
@@ -23,6 +34,8 @@ public partial class ServerData
 
     public uint EntityIDCounter { get; set; } = 0;
 
+    public uint SectorIDCounter { get; set; } = 0;
+
     // Store metadata about all sector names etc (key is sector ID)
     public Dictionary<uint, SectorMetadata> SectorMetadata { get; set; } = [];
 
@@ -32,11 +45,86 @@ public partial class ServerData
     // Store objects, chunks, etc for each sector. This should be dynamically loaded from file.
     // Ignore serializing to ensure only loaded areas are in this dict
     [MemoryPackIgnore]
-    public Dictionary<uint, Sector> SectorWorldData { get; set; } = [];
+    public Dictionary<uint, Sector> LoadedSectors { get; set; } = [];
+
+    // Check if a sector exists
+    public bool SectorExists(uint sectorID) => SectorMetadata.ContainsKey(sectorID);
+
+    // Add a new sector
+    public Sector AddNewSector(string sectorName, TerrainParameters terrainParams)
+    {
+        var newSectorId = SectorIDCounter;
+        SectorIDCounter++;
+
+        SectorMetadata[newSectorId] = new() { SectorID = newSectorId, SectorName = sectorName };
+
+        var newSector = new Sector() { SectorID = newSectorId, Parameters = terrainParams, };
+        LoadedSectors[newSectorId] = newSector;
+
+        return newSector;
+    }
+
+    public Sector LoadSector(uint sectorID)
+    {
+        var loadedSector = DataUtils.LoadData<Sector>(
+            $"{SaveDirectory}/{SECTOR_DIR_NAME}/{sectorID}.dat"
+        );
+        loadedSector.ReloadArea(this, Manager.Instance.GameServer.GetNewSectorViewport());
+        LoadedSectors[sectorID] = loadedSector;
+        return loadedSector;
+    }
+
+    public void SaveSector(uint sectorID)
+    {
+        var sectorDir = $"{SaveDirectory}/{SECTOR_DIR_NAME}";
+
+        if (!DirAccess.DirExistsAbsolute(sectorDir))
+        {
+            DirAccess.MakeDirRecursiveAbsolute(sectorDir);
+        }
+
+        DataUtils.SaveData($"{sectorDir}/{sectorID}.dat", LoadedSectors[sectorID]);
+    }
+
+    public void UnloadSector(uint sectorID)
+    {
+        if (LoadedSectors.TryGetValue(sectorID, out var sector))
+        {
+            SaveSector(sectorID);
+            LoadedSectors.Remove(sectorID);
+            sector.Unload();
+        }
+    }
+
+    public void SaveServerData()
+    {
+        DataUtils.SaveData($"{SaveDirectory}/{WORLD_DATA_FILE}", this);
+
+        // Save all sectors that are currently loaded
+        foreach (var sectorID in LoadedSectors.Keys)
+        {
+            SaveSector(sectorID);
+        }
+    }
+
+    public static ServerData LoadServerData(string directory)
+    {
+        var loadedData = DataUtils.LoadData<ServerData>($"{directory}/{WORLD_DATA_FILE}");
+        loadedData.SaveDirectory = directory;
+        return loadedData;
+    }
 }
 
 // Data to be stored about a player that is live
 public record LivePlayerState(NetPeer Peer, string Username, Sector CurrentSector, PlayerData Data);
+
+public static class PlayerStateExt
+{
+    public static LivePlayerState GetPlayerState(this NetPeer peer)
+    {
+        return (LivePlayerState)peer.Tag;
+    }
+}
 
 [MemoryPackable]
 public partial class SectorMetadata
@@ -53,13 +141,13 @@ public partial class Sector
 
     public bool ContainsTerrain { get; set; }
 
-    public Dictionary<ChunkID, byte[]> ChunkData { get; set; }
+    public Dictionary<ChunkID, byte[]> ChunkData { get; set; } = [];
 
-    public TerrainParameters Parameters { get; set; }
+    public TerrainParameters Parameters { get; set; } = new();
 
-    public Dictionary<uint, EntityData> EntitiesData { get; set; }
+    public Dictionary<uint, EntityData> EntitiesData { get; set; } = [];
 
-    public Dictionary<uint, SecretData> EntitySecrets { get; set; }
+    public Dictionary<uint, SecretData> EntitySecrets { get; set; } = [];
 
     [MemoryPackIgnore]
     public Dictionary<uint, INetEntity> Entities { get; set; } = [];
@@ -71,7 +159,7 @@ public partial class Sector
     public ServerData WorldDataRef { get; private set; }
 
     [MemoryPackIgnore]
-    public Node3D SectorSceneRoot { get; private set; }
+    public SubViewport SectorSceneRoot { get; private set; }
 
     public void EchoToSector<T>(T message, DeliveryMethod method = DeliveryMethod.Unreliable)
         where T : INetMessage
@@ -82,7 +170,7 @@ public partial class Sector
         }
     }
 
-    public void ReloadArea(ServerData worldData, Node3D sectorRoot)
+    public void ReloadArea(ServerData worldData, SubViewport sectorRoot)
     {
         WorldDataRef = worldData;
         SectorSceneRoot = sectorRoot;
@@ -122,7 +210,7 @@ public partial class Sector
             EntitySecrets[data.EntityID] = secrets;
         }
 
-        // TODO: Send message to client about new entity
+        EchoToSector(new SpawnEntity(data), DeliveryMethod.ReliableUnordered);
 
         InstanceEntity(data);
     }
@@ -136,7 +224,7 @@ public partial class Sector
         // Remove entity if it's instanced
         if (Entities.Remove(entityID, out var entity))
         {
-            // TODO: Send message to client to remove entity
+            EchoToSector(new DestroyEntity(entityID), DeliveryMethod.ReliableUnordered);
             var node = entity.GetNode();
             node.QueueFree();
         }
@@ -151,5 +239,18 @@ public partial class Sector
         SectorSceneRoot.AddChild(newInstance.GetNode());
 
         Entities[data.EntityID] = newInstance;
+    }
+
+    public void Unload()
+    {
+        foreach (var entity in Entities.Values)
+        {
+            entity.Data.Position = entity.Position;
+            entity.Data.Rotation = entity.Rotation;
+            entity.Data = null;
+            entity.GetNode().QueueFree();
+        }
+        SectorSceneRoot.QueueFree();
+        SectorSceneRoot = null;
     }
 }

@@ -8,7 +8,6 @@ using Game.World.Data;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using MemoryPack;
-// ;
 using static NetHelper;
 
 public interface INetMessage
@@ -67,7 +66,7 @@ public static class NetMessageUtil
                 ProcessNetMessage<HealthUpdate>(reader, peer, server, client);
                 break;
             case MessageType.DoorUpdate:
-                ProcessNetMessage<ClientInitializer>(reader, peer, server, client);
+                ProcessNetMessage<DoorUpdate>(reader, peer, server, client);
                 break;
         }
     }

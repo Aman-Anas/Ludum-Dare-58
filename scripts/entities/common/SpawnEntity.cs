@@ -12,7 +12,7 @@ public partial record SpawnEntity(EntityData Data) : INetMessage
 
     public void OnClient(ClientManager client)
     {
-        client.EventQueue.Enqueue(() => client.SpawnEntity(Data));
+        client.SpawnEntity(Data);
     }
 
     public void OnServer(NetPeer peer, ServerManager server)

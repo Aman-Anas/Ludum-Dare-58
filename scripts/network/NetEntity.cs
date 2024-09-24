@@ -16,7 +16,7 @@ public interface IEntityData
 }
 
 [MemoryPackUnion(0, typeof(DestructiblePropData))]
-[MemoryPackUnion(1, typeof(BigProjectileData))]
+[MemoryPackUnion(1, typeof(PhysicsProjectileData))]
 [MemoryPackable]
 public abstract partial class EntityData : Resource, IEntityData
 {

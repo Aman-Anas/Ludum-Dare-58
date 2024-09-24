@@ -19,18 +19,16 @@ public partial record ClientInitializer(
     {
         // Clear out all old entities.
         // TODO: Maybe call a method on the client manager to do this and cleanup terrain stuff
-        client.EventQueue.Enqueue(() =>
-        {
-            foreach (var entityData in client.EntitiesData.Values)
-            {
-                entityData.DestroyEntity();
-            }
 
-            foreach (var data in EntitiesData.Values)
-            {
-                client.SpawnEntity(data);
-            }
-        });
+        foreach (var entityData in client.EntitiesData.Values)
+        {
+            entityData.DestroyEntity();
+        }
+
+        foreach (var data in EntitiesData.Values)
+        {
+            client.SpawnEntity(data);
+        }
     }
 
     public void OnServer(NetPeer peer, ServerManager server)

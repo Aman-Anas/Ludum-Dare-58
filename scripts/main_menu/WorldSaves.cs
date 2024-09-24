@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Game.World.Data;
 using Godot;
 using MemoryPack;
-// ;
 using Utilities.Collections;
 
 namespace Game.Setup;
@@ -13,10 +11,15 @@ public static class WorldSaves
 {
     public const string WORLD_SAVE_PATH = "user://worlds/";
     const string WORLD_META_FILE = "worldmeta.dat";
-    const string WORLD_DATA_FILE = "world.dat";
 
     public static List<(string, WorldMetadata)> GetWorldList()
     {
+        // Make the worlds folder if it doesnt exist
+        if (!DirAccess.DirExistsAbsolute(WORLD_SAVE_PATH))
+        {
+            DirAccess.MakeDirRecursiveAbsolute(WORLD_SAVE_PATH);
+        }
+
         var newList = new List<(string, WorldMetadata)>();
         foreach (string worldName in DirAccess.GetDirectoriesAt(WORLD_SAVE_PATH))
         {
@@ -41,12 +44,17 @@ public static class WorldSaves
     {
         var dirPath = GetSaveDir(name);
         var metaPath = $"{dirPath}/{WORLD_META_FILE}";
-        var worldPath = $"{dirPath}/{WORLD_DATA_FILE}";
         if (!FileAccess.FileExists(metaPath))
         {
+            // If the metadata file doesn't exist, let's make some world metadata
             DirAccess.MakeDirRecursiveAbsolute(dirPath);
             DataUtils.SaveData<WorldMetadata>(metaPath, new(name, DateTime.Now));
-            DataUtils.SaveData<ServerData>(worldPath, new());
+
+            // And instantiate a new world ServerData.
+            ServerData newData = new() { SaveDirectory = dirPath };
+
+            // Save the server data to the new file
+            newData.SaveServerData();
         }
         else
         {
@@ -62,9 +70,9 @@ public static class WorldSaves
         return $"{WORLD_SAVE_PATH}/{saveName}";
     }
 
-    public static ServerData GetWorldData(string saveName)
+    public static ServerData LoadWorld(string saveName)
     {
-        return DataUtils.LoadData<ServerData>($"{GetSaveDir(saveName)}/{WORLD_DATA_FILE}");
+        return ServerData.LoadServerData(GetSaveDir(saveName));
     }
 }
 

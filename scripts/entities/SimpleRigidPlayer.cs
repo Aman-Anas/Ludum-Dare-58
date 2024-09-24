@@ -69,12 +69,13 @@ public partial class SimpleRigidPlayer : RigidBody3D
     {
         yawTarget.Orthonormalize();
         var yawUpDiff = new Quaternion(yawTarget.GlobalBasis.Y, GlobalBasis.Y).Normalized();
+        var axis = yawUpDiff.GetAxis();
 
         // Check to ensure the quaternion is sane and not all zeros
-        if (yawUpDiff.LengthSquared() == 0)
+        if (yawUpDiff.LengthSquared() == 0 || axis.LengthSquared() == 0)
             return;
 
-        yawTarget.Rotate(yawUpDiff.GetAxis().Normalized(), yawUpDiff.GetAngle());
+        yawTarget.Rotate(axis.Normalized(), yawUpDiff.GetAngle());
 
         mouseLookRotationTarget.GlobalRotation = yawTarget.GlobalRotation;
     }
