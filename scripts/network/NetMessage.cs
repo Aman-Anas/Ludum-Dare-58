@@ -47,7 +47,7 @@ public static class NetMessageUtil
     {
         // (also for all the haters, a switch is O(1) and should compile to a jump table)
         // and also we have no way to constant define a dictionary in C# at the moment
-        // so this should be the fastest & most non-allocating way
+        // so this should be fine for now
         switch ((MessageType)reader.GetUInt())
         {
             case MessageType.ClientInitializer:

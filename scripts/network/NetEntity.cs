@@ -86,7 +86,7 @@ public abstract partial class EntityData : Resource, IEntityData
     {
         if (CurrentSector == null)
         {
-            Client.DestroyEntity(EntityID);
+            Client.RemoveEntity(EntityID);
         }
         else
         {
@@ -106,6 +106,12 @@ public interface INetEntity
 
 public static class EntityExtensions
 {
+    /// <summary>
+    /// Update this entity's transform to everyone else in the sector (and update the server)
+    /// This will only affect client -> server entity if the player 'owns' that entity
+    /// </summary>
+    /// <param name="entity">The entity to update the transform of</param>
+    /// <typeparam name="T">Entity type</typeparam>
     public static void UpdateTransform<T>(this T entity)
         where T : INetEntity
     {

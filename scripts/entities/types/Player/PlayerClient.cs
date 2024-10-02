@@ -14,15 +14,4 @@ public partial class PlayerClient : RigidBody3D, INetEntity
     }
 
     PlayerEntityData _data;
-
-    public override void _Ready()
-    {
-        _data.HealthDepleted += _data.DestroyEntity;
-    }
-
-    public override void _PhysicsProcess(double delta)
-    {
-        // Tell the server our new transform at the fixed physics tick
-        this.UpdateTransform();
-    }
 }

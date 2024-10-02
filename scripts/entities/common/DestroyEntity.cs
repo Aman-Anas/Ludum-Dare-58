@@ -13,7 +13,7 @@ public readonly partial record struct DestroyEntity(uint EntityID) : INetMessage
     public readonly void OnClient(ClientManager client)
     {
         var id = EntityID;
-        client.DestroyEntity(id);
+        client.RemoveEntity(id);
     }
 
     public readonly void OnServer(NetPeer peer, ServerManager server)

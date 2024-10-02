@@ -164,9 +164,10 @@ public partial class Sector
     public void EchoToSector<T>(T message, DeliveryMethod method = DeliveryMethod.Unreliable)
         where T : INetMessage
     {
+        var writer = NetMessageUtil.EncodeNetMessage(message);
         foreach (var player in Players)
         {
-            player.EncodeAndSend(message, method);
+            player.Send(writer, method);
         }
     }
 
@@ -210,9 +211,9 @@ public partial class Sector
             EntitySecrets[data.EntityID] = secrets;
         }
 
-        EchoToSector(new SpawnEntity(data), DeliveryMethod.ReliableUnordered);
-
         InstanceEntity(data);
+
+        EchoToSector(new SpawnEntity(data), DeliveryMethod.ReliableUnordered);
     }
 
     public void DestroyEntity(uint entityID)

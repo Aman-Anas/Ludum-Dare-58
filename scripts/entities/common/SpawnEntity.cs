@@ -17,7 +17,7 @@ public partial record SpawnEntity(EntityData Data) : INetMessage
 
     public void OnServer(NetPeer peer, ServerManager server)
     {
-        // server should send spawn to client
+        // Server should send spawn to client
         return;
     }
 }

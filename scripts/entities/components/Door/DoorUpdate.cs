@@ -19,13 +19,3 @@ public readonly partial record struct DoorUpdate(uint EntityID, bool DoorState) 
         ((IDoor)entity.Data).DoorState = DoorState;
     }
 }
-
-public interface IDoor : IEntityData
-{
-    public bool DoorState { get; set; }
-
-    public virtual void Toggle()
-    {
-        this.SendMessage(new DoorUpdate(EntityID, DoorState));
-    }
-}

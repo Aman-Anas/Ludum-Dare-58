@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using Game.Entities;
 using Godot;
 using LiteNetLib;
 using LiteNetLib.Utils;
@@ -97,7 +98,7 @@ public partial class ClientManager : Node, INetEventListener
         Entities[data.EntityID] = newEntity;
     }
 
-    public void DestroyEntity(uint entityID)
+    public void RemoveEntity(uint entityID)
     {
         EntitiesData.Remove(entityID);
         if (Entities.Remove(entityID, out var entity))
@@ -107,6 +108,33 @@ public partial class ClientManager : Node, INetEventListener
             {
                 node.QueueFree();
             }
+        }
+    }
+
+    public void InitializeScene(ClientInitializer initData)
+    {
+        // Clear out all old entities.
+        // TODO: Maybe call a method to cleanup terrain stuff
+
+        foreach (var entityData in EntitiesData.Values)
+        {
+            entityData.DestroyEntity();
+        }
+
+        // Store the new entity data
+        EntitiesData = initData.EntitiesData;
+
+        // Spawn in all the entities from our new data set
+        foreach (var entityData in EntitiesData.Values)
+        {
+            if (entityData.EntityID == initData.PlayerEntityID)
+            {
+                // Spawn our player entity here instead
+                // (easiest way would be to overwrite the ClientPath to the player scene)
+                // data.ClientScene =
+            }
+
+            SpawnEntity(entityData);
         }
     }
 }
