@@ -9,12 +9,14 @@ using Godot;
 using LiteNetLib;
 using MemoryPack;
 using MessagePack;
+using Utilities.Data;
 
 public interface IEntityData
 {
     public uint EntityID { get; set; }
     public Sector CurrentSector { get; set; }
     public ClientManager Client { get; set; }
+    public SecretData Secrets { get; set; }
 }
 
 [GlobalClass]
@@ -23,7 +25,7 @@ public interface IEntityData
 [MemoryPackUnion(2, typeof(StaticPropData))]
 [MemoryPackUnion(3, typeof(PlayerEntityData))]
 [MemoryPackable]
-public abstract partial class EntityData : Resource, IEntityData
+public abstract partial class EntityData : MemoryPackableResource, IEntityData
 {
     /// <summary>
     /// Entity ID for this entity's data. NOTE: This is ONLY "set"-enabled for
@@ -111,7 +113,7 @@ public static class EntityDataExtensions
         where T : EntityData
     {
         T newData = (T)data.Duplicate(true);
-        if (newData.Secrets != null)
+        if (data.Secrets != null)
             newData.Secrets = (SecretData)data.Secrets.Duplicate(true);
 
         newData.OnResourceCopy();

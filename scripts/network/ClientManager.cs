@@ -107,7 +107,10 @@ public partial class ClientManager : Node, INetEventListener
 
     public void OnNetworkLatencyUpdate(NetPeer peer, int latency) { }
 
-    public void OnConnectionRequest(ConnectionRequest request) { }
+    public void OnConnectionRequest(ConnectionRequest request)
+    {
+        request.RejectForce();
+    }
 
     public void SpawnEntity(EntityData data)
     {
@@ -150,7 +153,7 @@ public partial class ClientManager : Node, INetEventListener
             if (entityData.EntityID == initData.PlayerEntityID)
             {
                 // Spawn our player entity here instead
-                // (easiest way would be to overwrite the ClientPath to the player scene)
+                // (for now we just overwrite the client scene with our controllable player)
                 entityData.ClientScene = controllablePlayerPath;
             }
 

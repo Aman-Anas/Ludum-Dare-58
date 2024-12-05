@@ -59,9 +59,9 @@ public static class EntityExtensions
     /// <summary>
     /// I hope I don't need this
     /// </summary>
-    public static INetEntity<EntityData> GetGenericEntity<T>(this INetEntity<T> entity)
+    public static INetEntity GetGenericEntity<T>(this INetEntity<T> entity)
         where T : EntityData
     {
-        return (INetEntity<EntityData>)entity;
+        return entity;
     }
 }

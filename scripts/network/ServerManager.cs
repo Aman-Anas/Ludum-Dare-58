@@ -135,7 +135,10 @@ public partial class ServerManager : Node, INetEventListener
 
     public void OnPeerConnected(NetPeer peer) { }
 
-    public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo) { }
+    public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
+    {
+        WorldData.PlayerDisconnect(peer);
+    }
 
     public void OnNetworkError(IPEndPoint endPoint, SocketError socketError) { }
 
