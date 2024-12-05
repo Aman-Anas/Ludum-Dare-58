@@ -22,6 +22,9 @@ public partial class PlayerEntityData : EntityData, IHealth, IBasicAnim
     public Color PlayerColor { get; set; }
 
     [MemoryPackIgnore]
+    public Vector3 HeadRotation { get; set; }
+
+    [MemoryPackIgnore]
     public byte CurrentAnim { get; set; }
 
     [MemoryPackIgnore]

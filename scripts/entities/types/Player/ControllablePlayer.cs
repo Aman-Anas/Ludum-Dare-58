@@ -9,8 +9,6 @@ using Godot;
 [GlobalClass]
 public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityData>
 {
-    public uint EntityID { get; set; }
-
     public PlayerEntityData Data { get; set; }
 
     EntityData INetEntity.Data
@@ -68,13 +66,18 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
         // Need this to capture the mouse of course
         Input.MouseMode = Input.MouseModeEnum.Captured;
 
-        animPlayer.CurrentAnimationChanged += (_) => ((IBasicAnim)this).UpdateAnim();
+        animPlayer.CurrentAnimationChanged += (_) => ((IBasicAnim)Data).UpdateAnim();
     }
 
     public override void _PhysicsProcess(double delta)
     {
         // Update our transform to the server
-        this.UpdateTransform();
+        // this.UpdateTransform();
+
+        // Use our custom player transform message
+        Data.SendMessage(
+            new PlayerTransform(Data.EntityID, Position, Rotation, headMesh.GlobalRotation)
+        );
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.

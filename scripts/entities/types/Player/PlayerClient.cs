@@ -8,7 +8,8 @@ public partial class PlayerClient : StaticBody3D, INetEntity<PlayerEntityData>
     [Export]
     AnimationPlayer player;
 
-    public uint EntityID { get; set; }
+    [Export]
+    Node3D HeadRef;
 
     public PlayerEntityData Data { get; set; }
 
@@ -20,6 +21,7 @@ public partial class PlayerClient : StaticBody3D, INetEntity<PlayerEntityData>
 
     public override void _PhysicsProcess(double delta)
     {
+        HeadRef.GlobalRotation = Data.HeadRotation;
         player.Play(Data.GetAnimation());
     }
 }

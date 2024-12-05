@@ -5,6 +5,7 @@ using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 using Game.Entities;
 using Game.World.Data;
+using Godot;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using MemoryPack;
@@ -29,7 +30,11 @@ public enum MessageType : uint
 
     // Component updates
     HealthUpdate,
-    DoorUpdate
+    DoorUpdate,
+    BasicAnimUpdate,
+
+    // Custom transform update for players
+    PlayerTransform,
 }
 
 public static class NetMessageUtil
@@ -67,6 +72,15 @@ public static class NetMessageUtil
                 break;
             case MessageType.DoorUpdate:
                 ProcessNetMessage<DoorUpdate>(reader, peer, server, client);
+                break;
+            case MessageType.BasicAnimUpdate:
+                ProcessNetMessage<BasicAnimUpdate>(reader, peer, server, client);
+                break;
+            case MessageType.PlayerTransform:
+                ProcessNetMessage<PlayerTransform>(reader, peer, server, client);
+                break;
+            default:
+                GD.Print("Failed to process message");
                 break;
         }
     }

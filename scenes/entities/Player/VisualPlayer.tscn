@@ -10,11 +10,13 @@ friction = 0.0
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_wrmcx"]
 points = PackedVector3Array(-0.472494, -0.643305, -0.115719, -0.472494, -0.643305, 0.115626, -0.472494, 0.643109, -0.115719, -0.346971, -0.623923, -0.346971, -0.288695, -0.816366, -0.288695, -0.346971, -0.874511, -0.0962934, -0.346971, -0.623923, 0.346878, -0.472494, 0.643109, 0.115626, -0.346971, -0.874511, 0.0962009, -0.288695, -0.816366, 0.288603, -0.346971, 0.623727, -0.346971, -0.346971, 0.874315, -0.0962934, -0.288695, 0.816171, -0.288695, -0.115719, -0.643305, -0.472494, -0.0962934, -0.874511, -0.346971, -0.115719, -1, -0.115719, -0.115719, -0.643305, 0.472494, -0.346971, 0.623727, 0.346878, -0.288695, 0.816171, 0.288603, -0.346971, 0.874315, 0.0962009, -0.115719, -1, 0.115626, -0.0962934, -0.874511, 0.346878, -0.115719, 0.643109, -0.472494, -0.115719, 1, -0.115719, -0.0962934, 0.874315, -0.346971, 0.115626, -0.643305, -0.472494, 0.0962009, -0.874511, -0.346971, 0.115626, -1, -0.115719, 0.115626, -0.643305, 0.472494, -0.115719, 0.643109, 0.472494, -0.0962934, 0.874315, 0.346878, -0.115719, 1, 0.115626, 0.115626, -1, 0.115626, 0.0962009, -0.874511, 0.346878, 0.115626, 0.643109, -0.472494, 0.115626, 1, -0.115719, 0.0962009, 0.874315, -0.346971, 0.288603, -0.816366, -0.288695, 0.346878, -0.623923, -0.346971, 0.346878, -0.874511, -0.0962934, 0.288603, -0.816366, 0.288603, 0.346878, -0.623923, 0.346878, 0.115626, 0.643109, 0.472494, 0.0962009, 0.874315, 0.346878, 0.115626, 1, 0.115626, 0.346878, -0.874511, 0.0962009, 0.346878, 0.623727, -0.346971, 0.288603, 0.816171, -0.288695, 0.346878, 0.874315, -0.0962934, 0.472494, -0.643305, -0.115719, 0.472494, -0.643305, 0.115626, 0.346878, 0.623727, 0.346878, 0.288603, 0.816171, 0.288603, 0.346878, 0.874315, 0.0962009, 0.472494, 0.643109, -0.115719, 0.472494, 0.643109, 0.115626)
 
-[node name="VisualPlayer" type="StaticBody3D"]
+[node name="VisualPlayer" type="StaticBody3D" node_paths=PackedStringArray("player", "HeadRef")]
 collision_layer = 2
 collision_mask = 3
 physics_material_override = SubResource("PhysicsMaterial_lt2x0")
 script = ExtResource("2_sg0yk")
+player = NodePath("PhysicsSmoother/player_rig_default/AnimationPlayer")
+HeadRef = NodePath("PhysicsSmoother/player_rig_default/PlayerHead")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -28,6 +30,7 @@ target = NodePath("..")
 
 [node name="PlayerHead" parent="PhysicsSmoother/player_rig_default" index="0"]
 transform = Transform3D(1, -2.91322e-13, 2.38419e-07, 1.7053e-13, 1, 5.06639e-07, -2.38419e-07, -5.06639e-07, 1, -2.90638e-14, 1.74628, 0.0246999)
+top_level = true
 
 [node name="Skeleton3D" parent="PhysicsSmoother/player_rig_default/rig_player" index="0"]
 bones/0/position = Vector3(-2.01271e-15, 0.943025, -0.0552)
@@ -90,6 +93,17 @@ bones/28/rotation = Quaternion(0.148541, -6.62495e-07, -1.28491e-07, 0.988906)
 bones/29/rotation = Quaternion(1.62982e-09, 3.02676e-09, 1.69966e-08, 1)
 bones/30/rotation = Quaternion(-0.00662188, 0.000441357, 0.0660284, 0.997796)
 bones/30/scale = Vector3(1, 1, 1)
+
+[node name="BoneAttachment3D" type="BoneAttachment3D" parent="PhysicsSmoother/player_rig_default/rig_player/Skeleton3D" index="3"]
+transform = Transform3D(1, -2.55795e-13, 2.38419e-07, 1.7053e-13, 1, 5.06639e-07, -2.38419e-07, -5.06639e-07, 1, 2.29834e-14, 1.54628, 0.0247)
+bone_name = "DEF-spine.006"
+bone_idx = 4
+
+[node name="HeadPos" type="RemoteTransform3D" parent="PhysicsSmoother/player_rig_default/rig_player/Skeleton3D/BoneAttachment3D"]
+transform = Transform3D(1, 0, 0, 2.71051e-20, 1, 0, 0, 0, 1, -8.88178e-16, 0.2, 0)
+remote_path = NodePath("../../../../PlayerHead")
+update_rotation = false
+update_scale = false
 
 [node name="AnimationPlayer" parent="PhysicsSmoother/player_rig_default" index="2"]
 playback_default_blend_time = 1.0

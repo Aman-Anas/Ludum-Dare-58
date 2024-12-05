@@ -7,14 +7,6 @@ using MemoryPack;
 
 public partial class DestructibleProp : StaticBody3D, INetEntity<DestructiblePropData>
 {
-    public uint EntityID { get; set; }
-
-    // public EntityData Data
-    // {
-    //     get => _data;
-    //     set => _data = (DestructiblePropData)value;
-    // }
-
     public DestructiblePropData Data { get; set; }
 
     EntityData INetEntity.Data

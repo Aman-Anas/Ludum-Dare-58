@@ -25,7 +25,7 @@ public interface INetEntity<T> : INetEntity
 public static class EntityExtensions
 {
     /// <summary>
-    /// Update this entity's transform to everyone else in the sector (and update the server)
+    /// Helper to update this entity's transform to the sector (and update the server)
     /// This will only affect client -> server entity if the player 'owns' that entity
     /// </summary>
     /// <param name="entity">The entity to update the transform of</param>
@@ -39,14 +39,7 @@ public static class EntityExtensions
             entity.Rotation
         );
 
-        if (entity.Data.CurrentSector == null)
-        {
-            entity.Data.Client.ServerLink.EncodeAndSend(transformUpdate);
-        }
-        else
-        {
-            entity.Data.CurrentSector.EchoToSector(transformUpdate);
-        }
+        entity.Data.SendMessage(transformUpdate);
     }
 
     public static void SendMessage<TData, TMessage>(this TData Data, TMessage message)

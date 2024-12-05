@@ -10,7 +10,7 @@ using MemoryPack;
 public readonly partial record struct BasicAnimUpdate(uint EntityID, byte CurrentAnim)
     : IEntityUpdate
 {
-    public readonly MessageType GetMessageType() => MessageType.HealthUpdate;
+    public readonly MessageType GetMessageType() => MessageType.BasicAnimUpdate;
 
     public readonly void OnClient(ClientManager client) => this.UpdateEntity(client);
 

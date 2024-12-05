@@ -5,8 +5,6 @@ using Godot;
 
 public partial class PlayerServer : StaticBody3D, INetEntity<PlayerEntityData>
 {
-    public uint EntityID { get; set; }
-
     public PlayerEntityData Data { get; set; }
 
     EntityData INetEntity.Data
