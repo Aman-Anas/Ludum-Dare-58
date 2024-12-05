@@ -84,7 +84,7 @@ public partial class ServerData
         return loadedSector;
     }
 
-    public void SaveSector(uint sectorID)
+    public void SaveSector(Sector sector)
     {
         var sectorDir = $"{SaveDirectory}/{SECTOR_DIR_NAME}";
 
@@ -93,7 +93,7 @@ public partial class ServerData
             DirAccess.MakeDirRecursiveAbsolute(sectorDir);
         }
 
-        DataUtils.SaveData($"{sectorDir}/{sectorID}.dat", LoadedSectors[sectorID]);
+        DataUtils.SaveData($"{sectorDir}/{sector.SectorID}.dat", sector);
     }
 
     public void UnloadAllSectors()
@@ -108,9 +108,9 @@ public partial class ServerData
     {
         if (LoadedSectors.TryGetValue(sectorID, out var sector))
         {
-            SaveSector(sectorID);
             LoadedSectors.Remove(sectorID);
             sector.Unload();
+            SaveSector(sector);
         }
     }
 
@@ -119,9 +119,9 @@ public partial class ServerData
         DataUtils.SaveData($"{SaveDirectory}/{WORLD_DATA_FILE}", this);
 
         // Save all sectors that are currently loaded
-        foreach (var sectorID in LoadedSectors.Keys)
+        foreach (var sector in LoadedSectors.Values)
         {
-            SaveSector(sectorID);
+            SaveSector(sector);
         }
     }
 

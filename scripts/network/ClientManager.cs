@@ -68,6 +68,12 @@ public partial class ClientManager : Node, INetEventListener
     public void Stop()
     {
         NetClient.Stop();
+
+        // Destroy all the currently loaded entities
+        foreach (var data in EntitiesData.Values)
+        {
+            data.DestroyEntity();
+        }
     }
 
     public void OnNetworkReceive(

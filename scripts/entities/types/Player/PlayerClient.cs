@@ -5,6 +5,9 @@ using Godot;
 
 public partial class PlayerClient : StaticBody3D, INetEntity<PlayerEntityData>
 {
+    [Export]
+    AnimationPlayer player;
+
     public uint EntityID { get; set; }
 
     public PlayerEntityData Data { get; set; }
@@ -13,5 +16,10 @@ public partial class PlayerClient : StaticBody3D, INetEntity<PlayerEntityData>
     {
         get => Data;
         set => Data = (PlayerEntityData)value;
+    }
+
+    public override void _PhysicsProcess(double delta)
+    {
+        player.Play(Data.GetAnimation());
     }
 }

@@ -1,5 +1,6 @@
 namespace Game.Entities;
 
+using System;
 using System.Linq;
 using Game;
 using Game.Networking;
@@ -61,14 +62,13 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
     [Export]
     AnimationPlayer animPlayer;
 
-    readonly StringName DEFAULT_ANIM = new("Idle"); // This should be an idle
-    readonly StringName RUNNING_ANIM = new("Run");
-
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
         // Need this to capture the mouse of course
         Input.MouseMode = Input.MouseModeEnum.Captured;
+
+        animPlayer.CurrentAnimationChanged += (_) => ((IBasicAnim)this).UpdateAnim();
     }
 
     public override void _PhysicsProcess(double delta)
@@ -232,11 +232,13 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
         horizontalSpeed.Y = 0;
         if (movementVec.Length() > 0.1 && (horizontalSpeed.Length() > 0.2))
         {
-            animPlayer.Play(RUNNING_ANIM);
+            Data.CurrentAnim = (byte)PlayerAnims.Run;
         }
         else
         {
-            animPlayer.Play(DEFAULT_ANIM);
+            Data.CurrentAnim = (byte)PlayerAnims.Idle;
         }
+
+        animPlayer.Play(Data.GetAnimation());
     }
 }

@@ -75,7 +75,7 @@ public abstract partial class EntityData : Resource, IEntityData
     // Method called when an entity is first copied from a resource template.
     // Useful for converting between Godot [Export] collections/classes and
     // MemoryPack serializable C# classes
-    public virtual void OnFirstInit() { }
+    public virtual void OnResourceCopy() { }
 
     public INetEntity SpawnInstance(bool onServer)
     {
@@ -114,7 +114,7 @@ public static class EntityDataExtensions
         if (newData.Secrets != null)
             newData.Secrets = (SecretData)data.Secrets.Duplicate(true);
 
-        newData.OnFirstInit();
+        newData.OnResourceCopy();
         return newData;
     }
 }

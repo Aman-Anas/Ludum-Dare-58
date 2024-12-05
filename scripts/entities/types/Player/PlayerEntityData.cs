@@ -8,7 +8,7 @@ using MemoryPack;
 
 [GlobalClass]
 [MemoryPackable]
-public partial class PlayerEntityData : EntityData, IHealth
+public partial class PlayerEntityData : EntityData, IHealth, IBasicAnim
 {
     [Export]
     public int Health { get; set; }
@@ -22,5 +22,27 @@ public partial class PlayerEntityData : EntityData, IHealth
     public Color PlayerColor { get; set; }
 
     [MemoryPackIgnore]
+    public byte CurrentAnim { get; set; }
+
+    [MemoryPackIgnore]
     public Action HealthDepleted { get; set; }
+
+    static readonly StringName IdleName = new(nameof(PlayerAnims.Idle));
+    static readonly StringName RunningName = new(nameof(PlayerAnims.Run));
+
+    public StringName GetAnimation()
+    {
+        return (PlayerAnims)CurrentAnim switch
+        {
+            PlayerAnims.Idle => IdleName,
+            PlayerAnims.Run => RunningName,
+            _ => IdleName
+        };
+    }
+}
+
+public enum PlayerAnims : byte
+{
+    Idle,
+    Run
 }

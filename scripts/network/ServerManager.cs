@@ -65,15 +65,15 @@ public partial class ServerManager : Node, INetEventListener
 
     public void Stop()
     {
-        WorldData.SaveServerData();
         WorldData.UnloadAllSectors();
+        WorldData.SaveServerData();
         NetServer.Stop();
     }
 
     public void OnConnectionRequest(ConnectionRequest request)
     {
         var loginData = DecodeData<LoginPacket>(request.Data);
-        GD.Print("received request from ", loginData.Username);
+        GD.Print("Received request from user ", loginData.Username);
         bool valid = WorldData.ValidatePlayer(loginData, playerTemplate);
 
         if (valid)
