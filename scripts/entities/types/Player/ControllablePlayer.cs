@@ -2,6 +2,7 @@ namespace Game.Entities;
 
 using System;
 using System.Linq;
+using System.Text;
 using Game;
 using Game.Networking;
 using Godot;
@@ -66,7 +67,7 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
         // Need this to capture the mouse of course
         Input.MouseMode = Input.MouseModeEnum.Captured;
 
-        animPlayer.CurrentAnimationChanged += (_) => ((IBasicAnim)Data).UpdateAnim();
+        animPlayer.CurrentAnimationChanged += (_) => Data.UpdateAnim();
     }
 
     public override void _PhysicsProcess(double delta)

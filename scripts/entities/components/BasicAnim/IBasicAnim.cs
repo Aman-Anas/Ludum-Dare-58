@@ -8,9 +8,12 @@ using MemoryPack;
 public interface IBasicAnim : IEntityData
 {
     public byte CurrentAnim { get; set; }
+}
 
-    public virtual void UpdateAnim()
+public static class BasicAnimExt
+{
+    public static void UpdateAnim(this IBasicAnim data)
     {
-        this.SendMessage(new BasicAnimUpdate(EntityID, (byte)CurrentAnim));
+        data.SendMessage(new BasicAnimUpdate(data.EntityID, data.CurrentAnim));
     }
 }

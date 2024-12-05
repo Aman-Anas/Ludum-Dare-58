@@ -19,9 +19,18 @@ public partial class PlayerClient : StaticBody3D, INetEntity<PlayerEntityData>
         set => Data = (PlayerEntityData)value;
     }
 
+    public override void _Ready()
+    {
+        HeadRef.GlobalRotation = HeadRef.GetParent<Node3D>().GlobalRotation;
+    }
+
     public override void _PhysicsProcess(double delta)
     {
-        HeadRef.GlobalRotation = Data.HeadRotation;
         player.Play(Data.GetAnimation());
+
+        if (Data.HeadRotation == Vector3.Zero)
+            return;
+
+        HeadRef.GlobalRotation = Data.HeadRotation;
     }
 }

@@ -10,13 +10,13 @@
     <IsAotCompatible>true</IsAotCompatible>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TrimMode>partial</TrimMode>
-    <!-- <AnalysisMode>Recommended</AnalysisMode> -->
+    <AnalysisMode>Recommended</AnalysisMode>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="LiteNetLib" Version="1.2.0" />
-    <PackageReference Include="MemoryPack" Version="1.21.1" />
-    <PackageReference Include="MessagePack" Version="2.5.172" />
-    <PackageReference Include="MessagePackAnalyzer" Version="2.5.172">
+    <PackageReference Include="MemoryPack" Version="1.21.3" />
+    <PackageReference Include="MessagePack" Version="2.5.187" />
+    <PackageReference Include="MessagePackAnalyzer" Version="2.5.187">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

@@ -19,7 +19,7 @@ public readonly partial record struct BasicAnimUpdate(uint EntityID, byte Curren
         if (!peer.OwnsEntity(EntityID))
             return;
 
-        peer.GetPlayerState().CurrentSector?.EchoToSector(this, ignorePeer: peer);
+        this.UpdateEntity(peer);
     }
 
     public readonly void UpdateEntity(INetEntity entity)

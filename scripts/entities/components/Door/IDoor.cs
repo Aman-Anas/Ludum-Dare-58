@@ -8,9 +8,13 @@ using MemoryPack;
 public interface IDoor : IEntityData
 {
     public bool DoorState { get; set; }
+}
 
-    public virtual void Toggle()
+public static class DoorExt
+{
+    public static void ToggleDoor(this IDoor door)
     {
-        this.SendMessage(new DoorUpdate(EntityID, DoorState));
+        door.DoorState = !door.DoorState;
+        door.SendMessage(new DoorUpdate(door.EntityID, door.DoorState));
     }
 }

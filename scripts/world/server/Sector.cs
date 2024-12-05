@@ -1,5 +1,6 @@
 namespace Game.World.Data;
 
+using System;
 using System.Collections.Generic;
 using Game.Entities;
 using Game.Networking;
@@ -79,6 +80,7 @@ public partial class Sector
             if (player != ignorePeer)
                 player.Send(writer, method);
         }
+        writer.RecycleWriter();
     }
 
     public void ReloadArea(SubViewport sectorRoot)
@@ -166,5 +168,16 @@ public partial class Sector
         }
         SectorSceneRoot.QueueFree();
         SectorSceneRoot = null;
+    }
+
+    public void PlayerDisconnect(NetPeer peer)
+    {
+        // Ensure the player's transform gets updated in the server when
+        // they disconnect
+        var state = peer.GetPlayerState();
+        var entity = Entities[state.Data.CurrentEntityID];
+        entity.Data.Position = entity.Position;
+        entity.Data.Rotation = entity.Rotation;
+        Players.Remove(peer);
     }
 }

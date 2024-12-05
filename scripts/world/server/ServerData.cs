@@ -159,6 +159,12 @@ public partial class ServerData
             return true;
         }
     }
+
+    public void PlayerDisconnect(NetPeer peer)
+    {
+        ActivePlayers.Remove(peer.GetPlayerState().Username);
+        peer.GetPlayerState().CurrentSector.PlayerDisconnect(peer);
+    }
 }
 
 [MemoryPackable]

@@ -196,19 +196,6 @@ public partial class Chunk : MeshInstance3D
                 collisionVertices.Add(pos2);
                 collisionVertices.Add(pos3);
             }
-
-            // shouldn't be necessary
-            // if (pos1.IsEqualApprox(pos2) || pos1.IsEqualApprox(pos3) || pos2.IsEqualApprox(pos3))
-            // {
-            //     continue;
-            // }
-
-            // lock (collisionVertices) { }
-
-            // flat normals
-            // vec3 ab = currTri.b.xyz - currTri.a.xyz;
-            // vec3 ac = currTri.c.xyz - currTri.a.xyz;
-            // currTri.norm = -vec4(normalize(cross(ab,ac)), 0);
         }
     }
 

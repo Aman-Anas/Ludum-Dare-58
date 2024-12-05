@@ -29,6 +29,6 @@ public partial class PhysicsProjectileClient : RigidBody3D, INetEntity<PhysicsPr
 
     private void OnCollision(Node body)
     {
-        QueueFree(); // usually we wouldn't need this
+        QueueFree();
     }
 }

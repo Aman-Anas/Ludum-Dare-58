@@ -22,7 +22,7 @@ public partial class PlayerEntityData : EntityData, IHealth, IBasicAnim
     public Color PlayerColor { get; set; }
 
     [MemoryPackIgnore]
-    public Vector3 HeadRotation { get; set; }
+    public Vector3 HeadRotation { get; set; } = Vector3.Zero;
 
     [MemoryPackIgnore]
     public byte CurrentAnim { get; set; }

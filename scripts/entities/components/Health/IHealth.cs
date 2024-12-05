@@ -10,24 +10,26 @@ public interface IHealth : IEntityData
     public int Health { get; set; }
 
     public Action HealthDepleted { get; set; }
+}
 
-    public virtual void UpdateHealth(int newHealth)
+public static class HealthExt
+{
+    public static void UpdateHealth(this IHealth data, int newHealth)
     {
         // If new health would be less than zero, call the action
-
         if (newHealth <= 0)
         {
-            HealthDepleted?.Invoke();
+            data.HealthDepleted?.Invoke();
         }
 
-        Health = newHealth;
+        data.Health = newHealth;
 
         // Only send from server
-        CurrentSector?.EchoToSector(new HealthUpdate(EntityID, newHealth));
+        data.CurrentSector?.EchoToSector(new HealthUpdate(data.EntityID, newHealth));
     }
 
-    public virtual void ChangeHealthBy(int amount)
+    public static void ChangeHealthBy(this IHealth data, int amount)
     {
-        UpdateHealth(Health + amount);
+        data.UpdateHealth(data.Health + amount);
     }
 }
