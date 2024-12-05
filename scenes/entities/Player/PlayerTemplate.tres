@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PlayerEntityData" load_steps=2 format=3 uid="uid://b6wiaipml0wqv"]
+
+[ext_resource type="Script" path="res://scripts/entities/types/Player/PlayerEntityData.cs" id="1_bmbie"]
+
+[resource]
+script = ExtResource("1_bmbie")
+Health = 100
+TorsoPivotAngle = 0.0
+PlayerColor = Color(0, 0.6, 0.741176, 1)
+ServerScene = "res://scenes/entities/Player/ServerPlayer.tscn"
+ClientScene = "res://scenes/entities/Player/VisualPlayer.tscn"

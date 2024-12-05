@@ -116,10 +116,18 @@ public static class NetMessageUtil
     /// <summary>
     /// Helper extension method to call UpdateEntity() for the correct entity on the server
     /// </summary>
-    public static void UpdateEntity<T>(this T message, NetPeer peer)
+    public static void UpdateEntity<T>(
+        this T message,
+        NetPeer peer,
+        bool echo = true,
+        DeliveryMethod echoMethod = DeliveryMethod.Unreliable
+    )
         where T : IEntityUpdate
     {
         message.UpdateEntity(peer.GetLocalEntity(message.EntityID));
+
+        if (echo)
+            peer.GetPlayerState().CurrentSector.EchoToSector(message, echoMethod, peer);
     }
 
     /// <summary>

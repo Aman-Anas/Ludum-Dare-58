@@ -2,11 +2,13 @@ namespace Game.Networking;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Game.Entities;
 using Game.World.Data;
 using Godot;
 using LiteNetLib;
 using MemoryPack;
+using MessagePack;
 
 public interface IEntityData
 {
@@ -15,8 +17,11 @@ public interface IEntityData
     public ClientManager Client { get; set; }
 }
 
+[GlobalClass]
 [MemoryPackUnion(0, typeof(DestructiblePropData))]
 [MemoryPackUnion(1, typeof(PhysicsProjectileData))]
+[MemoryPackUnion(2, typeof(StaticPropData))]
+[MemoryPackUnion(3, typeof(PlayerEntityData))]
 [MemoryPackable]
 public abstract partial class EntityData : Resource, IEntityData
 {
@@ -54,27 +59,29 @@ public abstract partial class EntityData : Resource, IEntityData
     /// Set of all usernames allowed to mess with this entity. Used for client packet validation
     /// (so you can't just move around whatever entity you want)
     /// </summary>
-    public HashSet<string> Owners { get; set; }
+    public HashSet<string> Owners { get; set; } = [];
 
     // For secrets, use these two flags to avoid unneeded serialization
     // and allow resource storage
     // [IgnoreMember]
     // [Export]
-    public virtual SecretData GetSecrets() => null;
+    [MemoryPackIgnore]
+    public virtual SecretData Secrets
+    {
+        get { return null; }
+        set { }
+    }
 
-    /// <summary>
-    /// Re-assign the secrets (after serialization)
-    /// </summary>
-    public virtual void PutSecrets(SecretData secrets) { }
+    // Method called when an entity is first copied from a resource template.
+    // Useful for converting between Godot [Export] collections/classes and
+    // MemoryPack serializable C# classes
+    public virtual void OnFirstInit() { }
 
-    /// <summary>
-    /// Get an instantiated entity
-    /// </summary>
     public INetEntity SpawnInstance(bool onServer)
     {
         string scene = onServer ? ServerScene : ClientScene;
-
-        var newEntity = (INetEntity)NetHelper.InstanceFromScene<Node3D>(scene);
+        GD.Print(scene);
+        var newEntity = NetHelper.InstanceFromScene<INetEntity>(scene);
         newEntity.Data = this;
         newEntity.Position = Position;
         newEntity.Rotation = Rotation;
@@ -95,61 +102,19 @@ public abstract partial class EntityData : Resource, IEntityData
     }
 }
 
-public interface INetEntity
-{
-    public Vector3 Position { get; set; }
-    public Vector3 Rotation { get; set; }
-    public EntityData Data { get; set; }
-
-    public Node3D GetNode() => (Node3D)this;
-}
-
-public static class EntityExtensions
+public static class EntityDataExtensions
 {
     /// <summary>
-    /// Update this entity's transform to everyone else in the sector (and update the server)
-    /// This will only affect client -> server entity if the player 'owns' that entity
-    /// </summary>
-    /// <param name="entity">The entity to update the transform of</param>
-    /// <typeparam name="T">Entity type</typeparam>
-    public static void UpdateTransform<T>(this T entity)
-        where T : INetEntity
+    /// Get an instantiated entity
+    /// /// </summary>
+    public static T CopyFromResource<T>(this T data)
+        where T : EntityData
     {
-        var transformUpdate = new TransformUpdate(
-            entity.Data.EntityID,
-            entity.Position,
-            entity.Rotation
-        );
+        T newData = (T)data.Duplicate(true);
+        if (newData.Secrets != null)
+            newData.Secrets = (SecretData)data.Secrets.Duplicate(true);
 
-        if (entity.Data.CurrentSector == null)
-        {
-            entity.Data.Client.ServerLink.EncodeAndSend(transformUpdate);
-        }
-        else
-        {
-            entity.Data.CurrentSector.EchoToSector(transformUpdate);
-        }
-    }
-
-    public static void SendMessage<TData, TMessage>(this TData Data, TMessage message)
-        where TData : IEntityData
-        where TMessage : INetMessage
-    {
-        if (Data.CurrentSector == null)
-        {
-            Data.Client.ServerLink.EncodeAndSend(message);
-        }
-        else
-        {
-            Data.CurrentSector.EchoToSector(message);
-        }
+        newData.OnFirstInit();
+        return newData;
     }
 }
-
-/// <summary>
-/// SecretData is stored separately from entity data when serialized
-/// to keep "secret" entity server-side data from being sent to the client.
-/// </summary>
-// [MemoryPackUnion(0, typeof(DestructiblePropData))]
-// [MemoryPackable]
-public abstract partial class SecretData : Resource;

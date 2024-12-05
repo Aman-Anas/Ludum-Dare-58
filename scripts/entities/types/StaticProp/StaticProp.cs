@@ -3,17 +3,17 @@ namespace Game.Entities;
 using Game.Networking;
 using Godot;
 
-public partial class StaticProp : StaticBody3D, INetEntity
+public partial class StaticProp : StaticBody3D, INetEntity<StaticPropData>
 {
     public uint EntityID { get; set; }
 
-    public EntityData Data
-    {
-        get => _data;
-        set => _data = (StaticPropData)value;
-    }
+    public StaticPropData Data { get; set; }
 
-    StaticPropData _data;
+    EntityData INetEntity.Data
+    {
+        get => Data;
+        set => Data = (StaticPropData)value;
+    }
 
     // literally does nothing
 }

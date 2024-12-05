@@ -2,8 +2,10 @@ namespace Game.Networking;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Sockets;
+using Game.Entities;
 using Game.Setup;
 using Game.World.Data;
 using Godot;
@@ -21,6 +23,9 @@ public partial class ServerManager : Node, INetEventListener
 
     public ServerData WorldData { get; set; }
 
+    [Export]
+    PlayerEntityData playerTemplate;
+
     public ServerManager()
     {
         NetServer = new(this);
@@ -29,6 +34,18 @@ public partial class ServerManager : Node, INetEventListener
     public bool StartServer(int port)
     {
         WorldData = WorldSaves.LoadWorld(CurrentSaveName);
+
+        Sector newSector;
+        if (!WorldData.SectorMetadata.ContainsKey(0))
+        {
+            newSector = WorldData.AddNewSector("Home", new(false, 0, Vector3.Zero));
+        }
+        else
+        {
+            newSector = WorldData.LoadSector(0);
+        }
+        GD.Print("home sector ID: ", newSector.SectorID);
+
         return NetServer.Start(port);
     }
 
@@ -49,31 +66,15 @@ public partial class ServerManager : Node, INetEventListener
     public void Stop()
     {
         WorldData.SaveServerData();
-
+        WorldData.UnloadAllSectors();
         NetServer.Stop();
     }
 
     public void OnConnectionRequest(ConnectionRequest request)
     {
         var loginData = DecodeData<LoginPacket>(request.Data);
-
-        bool valid;
-
-        if (WorldData.LoginData.TryGetValue(loginData.Username, out string actualPword))
-        {
-            valid = loginData.Password == actualPword;
-        }
-        else
-        {
-            // If the username is not in the registry, then let's add it
-            WorldData.LoginData[loginData.Username] = loginData.Password;
-            WorldData.PlayerData[loginData.Username] = new()
-            {
-                CurrentSectorID = 0,
-                CurrentEntityID = 15 // TODO: Make a new player entity for each lad
-            };
-            valid = true;
-        }
+        GD.Print("received request from ", loginData.Username);
+        bool valid = WorldData.ValidatePlayer(loginData, playerTemplate);
 
         if (valid)
         {
@@ -86,26 +87,31 @@ public partial class ServerManager : Node, INetEventListener
                 WorldData.LoadSector(playerData.CurrentSectorID);
             }
 
+            // Now the sector has been loaded
             var currentSector = WorldData.LoadedSectors[playerData.CurrentSectorID];
 
             // make a LivePlayerState to provide easy access to the player's current sector etc
             LivePlayerState state = new(newPeer, loginData.Username, currentSector, playerData);
-
-            WorldData.ActivePlayers[loginData.Username] = newPeer;
-
             newPeer.Tag = state;
 
+            WorldData.ActivePlayers[loginData.Username] = newPeer;
+            currentSector.Players.Add(newPeer);
+
             GD.Print($"Accepted login from user {loginData.Username}");
-            // newPeer.Send(
-            //     // EncodeNetMessage(new ClientInitializer(Vector3.One, Vector3.Forward, false, [])),
-            //     DeliveryMethod.ReliableUnordered
-            // );
+            newPeer.EncodeAndSend(
+                new ClientInitializer(
+                    playerData.CurrentEntityID,
+                    currentSector.EntitiesData,
+                    currentSector.Parameters
+                ),
+                DeliveryMethod.ReliableUnordered
+            );
         }
         else
         {
             rejectWriter.Reset();
             rejectWriter.Put("stinky");
-            request.Reject(rejectWriter);
+            request.RejectForce(rejectWriter);
             GD.Print($"Rejected login for user {loginData.Username}");
         }
     }

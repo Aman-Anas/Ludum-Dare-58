@@ -30,6 +30,7 @@ public partial class Chunk : MeshInstance3D
     ConcavePolygonShape3D chunkShape = new();
 
     Godot.Collections.Array meshData = [];
+    Godot.Collections.Dictionary collisionData = [];
 
     // Maps vertex IDs to their index in the surface array
     readonly Dictionary<(int, int), int> existingVertexIDs = [];
@@ -44,11 +45,18 @@ public partial class Chunk : MeshInstance3D
 
     const int INDICES_PER_TRI = 3;
 
+    Rid chunkShapeRid;
+    Rid chunkMeshRid;
+    Rid chunkMaterialRid;
+
     ChunkID currentChunkID;
     Vector3I chunkSampleCoord;
 
-    public void ProcessChunk(ChunkID cID, byte[] terrainData) //, Stopwatch s)
+    byte[] terrainData;
+
+    public unsafe void ProcessChunk(ChunkID cID, byte[] terrainData) //, Stopwatch s)
     {
+        Stopwatch s = Stopwatch.StartNew();
         currentChunkID = cID;
         chunkSampleCoord = currentChunkID.GetSampleVector3I();
 
@@ -62,8 +70,9 @@ public partial class Chunk : MeshInstance3D
         // s.Stop();
         // GD.Print("clear lists ", s.Elapsed.TotalMicroseconds);
         // s.Restart();
+        this.terrainData = terrainData;
 
-        Parallel.For(0, TerrainData.VOXELS_PER_CHUNK, (x) => ProcessVoxel(x, terrainData));
+        Parallel.For(0, TerrainData.VOXELS_PER_CHUNK, ProcessVoxel);
         // for (int x = 0; x < TerrainData.VOXELS_PER_CHUNK; x++)
         // {
         //     ProcessVoxel(x, terrainData);
@@ -82,22 +91,25 @@ public partial class Chunk : MeshInstance3D
         // FinalizeInScene();
         CallDeferred(finalizeName);
 
-        // s.Stop();
-        // GD.Print("finalize mesh ", s.Elapsed.TotalMicroseconds);
+        s.Stop();
+        // runningSum += s.ElapsedMilliseconds;
+        // countChunks++;
+        // GD.Print($"{runningSum / countChunks} avg");
+        GD.Print($"time {s.Elapsed.TotalMilliseconds}");
         // s.Restart();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static int GetSampleIndex(Vector3I coord)
+    static unsafe int GetSampleIndex(Vector3I coord)
     {
         coord += Vector3I.One;
         return TerrainData.Coord3DToIndex(coord, TerrainData.SAMPLE_ARRAY_PER_AXIS);
     }
 
-    static float GetFloatAtCoord(Vector3I coord, ReadOnlySpan<byte> data)
+    unsafe float GetFloatAtCoord(Vector3I coord)
     {
         return Mathf.Remap(
-            (float)(data[GetSampleIndex(coord)]),
+            terrainData[GetSampleIndex(coord)],
             byte.MinValue,
             byte.MaxValue,
             -1.0f,
@@ -105,7 +117,7 @@ public partial class Chunk : MeshInstance3D
         );
     }
 
-    void ProcessVoxel(int voxelIndex, ReadOnlySpan<byte> terrainData)
+    unsafe void ProcessVoxel(int voxelIndex)
     {
         // this voxel coord from 0-15
         var voxelCoord = TerrainData.IndexToCoord3D(voxelIndex, TerrainData.VOXELS_PER_AXIS);
@@ -151,7 +163,7 @@ public partial class Chunk : MeshInstance3D
         // Create triangles for current cube configuration
         // int numIndices = MarchingCubeTables.LUT_INDEX_LENGTHS[cubeConfig];
         // int offset = MarchingCubeTables.LUT_OFFSETS[cubeConfig];
-        Span<byte> currentTriangulation = MarchingCubeTables.EdgeTable[cubeConfig];
+        var currentTriangulation = MarchingCubeTables.EdgeTable[cubeConfig];
 
         for (int i = 0; i < currentTriangulation.Length; i += 3)
         {
@@ -172,13 +184,17 @@ public partial class Chunk : MeshInstance3D
             // Calculate vertex positions and add indices
             TriangleIndex newTriIndex =
                 new(
-                    GenerateVertex(cubeCorners[a2], cubeCorners[b2], terrainData, out var pos1),
-                    GenerateVertex(cubeCorners[a1], cubeCorners[b1], terrainData, out var pos2),
-                    GenerateVertex(cubeCorners[a0], cubeCorners[b0], terrainData, out var pos3)
+                    GenerateVertex(cubeCorners[a2], cubeCorners[b2], out var pos1),
+                    GenerateVertex(cubeCorners[a1], cubeCorners[b1], out var pos2),
+                    GenerateVertex(cubeCorners[a0], cubeCorners[b0], out var pos3)
                 );
             lock (indices)
             {
                 indices.Add(newTriIndex);
+
+                collisionVertices.Add(pos1);
+                collisionVertices.Add(pos2);
+                collisionVertices.Add(pos3);
             }
 
             // shouldn't be necessary
@@ -187,12 +203,7 @@ public partial class Chunk : MeshInstance3D
             //     continue;
             // }
 
-            lock (collisionVertices)
-            {
-                collisionVertices.Add(pos1);
-                collisionVertices.Add(pos2);
-                collisionVertices.Add(pos3);
-            }
+            // lock (collisionVertices) { }
 
             // flat normals
             // vec3 ab = currTri.b.xyz - currTri.a.xyz;
@@ -202,12 +213,7 @@ public partial class Chunk : MeshInstance3D
     }
 
     // Returns the index of the vertex in the vert list
-    int GenerateVertex(
-        Vector3I localPosA,
-        Vector3I localPosB,
-        ReadOnlySpan<byte> terrainData,
-        out Vector3 vertexPos
-    )
+    unsafe int GenerateVertex(Vector3I localPosA, Vector3I localPosB, out Vector3 vertexPos)
     {
         const float isoLevel = 0;
 
@@ -218,49 +224,18 @@ public partial class Chunk : MeshInstance3D
             TerrainData.CoordToChunkSpace(localPosB)
         );
 
-        float n1 = GetFloatAtCoord(localPosA, terrainData);
-        float n2 = GetFloatAtCoord(localPosB, terrainData);
-        // GD.Print(n1);
+        float n1 = GetFloatAtCoord(localPosA);
+        float n2 = GetFloatAtCoord(localPosB);
 
         float t = (isoLevel - n1) / (n2 - n1);
 
-        Vector3 position;
-        if (Math.Abs(isoLevel - n1) < 0.0001f)
-        {
-            position = worldVec1;
-        }
-        else if (Math.Abs(isoLevel - n2) < 0.0001f)
-        {
-            position = worldVec2;
-        }
-        else if (Math.Abs(n1 - n2) < 0.0001f)
-        {
-            position = worldVec1;
-        }
-        else
-        {
-            // position = (worldVec1 + worldVec2) * 0.5f; // blocky version
-            position = worldVec1 + (t * (worldVec2 - worldVec1));
-            // position = MCInterpolateNoCracks(worldVec1, worldVec2, n1, n2, isoLevel);
-        }
-        // Vector3 position = worldVec1 + (t * (worldVec2 - worldVec1));
-
-        // (Vector3I, Vector3I) posID;
-        // if (localPosA > localPosB)
-        // {
-        //     posID = (localPosB, localPosA);
-        // }
-        // else
-        // {
-        //     posID = (localPosA, localPosB);
-        // }
+        Vector3 position = worldVec1 + (t * (worldVec2 - worldVec1));
 
         var posID = GetVertexID(localPosA, localPosB);
         vertexPos = position;
 
-        // GD.Print(position);
-        Vector3 normalA = GetCoordinateNormal(localPosA, terrainData);
-        Vector3 normalB = GetCoordinateNormal(localPosB, terrainData);
+        Vector3 normalA = GetCoordinateNormal(localPosA);
+        Vector3 normalB = GetCoordinateNormal(localPosB);
         Vector3 normal = (normalA + (t * (normalB - normalA))).Normalized();
 
         int thisVertexID;
@@ -269,30 +244,16 @@ public partial class Chunk : MeshInstance3D
         {
             if (!existingVertexIDs.TryGetValue(posID, out thisVertexID))
             {
-                lock (verts)
-                {
-                    lock (normals)
-                    {
-                        verts.Add(position);
-                        normals.Add(normal);
-                        existingVertexIDs[posID] = verts.Count - 1;
-                        thisVertexID = verts.Count - 1;
-                    }
-                }
+                verts.Add(position);
+                normals.Add(normal);
+                existingVertexIDs[posID] = verts.Count - 1;
+                thisVertexID = verts.Count - 1;
             }
         }
         return thisVertexID;
-
-        // if (!existingVertexIDs.ContainsKey(posID))
-        // {
-        //     existingVertexIDs[posID] = verts.Count;
-        //     verts.Add(position);
-        //     normals.Add(normal);
-        // }
-        // return existingVertexIDs[posID];
     }
 
-    static Vector3 GetCoordinateNormal(Vector3I coord, ReadOnlySpan<byte> terrainData)
+    unsafe Vector3 GetCoordinateNormal(Vector3I coord)
     {
         Vector3I offsetX = new(1, 0, 0);
         Vector3I offsetY = new(0, 1, 0);
@@ -300,12 +261,9 @@ public partial class Chunk : MeshInstance3D
 
         Vector3 derivative =
             new(
-                GetFloatAtCoord(coord + offsetX, terrainData)
-                    - GetFloatAtCoord(coord - offsetX, terrainData),
-                GetFloatAtCoord(coord + offsetY, terrainData)
-                    - GetFloatAtCoord(coord - offsetY, terrainData),
-                GetFloatAtCoord(coord + offsetZ, terrainData)
-                    - GetFloatAtCoord(coord - offsetZ, terrainData)
+                GetFloatAtCoord(coord + offsetX) - GetFloatAtCoord(coord - offsetX),
+                GetFloatAtCoord(coord + offsetY) - GetFloatAtCoord(coord - offsetY),
+                GetFloatAtCoord(coord + offsetZ) - GetFloatAtCoord(coord - offsetZ)
             );
         // GD.Print(derivative);
 
@@ -313,7 +271,7 @@ public partial class Chunk : MeshInstance3D
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static (int, int) GetVertexID(Vector3I coord1, Vector3I coord2)
+    static unsafe (int, int) GetVertexID(Vector3I coord1, Vector3I coord2)
     {
         int index1 = TerrainData.Coord3DToIndex(coord1, TerrainData.SAMPLE_POINTS_PER_AXIS);
         int index2 = TerrainData.Coord3DToIndex(coord2, TerrainData.SAMPLE_POINTS_PER_AXIS);
@@ -322,22 +280,29 @@ public partial class Chunk : MeshInstance3D
 
     void CreateMesh()
     {
+        chunkMesh.ClearSurfaces();
+
         if (indices.Count >= INDICES_PER_TRI)
         {
-            var vertexSpan = CollectionsMarshal.AsSpan(verts);
-            var indexSpan = MemoryMarshal.Cast<TriangleIndex, int>(
-                CollectionsMarshal.AsSpan(indices)
-            );
             // Make our Godot array and throw the data in
 
-            meshData[(int)Mesh.ArrayType.Vertex] = vertexSpan;
+            meshData[(int)Mesh.ArrayType.Vertex] = CollectionsMarshal.AsSpan(verts);
             meshData[(int)Mesh.ArrayType.Normal] = CollectionsMarshal.AsSpan(normals);
-            meshData[(int)Mesh.ArrayType.Index] = indexSpan;
+            meshData[(int)Mesh.ArrayType.Index] = MemoryMarshal.Cast<TriangleIndex, int>(
+                CollectionsMarshal.AsSpan(indices)
+            );
 
-            collisionVertexArray = [.. collisionVertices];
+            collisionData["faces"] = CollectionsMarshal.AsSpan(collisionVertices);
+
+            PhysicsServer3D.ShapeSetData(chunkShapeRid, collisionData);
+
+            RenderingServer.MeshAddSurfaceFromArrays(
+                chunkMeshRid,
+                RenderingServer.PrimitiveType.Triangles,
+                meshData
+            );
+            RenderingServer.MeshSurfaceSetMaterial(chunkMeshRid, 0, chunkMaterialRid);
         }
-
-        chunkMesh.ClearSurfaces();
     }
 
     public void FinalizeInScene()
@@ -351,23 +316,6 @@ public partial class Chunk : MeshInstance3D
             return;
         }
         collider.Disabled = false;
-
-        chunkMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, meshData);
-        chunkMesh.SurfaceSetMaterial(0, chunkMaterial);
-
-        chunkShape.Data = collisionVertexArray;
-        // s.Stop();
-        // GD.Print(s.ElapsedMilliseconds);
-
-        // GD.Print("verts ", verts.Count);
-        // GD.Print("norms ", normals.Count);
-        // GD.Print("indices ", indices.Count);
-
-        // collider.Shape = chunkMesh.CreateTrimeshShape();
-
-        // can also check length of meshdata vertices but wanted to be sure
-        // GD.Print("vertex count ", ((ArrayMesh)Mesh).SurfaceGetArrayLen(0));
-        // GD.Print("tri count ", indices.Count / 3);
     }
 
     public void HibernateChunk()
@@ -382,6 +330,12 @@ public partial class Chunk : MeshInstance3D
         this.Mesh = chunkMesh;
         collider.Shape = chunkShape;
         meshData.Resize((int)Mesh.ArrayType.Max);
+
+        chunkShapeRid = chunkShape.GetRid();
+        chunkMeshRid = chunkMesh.GetRid();
+        chunkMaterialRid = chunkMaterial.GetRid();
+
+        collisionData["backface_collision"] = false;
     }
 
     // Not needed

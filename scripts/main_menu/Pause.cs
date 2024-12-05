@@ -20,6 +20,9 @@ public partial class Pause : Control
     Button backButton;
 
     [Export]
+    Button returnToTitle;
+
+    [Export]
     Control pauseMenuRoot;
 
     [Export]
@@ -33,7 +36,9 @@ public partial class Pause : Control
         menu = new SubMenuHelper(backButton, pauseMenuRoot);
         resumeButton.Pressed += Resume;
         settingsButton.Pressed += () => menu.SetSubMenu(settingsMenuRoot);
-        quitButton.Pressed += () => GetTree().Quit();
+        returnToTitle.Pressed += Manager.Instance.ExitToTitle;
+
+        quitButton.Pressed += Manager.Instance.QuitGame;
     }
 
     void Resume()
@@ -49,13 +54,14 @@ public partial class Pause : Control
     {
         if (Input.IsActionJustPressed(GameActions.PAUSE_GAME))
         {
-            if (GetTree().Paused)
+            if (Visible)
             {
                 Resume();
             }
             else
             {
-                GetTree().Paused = true;
+                // TODO: Make this actually pause only when in singleplayer mode
+                // GetTree().Paused = true;
                 Show();
                 prevMouseMode = Input.MouseMode;
                 Input.MouseMode = Input.MouseModeEnum.Visible;

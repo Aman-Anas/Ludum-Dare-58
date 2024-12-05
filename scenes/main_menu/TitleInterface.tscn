@@ -116,12 +116,6 @@ theme = ExtResource("1_sshgn")
 theme_type_variation = &"TitleButton"
 text = "Quit"
 
-[node name="HostOnly" type="Button" parent="TitleMargin/VBoxContainer/ContentMargin/Columns/PanelContainer/ButtonList"]
-layout_mode = 2
-theme = ExtResource("1_sshgn")
-theme_override_styles/normal = SubResource("StyleBoxFlat_p3c23")
-text = " Host Only"
-
 [node name="Settings" type="Button" parent="TitleMargin/VBoxContainer/ContentMargin/Columns/PanelContainer/ButtonList"]
 layout_mode = 2
 theme = ExtResource("1_sshgn")

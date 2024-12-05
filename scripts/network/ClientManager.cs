@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 using Game.Entities;
 using Godot;
 using LiteNetLib;
@@ -24,12 +26,15 @@ public partial class ClientManager : Node, INetEventListener
     public Dictionary<uint, EntityData> EntitiesData { get; set; } = [];
     public Dictionary<uint, INetEntity> Entities { get; set; } = [];
 
+    [Export(PropertyHint.File)]
+    string controllablePlayerPath;
+
     public ClientManager()
     {
         NetClient = new(this);
     }
 
-    public bool StartClient(string address, int port, LoginPacket loginInfo)
+    public async Task<bool> StartClient(string address, int port, LoginPacket loginInfo)
     {
         ConnectAddress = address;
         ConnectPort = port;
@@ -42,7 +47,15 @@ public partial class ClientManager : Node, INetEventListener
             NetDataWriter.FromBytes(EncodeData(loginInfo), false)
         );
 
-        return ServerLink != null;
+        // TODO: in the future do this in an async way to properly display
+        // a "connecting" message on the menu
+        while (ServerLink.ConnectionState == ConnectionState.Outgoing)
+        {
+            NetClient.PollEvents();
+            await Task.Delay(10);
+        }
+
+        return ServerLink.ConnectionState != ConnectionState.Disconnected;
     }
 
     public bool IsRunning() => NetClient.IsRunning;
@@ -92,8 +105,9 @@ public partial class ClientManager : Node, INetEventListener
 
     public void SpawnEntity(EntityData data)
     {
+        data.Client = this;
         var newEntity = data.SpawnInstance(false);
-        this.AddChild((Node3D)newEntity);
+        this.AddChild(newEntity.GetNode());
 
         Entities[data.EntityID] = newEntity;
     }
@@ -131,7 +145,7 @@ public partial class ClientManager : Node, INetEventListener
             {
                 // Spawn our player entity here instead
                 // (easiest way would be to overwrite the ClientPath to the player scene)
-                // data.ClientScene =
+                entityData.ClientScene = controllablePlayerPath;
             }
 
             SpawnEntity(entityData);

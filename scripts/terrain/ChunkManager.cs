@@ -40,7 +40,7 @@ public partial class ChunkManager : Node3D
 
     // Chunk generation
     // We'll have to clear this after some limit and on area changes
-    readonly ConcurrentDictionary<ChunkID, byte[]> knownChunkData = [];
+    readonly Dictionary<ChunkID, byte[]> knownChunkData = [];
 
     // This is the var tracking whether we already are processing a chunk
     bool currentlyComputing;
@@ -61,7 +61,10 @@ public partial class ChunkManager : Node3D
     // For when we receive some chunk mods from the server
     public void UpdateChunkData(ChunkID chunkID, byte[] chunkData)
     {
-        knownChunkData[chunkID] = chunkData;
+        lock (knownChunkData)
+        {
+            knownChunkData[chunkID] = chunkData;
+        }
         if (loadedChunks.ContainsKey(chunkID))
         {
             ReloadChunk(chunkID).Wait();
@@ -84,9 +87,16 @@ public partial class ChunkManager : Node3D
         {
             // var s = Stopwatch.StartNew();
             // s.Restart();
-            var chunkData = knownChunkData.GetOrAdd(chunkID, PopulateNewSampleData);
+            if (!knownChunkData.TryGetValue(chunkID, out var chunkData))
+            {
+                lock (knownChunkData)
+                {
+                    chunkData = PopulateNewSampleData(chunkID);
+                    knownChunkData[chunkID] = chunkData;
+                }
+            }
             // s.Stop();
-            // GD.Print("sample time: ", s.Elapsed.TotalMicroseconds);
+            // GD.Print("sample time: ", s.Elapsed.TotalMilliseconds);
             // s.Restart();
 
             // Chuck the data over to the chunk and let it finish processing
@@ -97,7 +107,7 @@ public partial class ChunkManager : Node3D
             currentlyComputing = false;
 
             // s.Stop();
-            // GD.Print("chunk time ", s.Elapsed.TotalMicroseconds);
+            // GD.Print("chunk time ", s.Elapsed.TotalMilliseconds);
         });
     }
 
@@ -111,6 +121,11 @@ public partial class ChunkManager : Node3D
         // Position of this coord in sample space
         Vector3 samplePos =
             ((percentPos + chunkCoord) * terrainParams.NoiseScale) + terrainParams.NoiseOffset;
+
+        // if (samplePos.LengthSquared() > 5.0)
+        // {
+        //     return byte.MaxValue;
+        // }
 
         // float sum = 0;
         // float amplitude = 1;
@@ -150,14 +165,18 @@ public partial class ChunkManager : Node3D
 
         // value 0 to 1
         // float elevation = (noiseValue2D + 1.0f) * 0.5f;
-
-        float density = SDFUtils.SdSphere(samplePos, (noiseValue2D * 0.2f) + 2.0f); // * ();
+        // float density = noiseValue2D;
+        float density = SDFUtils.SdSphere(samplePos, (noiseValue2D * 0.5f) + 2.0f); // * ();
         density = Math.Clamp(density, -1.0f, 1.0f);
 
         // convert to 0 to 1 for data storage
         density = (density + 1.0f) / 2.0f;
 
         byte output = (byte)Mathf.RoundToInt(density * byte.MaxValue);
+        // if (output > TerrainData.CENTER_ISOLEVEL)
+        // {
+        //     return TerrainData.CENTER_ISOLEVEL + 1;
+        // }
         // GD.Print(output);
         return output;
     }
@@ -218,7 +237,7 @@ public partial class ChunkManager : Node3D
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        // Manager.Instance.MainWorld.ChunkManager = this;
+        Manager.Instance.ChunkManager = this;
         // GD.Print("Size ", Marshal.SizeOf<TerrainParameters>());
 
         // InitializeCompute();
@@ -321,7 +340,7 @@ public partial class ChunkManager : Node3D
         // Reload a chunk if it's in the queue
         if (!currentlyComputing)
         {
-            while (chunksToReload.TryDequeue(out var chunkID))
+            if (chunksToReload.TryDequeue(out var chunkID))
             {
                 if (!chunksToReload.Contains(chunkID))
                 {
@@ -377,7 +396,11 @@ public partial class ChunkManager : Node3D
             var currentChunkID = new ChunkID(closestChunkPos + chunkOffset);
 
             // Either get the existing data array or make a new one
-            var chunkData = knownChunkData.GetOrAdd(currentChunkID, PopulateNewSampleData);
+            if (!knownChunkData.ContainsKey(currentChunkID))
+            {
+                continue;
+            }
+            var chunkData = knownChunkData[currentChunkID];
 
             var chunkWorldPos = currentChunkID.GetSampleVector() * TerrainData.CHUNK_SIZE;
 
@@ -440,7 +463,7 @@ public partial class ChunkManager : Node3D
                     var thisTerraAmount = strength;
                     if (curTerraformPos != localTerraformPos)
                     {
-                        thisTerraAmount *= 0.25f;
+                        thisTerraAmount *= 0.15f;
                     }
 
                     // Whether to add or subtract
@@ -455,6 +478,10 @@ public partial class ChunkManager : Node3D
                             byte.MaxValue
                         )
                     );
+                    // if (chunkData[modIndex] > TerrainData.CENTER_ISOLEVEL)
+                    // {
+                    //     chunkData[modIndex] = TerrainData.CENTER_ISOLEVEL + 1;
+                    // }
                     // chunkData[modIndex] = Math.Clamp(chunkData[modIndex], -1.0f, 1.0f);
                     modified = true;
                 }

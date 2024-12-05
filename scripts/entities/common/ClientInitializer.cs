@@ -3,6 +3,7 @@ namespace Game.Entities;
 using System.Collections.Generic;
 using Game.Networking;
 using Game.Terrain;
+using Game.World.Data;
 using Godot;
 using LiteNetLib;
 using MemoryPack;
@@ -11,12 +12,15 @@ using MemoryPack;
 public partial record ClientInitializer(
     uint PlayerEntityID,
     Dictionary<uint, EntityData> EntitiesData,
-    TerrainParameters TerrainParameters
+    SectorParameters TerrainParameters
 ) : INetMessage
 {
     public MessageType GetMessageType() => MessageType.ClientInitializer;
 
-    public void OnClient(ClientManager client) { }
+    public void OnClient(ClientManager client)
+    {
+        client.InitializeScene(this);
+    }
 
     public void OnServer(NetPeer peer, ServerManager server)
     {

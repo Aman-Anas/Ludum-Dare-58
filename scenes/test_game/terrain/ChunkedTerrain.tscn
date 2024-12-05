@@ -1,7 +1,7 @@
 [gd_scene load_steps=11 format=3 uid="uid://ce4a07ov21gnq"]
 
 [ext_resource type="Script" path="res://scripts/terrain/ChunkManager.cs" id="1_8512h"]
-[ext_resource type="PackedScene" uid="uid://cemklg2tr1ud8" path="res://scenes/terrain/Chunk.tscn" id="2_v3kne"]
+[ext_resource type="PackedScene" uid="uid://cemklg2tr1ud8" path="res://scenes/test_game/terrain/Chunk.tscn" id="2_v3kne"]
 [ext_resource type="PackedScene" uid="uid://be68kkhnkgb6u" path="res://scenes/main_menu/Pause.tscn" id="3_qxdqc"]
 [ext_resource type="PackedScene" uid="uid://5tfng4tp7c4" path="res://scenes/test_game/Player.tscn" id="4_h72e6"]
 [ext_resource type="PackedScene" uid="uid://crf33aqia24q7" path="res://scenes/test_game/TestBall.tscn" id="5_hgi0l"]

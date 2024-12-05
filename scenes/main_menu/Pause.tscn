@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/main_menu/Pause.cs" id="1_344uv"]
 [ext_resource type="PackedScene" uid="uid://86na0e3npoj5" path="res://scenes/main_menu/Settings.tscn" id="2_3mfmm"]
 
-[node name="Pause" type="Control" node_paths=PackedStringArray("resumeButton", "settingsButton", "quitButton", "backButton", "pauseMenuRoot", "settingsMenuRoot")]
+[node name="Pause" type="Control" node_paths=PackedStringArray("resumeButton", "settingsButton", "quitButton", "backButton", "returnToTitle", "pauseMenuRoot", "settingsMenuRoot")]
 process_mode = 3
 visible = false
 layout_mode = 3
@@ -17,6 +17,7 @@ resumeButton = NodePath("PanelContainer/PauseButtons/VBoxContainer/Resume")
 settingsButton = NodePath("PanelContainer/PauseButtons/VBoxContainer/Settings")
 quitButton = NodePath("PanelContainer/PauseButtons/VBoxContainer/Quit")
 backButton = NodePath("Back")
+returnToTitle = NodePath("PanelContainer/PauseButtons/VBoxContainer/Return To Title")
 pauseMenuRoot = NodePath("PanelContainer/PauseButtons")
 settingsMenuRoot = NodePath("PanelContainer/Settings")
 
@@ -41,6 +42,10 @@ text = "Resume"
 [node name="Settings" type="Button" parent="PanelContainer/PauseButtons/VBoxContainer"]
 layout_mode = 2
 text = "Settings"
+
+[node name="Return To Title" type="Button" parent="PanelContainer/PauseButtons/VBoxContainer"]
+layout_mode = 2
+text = "Return To Title"
 
 [node name="Quit" type="Button" parent="PanelContainer/PauseButtons/VBoxContainer"]
 layout_mode = 2

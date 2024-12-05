@@ -5,26 +5,26 @@ using Game.Networking;
 using Godot;
 using MemoryPack;
 
-public partial class PhysicsProjectileServer : RigidBody3D, INetEntity
+public partial class PhysicsProjectileServer : RigidBody3D, INetEntity<PhysicsProjectileData>
 {
-    public EntityData Data
-    {
-        get => _data;
-        set => _data = (PhysicsProjectileData)value;
-    }
+    public PhysicsProjectileData Data { get; set; }
 
-    PhysicsProjectileData _data;
+    EntityData INetEntity.Data
+    {
+        get => Data;
+        set => Data = (PhysicsProjectileData)value;
+    }
 
     public override void _Ready()
     {
         BodyEntered += OnCollision;
 
         // Add auto destroy on timeout
-        var timer = GetTree().CreateTimer(_data.DecayTime, false);
-        timer.Timeout += () => _data.DestroyEntity();
+        var timer = GetTree().CreateTimer(Data.DecayTime, false);
+        timer.Timeout += () => Data.DestroyEntity();
 
         // Add some speeeeed
-        LinearVelocity = new(0, _data.InitialVelocity, 0);
+        LinearVelocity = new(0, Data.InitialVelocity, 0);
     }
 
     public override void _PhysicsProcess(double delta)
@@ -34,13 +34,13 @@ public partial class PhysicsProjectileServer : RigidBody3D, INetEntity
 
     private void OnCollision(Node body)
     {
-        _data.DestroyEntity();
-        if (body is not INetEntity entity)
+        Data.DestroyEntity();
+        if (body is not INetEntity<EntityData> entity)
             return;
 
         if (entity.Data is IHealth healthData)
         {
-            healthData.ChangeHealthBy(-_data.DamageValue);
+            healthData.ChangeHealthBy(-Data.DamageValue);
         }
     }
 }

@@ -116,6 +116,7 @@ editable = false
 layout_mode = 2
 max_value = 9.22337e+18
 value = 8303.0
+rounded = true
 
 [node name="Host" type="Button" parent="VBoxContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2

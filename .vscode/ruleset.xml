@@ -3,5 +3,6 @@
   <Rules AnalyzerId="Microsoft.CodeAnalysis.CSharp.Features" RuleNamespace="Microsoft.CodeAnalysis.CSharp.Features">
     <!-- Disables namespace warning -->
     <Rule Id="CA1050" Action="None" />
+    <Rule Id="IDE0160" Action="None" />
   </Rules>
 </RuleSet>

@@ -26,13 +26,14 @@ public partial class InteractionRay : RayCast3D
 
         // GD.Print(collisionObj);
         // CSGBoxes are detected, but aren't actually CollisionObject3Ds
-        if (GetCollider() is not CollisionObject3D)
+        if (GetCollider() is not CollisionObject3D collisionObj)
         {
             return;
         }
 
-        if ((Time.GetTicksMsec() - lastTerraform) >= TERRAFORM_INTERVAL
-        //&& collisionObj.GetParent<Node3D>() is Chunk
+        if (
+            (Time.GetTicksMsec() - lastTerraform) >= TERRAFORM_INTERVAL
+            && collisionObj.GetParent<Node3D>() is Chunk
         )
         {
             bool add;
@@ -58,7 +59,7 @@ public partial class InteractionRay : RayCast3D
             // {
             var pos = GetCollisionPoint();
             // }
-            // Manager.Instance.MainWorld.ChunkManager?.TerraformPoint(pos, 0.1f, add);
+            Manager.Instance.ChunkManager?.TerraformPoint(pos, 0.1f, add);
             // GD.Print("hi", GetCollisionPoint(), GetCollisionNormal());
 
             lastTerraform = Time.GetTicksMsec();

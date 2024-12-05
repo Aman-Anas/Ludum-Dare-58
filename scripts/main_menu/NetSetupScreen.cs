@@ -127,13 +127,13 @@ public partial class NetSetupScreen : Control
         return true;
     }
 
-    void JoinGame()
+    async void JoinGame()
     {
         if (!CheckIfUserPassword())
         {
             return;
         }
-        var success = Manager.Instance.StartGame(
+        var success = await Manager.Instance.StartGame(
             GameNetState.ClientOnly,
             Mathf.RoundToInt(joinPort.Value),
             new(usernameBox.Text, pwordBox.Text),
@@ -147,13 +147,13 @@ public partial class NetSetupScreen : Control
         }
     }
 
-    void HostAndJoinGame()
+    async void HostAndJoinGame()
     {
         if (!(CheckIfWorldSelected() && CheckIfUserPassword()))
         {
             return;
         }
-        var success = Manager.Instance.StartGame(
+        var success = await Manager.Instance.StartGame(
             GameNetState.ClientAndServer,
             Mathf.RoundToInt(hostPort.Value),
             new(usernameBox.Text, pwordBox.Text)
@@ -166,13 +166,13 @@ public partial class NetSetupScreen : Control
         }
     }
 
-    void HostOnlyGame()
+    async void HostOnlyGame()
     {
         if (!CheckIfWorldSelected())
         {
             return;
         }
-        var success = Manager.Instance.StartGame(
+        var success = await Manager.Instance.StartGame(
             GameNetState.ServerOnly,
             Mathf.RoundToInt(hostPort.Value)
         );

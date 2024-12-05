@@ -32,7 +32,7 @@ public static class NetHelper
     }
 
     public static T InstanceFromScene<T>(string path)
-        where T : Node3D
+        where T : class
     {
         return GD.Load<PackedScene>(path).Instantiate<T>();
     }

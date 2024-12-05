@@ -6,17 +6,17 @@ using Game.Networking;
 using Godot;
 
 [GlobalClass]
-public partial class ControllablePlayer : RigidBody3D, INetEntity
+public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityData>
 {
     public uint EntityID { get; set; }
 
-    public EntityData Data
-    {
-        get => _data;
-        set => _data = (PlayerEntityData)value;
-    }
+    public PlayerEntityData Data { get; set; }
 
-    PlayerEntityData _data;
+    EntityData INetEntity.Data
+    {
+        get => Data;
+        set => Data = (PlayerEntityData)value;
+    }
 
     public bool MovementEnabled { get; set; } = true;
 

@@ -1,7 +1,9 @@
 namespace Game;
 
 using System;
+using System.Threading.Tasks;
 using Game.Networking;
+using Game.Terrain;
 using Game.World;
 using Godot;
 using LiteNetLib;
@@ -27,8 +29,9 @@ public partial class Manager : Node
 
     public GameNetState NetState { get; private set; }
 
-    public ServerManager GameServer { get; } = new();
-    public ClientManager GameClient { get; } = new();
+    public ServerManager GameServer { get; private set; }
+    public ClientManager GameClient { get; private set; }
+    public ChunkManager ChunkManager { get; set; }
 
     [Export]
     PackedScene titleScene;
@@ -38,6 +41,12 @@ public partial class Manager : Node
 
     [Export]
     PackedScene serverOnlyScene;
+
+    [Export]
+    PackedScene serverScene;
+
+    [Export]
+    PackedScene clientScene;
 
     public Manager()
     {
@@ -62,12 +71,22 @@ public partial class Manager : Node
 
         // Load config vars
         LoadConfig();
-
+        GameServer = serverScene.Instantiate<ServerManager>();
+        GameClient = clientScene.Instantiate<ClientManager>();
         AddChild(GameServer);
         AddChild(GameClient);
     }
 
-    public bool StartGame(
+    public override void _Notification(int what)
+    {
+        if (what == NotificationWMCloseRequest)
+        {
+            GD.Print("oof");
+            QuitGame();
+        }
+    }
+
+    public async Task<bool> StartGame(
         GameNetState state,
         int port,
         LoginPacket loginInfo = default,
@@ -82,7 +101,15 @@ public partial class Manager : Node
 
                 serverSuccess = GameServer.StartServer(port);
 
-                clientSuccess = GameClient.StartClient("localhost", port, loginInfo);
+                // TODO: Make StartClient (and StartGame I guess) return a Task so we can
+                // wait for connection asynchronously (and probably put up a connection loading
+                // screen)
+                var connect = GameClient.StartClient("localhost", port, loginInfo);
+                await connect;
+                clientSuccess = connect.Result;
+
+                GD.Print("server success", serverSuccess);
+                GD.Print("client success", clientSuccess);
 
                 if (!(serverSuccess && clientSuccess))
                 {
@@ -94,7 +121,9 @@ public partial class Manager : Node
                 GetTree().ChangeSceneToPacked(mainClientScene);
                 break;
             case GameNetState.ClientOnly:
-                if (!GameClient.StartClient(address, port, loginInfo))
+                var clientOnly = GameClient.StartClient(address, port, loginInfo);
+                await clientOnly;
+                if (!clientOnly.Result)
                 {
                     GameClient.Stop();
                     return false;
@@ -124,8 +153,22 @@ public partial class Manager : Node
         {
             GameServer.Stop();
         }
-
+        GetTree().Paused = false;
         GetTree().ChangeSceneToPacked(titleScene);
+    }
+
+    public void QuitGame()
+    {
+        if (GameClient.IsRunning())
+        {
+            GameClient.Stop();
+        }
+
+        if (GameServer.IsRunning())
+        {
+            GameServer.Stop();
+        }
+        GetTree().Quit();
     }
 
     public void LoadConfig(bool defaultFile = false)

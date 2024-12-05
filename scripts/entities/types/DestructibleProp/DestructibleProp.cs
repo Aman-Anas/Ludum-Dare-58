@@ -5,20 +5,26 @@ using Game.Networking;
 using Godot;
 using MemoryPack;
 
-public partial class DestructibleProp : StaticBody3D, INetEntity
+public partial class DestructibleProp : StaticBody3D, INetEntity<DestructiblePropData>
 {
     public uint EntityID { get; set; }
 
-    public EntityData Data
-    {
-        get => _data;
-        set => _data = (DestructiblePropData)value;
-    }
+    // public EntityData Data
+    // {
+    //     get => _data;
+    //     set => _data = (DestructiblePropData)value;
+    // }
 
-    DestructiblePropData _data;
+    public DestructiblePropData Data { get; set; }
+
+    EntityData INetEntity.Data
+    {
+        get => Data;
+        set => Data = (DestructiblePropData)value;
+    }
 
     public override void _Ready()
     {
-        _data.HealthDepleted += _data.DestroyEntity;
+        Data.HealthDepleted += Data.DestroyEntity;
     }
 }

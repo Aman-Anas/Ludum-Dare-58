@@ -7,7 +7,7 @@ public static class MarchingCubeTables
 
     // Lookup table for triangle configurations
     public static readonly byte[][] EdgeTable =
-    {
+    [
         [],
         [0, 8, 3,],
         [0, 1, 9,],
@@ -264,5 +264,5 @@ public static class MarchingCubeTables
         [0, 9, 1,],
         [0, 3, 8,],
         []
-    };
+    ];
 }
