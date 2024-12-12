@@ -192,6 +192,11 @@ public partial class ChunkManager : Node3D
         // density *= sbyte.MaxValue;
 
         sbyte output = sbyte.CreateSaturating(noiseValue2D * sbyte.MaxValue);
+
+        if (output > 0)
+        {
+            output = 1;
+        }
         // existing[tupleIndex] = ;
         // byte output = (byte)Mathf.RoundToInt(density * byte.MaxValue);
         // if (output > TerrainData.CENTER_ISOLEVEL)
@@ -518,9 +523,14 @@ public partial class ChunkManager : Node3D
                     // because isolevel < 0 is "inside" terrain
                     // int sign = add ? -1 : 1;
 
-                    chunkData[modIndex] = sbyte.CreateSaturating(
+                    var output = sbyte.CreateSaturating(
                         chunkData[modIndex] - (thisTerraAmount * sbyte.MaxValue)
                     );
+                    if (output > 0)
+                    {
+                        output = 1;
+                    }
+                    chunkData[modIndex] = output;
 
                     // if (chunkData[modIndex] > TerrainData.CENTER_ISOLEVEL)
                     // {
