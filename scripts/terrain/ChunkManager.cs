@@ -1,5 +1,3 @@
-namespace Game.Terrain;
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -9,6 +7,8 @@ using System.Threading.Tasks;
 using Game.Terrain.Noise;
 using Godot;
 using static Game.Terrain.ChunkData;
+
+namespace Game.Terrain;
 
 // Class to handle generating, loading/unloading chunks
 public partial class ChunkManager : Node3D
@@ -30,17 +30,18 @@ public partial class ChunkManager : Node3D
 
     readonly ConcurrentQueue<Chunk> freeChunks = new(); // For object pooling
 
-    bool currentlyProcessing = false;
+    bool currentlyProcessing;
 
     // Minimum time before triggering a queue, so it doesnt happen too often at chunk borders
-    const int MIN_REFRESH_INTERVAL = 100; //ms
+    const int MinRefreshInterval = 100; //ms
+
     ulong lastRefreshMs = Time.GetTicksMsec();
 
-    ChunkID currentPlayerChunk = new();
+    ChunkID currentPlayerChunk;
 
     // Chunk generation
     // We'll have to clear this after some limit and on area changes
-    readonly Dictionary<ChunkID, byte[]> knownChunkData = [];
+    readonly Dictionary<ChunkID, sbyte[]> knownChunkData = [];
 
     // This is the var tracking whether we already are processing a chunk
     bool currentlyComputing;
@@ -59,16 +60,21 @@ public partial class ChunkManager : Node3D
     }
 
     // For when we receive some chunk mods from the server
-    public void UpdateChunkData(ChunkID chunkID, byte[] chunkData)
+    public void UpdateChunkData(ChunkID chunkID, sbyte[] chunkData)
     {
         lock (knownChunkData)
         {
             knownChunkData[chunkID] = chunkData;
         }
-        if (loadedChunks.ContainsKey(chunkID))
+        if (currentPlayerChunk == chunkID)
         {
             ReloadChunk(chunkID).Wait();
             player.ForceUpdateTransform();
+        }
+        else
+        {
+            QueueChunk(chunkID);
+            // chunksToReload.
         }
     }
 
@@ -86,18 +92,17 @@ public partial class ChunkManager : Node3D
         return Task.Run(() =>
         {
             // var s = Stopwatch.StartNew();
-            // s.Restart();
             if (!knownChunkData.TryGetValue(chunkID, out var chunkData))
             {
+                chunkData = PopulateNewSampleData(chunkID);
                 lock (knownChunkData)
                 {
-                    chunkData = PopulateNewSampleData(chunkID);
                     knownChunkData[chunkID] = chunkData;
                 }
+                // s.Stop();
+                // GD.Print("sample time: ", s.Elapsed.TotalMilliseconds);
+                // s.Restart();
             }
-            // s.Stop();
-            // GD.Print("sample time: ", s.Elapsed.TotalMilliseconds);
-            // s.Restart();
 
             // Chuck the data over to the chunk and let it finish processing
             chunkToLoad.ProcessChunk(chunkID, chunkData);
@@ -111,51 +116,56 @@ public partial class ChunkManager : Node3D
         });
     }
 
-    byte EvaluateNoise(Vector3I coordinate, Vector3I chunkCoord)
+    // static readonly FastNoiseLiteSharp noiseGenerator = new(3);
+
+    static unsafe sbyte EvaluateNoise(Vector3I coordinate, Vector3I chunkCoord)
     {
         // -0.5 to 0.5  position relative to chunk
-        Vector3 percentPos =
-            (((Vector3)coordinate) / TerrainData.VoxelAxisLengths) - new Vector3(0.5f, 0.5f, 0.5f);
-        //TerrainData.CoordToChunkSpace(coordinate);
+        // Vector3 percentPos = ((Vector3)coordinate) - TerrainConsts.HalfVoxelAxisLengths;
+        // TerrainConsts.CoordToChunkSpace(coordinate);
 
         // Position of this coord in sample space
+        // The -2 allows us to "sample a little extra on the edges" so that we can chunk seamlessly.
+        // e.g. coord (0, 0, 32) becomes (0, 0, 32/30)
+        // Then later on when we generate our vertex positions we multiply by 32/30 to scale up the
+        // whole chunk so it overlaps the next one.
         Vector3 samplePos =
-            ((percentPos + chunkCoord) * terrainParams.NoiseScale) + terrainParams.NoiseOffset;
+            (((Vector3)coordinate) / (TerrainConsts.VoxelsPerAxis - 2)) + chunkCoord;
 
-        // if (samplePos.LengthSquared() > 5.0)
-        // {
-        //     return byte.MaxValue;
-        // }
-
-        // float sum = 0;
-        // float amplitude = 1;
-        // float weight = 1;
+        // var noiseValue2D = noiseGenerator.GetNoise(samplePos.X, samplePos.Y, samplePos.Z);
+        float noiseValue2D = 0;
 
         // Vector3 fbmSample = samplePos;
-        // noiseGenerator.SetFrequency(1.0f);
-        // noiseGenerator.SetNoiseType(FastNoiseLiteSharp.NoiseType.OpenSimplex2S);
-        // noiseGenerator.SetFractalType(FastNoiseLiteSharp.FractalType.FBm);
-        // noiseGenerator.SetFractalOctaves(1);
 
         const int OCTAVES = 3;
         const float PERSISTENCE = 0.5f;
         const float LACUNARITY = 2.0f;
         float amplitude = 1.0f;
-        Vector3 frequency = new(1.0f, 1.0f, 1.0f);
-        // NoisePeriod period = new(2, 2, 2);
+        var frequency = 1.0f; //new(1.0f, 1.0f, 1.0f);
+        // // NoisePeriod period = new(2, 2, 2);
 
-        float noiseValue2D = 0;
+        // float noiseValue2D = 0;
 
-        Vector3 startPos = samplePos.Normalized() * 2.0f;
+        // Vector3 startPos = samplePos.Normalized() * 2.0f;
+        // var noise = new FastNoise2.FastNoise(FastNoise2.)
+        // GD.Print()
+
+        // noiseValue2D = fractal.GenSingle3D(samplePos.X, samplePos.Y, samplePos.Z, 1);
 
         for (int i = 0; i < OCTAVES; i++)
         {
-            var noisePoint = frequency * startPos; //new Vector2(samplePos.X, samplePos.Z);
+            var noisePoint = frequency * samplePos; //* new Vector3(samplePos.X, 0, samplePos.Z);
             noiseValue2D +=
                 amplitude * IcariaNoise.GradientNoise3D(noisePoint.X, noisePoint.Y, noisePoint.Z);
             amplitude *= PERSISTENCE;
             frequency *= LACUNARITY;
         }
+
+        // if (samplePos.X == 0 && samplePos.Y == 0)
+        // {
+        //     GD.Print(noiseValue2D);
+        // }
+        // GD.Print();
 
         // var noise = noiseGenerator.GetNoise(samplePos.X, samplePos.Y, samplePos.Z);
 
@@ -165,14 +175,20 @@ public partial class ChunkManager : Node3D
 
         // value 0 to 1
         // float elevation = (noiseValue2D + 1.0f) * 0.5f;
-        // float density = noiseValue2D;
-        float density = SDFUtils.SdSphere(samplePos, (noiseValue2D * 0.5f) + 2.0f); // * ();
-        density = Math.Clamp(density, -1.0f, 1.0f);
-
+        // float density = samplePos.Y - noiseValue2D;
+        // float density = SDFUtils.SdSphere(samplePos, 1); // * ();
+        // density = Math.Clamp(density, -1.0f, 1.0f);
+        // float density = ;
+        // density += 1;
+        // density /= 2;
+        // float density = Math.Clamp(2 - samplePos.Length(), -1.0f, 1.0f);
         // convert to 0 to 1 for data storage
-        density = (density + 1.0f) / 2.0f;
 
-        byte output = (byte)Mathf.RoundToInt(density * byte.MaxValue);
+        // density *= sbyte.MaxValue;
+
+        sbyte output = sbyte.CreateSaturating(noiseValue2D * sbyte.MaxValue);
+        // existing[tupleIndex] = ;
+        // byte output = (byte)Mathf.RoundToInt(density * byte.MaxValue);
         // if (output > TerrainData.CENTER_ISOLEVEL)
         // {
         //     return TerrainData.CENTER_ISOLEVEL + 1;
@@ -181,25 +197,32 @@ public partial class ChunkManager : Node3D
         return output;
     }
 
-    byte[] PopulateNewSampleData(ChunkID cID)
+    static unsafe sbyte[] PopulateNewSampleData(ChunkID cID)
     {
-        var newData = new byte[TerrainData.SAMPLE_ARRAY_SIZE];
+        // var s = Stopwatch.StartNew();
+        var newData = new sbyte[TerrainConsts.VoxelArrayLength];
+        // return newData;
+        // var sphereTex = new sbyte[
+        // var existing = new Dictionary<(int, int), float>();
+
         var chunkCoord = cID.GetSampleVector3I();
+        // return newData;
+        // noiseGenerator.
 
         Parallel.For(
             0,
-            newData.Length,
+            TerrainConsts.VoxelArrayLength,
             (int index) =>
             {
-                var currentCoord = TerrainData.IndexToCoord3D(
-                    index,
-                    TerrainData.SAMPLE_ARRAY_PER_AXIS
-                );
-                currentCoord -= Vector3I.One;
-
+                // for (int index = 0; index < TerrainConsts.VoxelArrayLength; index++)
+                // {
+                var currentCoord = TerrainConsts.IndexToCoord3D(index, TerrainConsts.VoxelsPerAxis);
                 newData[index] = EvaluateNoise(currentCoord, chunkCoord);
+                // }
             }
         );
+        // s.Stop();
+        // GD.Print("eee ", s.Elapsed.TotalMilliseconds);
 
         return newData;
     }
@@ -243,15 +266,22 @@ public partial class ChunkManager : Node3D
         // InitializeCompute();
 
         // make an initial pool of chunk nodes
-        // const int PoolChunks = 40;
-        // for (int x = 0; x < PoolChunks; x++)
-        // {
-        //     var c = InstantiateChunk();
-        //     freeChunks.Enqueue(c);
-        // }
+        const int PoolChunks = 40;
+        for (int x = 0; x < PoolChunks; x++)
+        {
+            var c = InstantiateChunk();
+            freeChunks.Enqueue(c);
+        }
         // GD.Print("pool ", freeChunks.Count);
 
         // ReloadChunk(new(0, 0, 0)).Wait();
+
+        // noiseGenerator.SetNoiseType(FastNoiseLiteSharp.NoiseType.OpenSimplex2S);
+        // noiseGenerator.SetFractalType(FastNoiseLiteSharp.FractalType.Ridged);
+        // noiseGenerator.SetFractalOctaves(3);
+        // noiseGenerator.SetFractalLacunarity(2.010f);
+        // noiseGenerator.SetFractalGain(0.670f);
+        // noiseGenerator.SetFrequency(0.40f);
 
         // ReloadChunk(new(0, 1, 0));
         // ReloadChunk(new(0, -1, 0));
@@ -264,7 +294,7 @@ public partial class ChunkManager : Node3D
     void RefreshPlayerChunks()
     {
         // make the loop bigger by one to remove the outermost chunk IDs
-        const int GenerateDistance = TerrainData.CHUNK_VIEW_DIST;
+        const int GenerateDistance = TerrainConsts.ChunkViewDistance;
 
         for (int x = -GenerateDistance; x <= GenerateDistance; x++)
         {
@@ -300,7 +330,7 @@ public partial class ChunkManager : Node3D
             var disp = playerPos - cID.GetSampleVector3I();
             for (int x = 0; x < 3; x++)
             {
-                if (Math.Abs(disp[x]) > TerrainData.CHUNK_VIEW_DIST + 1)
+                if (Math.Abs(disp[x]) > TerrainConsts.ChunkViewDistance + 1)
                 {
                     TryUnloadChunk(cID);
                 }
@@ -322,7 +352,7 @@ public partial class ChunkManager : Node3D
             // Update our current chunk
             currentPlayerChunk = newPlayerChunk;
 
-            if ((Time.GetTicksMsec() - lastRefreshMs) >= MIN_REFRESH_INTERVAL)
+            if ((Time.GetTicksMsec() - lastRefreshMs) >= MinRefreshInterval)
             {
                 RefreshPlayerChunks();
 
@@ -338,20 +368,54 @@ public partial class ChunkManager : Node3D
     public override void _Process(double delta)
     {
         // Reload a chunk if it's in the queue
-        if (!currentlyComputing)
+        // if (!currentlyComputing)
+        // {
+        if (chunksToReload.TryDequeue(out var chunkID))
         {
-            if (chunksToReload.TryDequeue(out var chunkID))
-            {
-                if (!chunksToReload.Contains(chunkID))
-                {
-                    queuedChunkSet.Remove(chunkID, out _);
-                }
-                _ = ReloadChunk(chunkID);
-            }
+            _ = queuedChunkSet.Remove(chunkID, out _);
+            _ = ReloadChunk(chunkID);
         }
+        // }
     }
 
-    public void TerraformPoint(Vector3 worldPoint, float strength, bool add)
+    readonly Vector3I[] offsetsToUpdate =
+    [
+        new Vector3I(-1, -1, -1),
+        new Vector3I(-1, -1, 0),
+        new Vector3I(-1, -1, 1),
+        new Vector3I(-1, 0, -1),
+        new Vector3I(-1, 0, 0),
+        new Vector3I(-1, 0, 1),
+        new Vector3I(-1, 1, -1),
+        new Vector3I(-1, 1, 0),
+        new Vector3I(-1, 1, 1),
+        new Vector3I(0, -1, -1),
+        new Vector3I(0, -1, 0),
+        new Vector3I(0, -1, 1),
+        new Vector3I(0, 0, -1),
+        new Vector3I(0, 0, 0),
+        new Vector3I(0, 0, 1),
+        new Vector3I(0, 1, -1),
+        new Vector3I(0, 1, 0),
+        new Vector3I(0, 1, 1),
+        new Vector3I(1, -1, -1),
+        new Vector3I(1, -1, 0),
+        new Vector3I(1, -1, 1),
+        new Vector3I(1, 0, -1),
+        new Vector3I(1, 0, 0),
+        new Vector3I(1, 0, 1),
+        new Vector3I(1, 1, -1),
+        new Vector3I(1, 1, 0),
+        new Vector3I(1, 1, 1)
+    ];
+
+    /// <summary>
+    /// Terraform a point on the terrain
+    /// </summary>
+    /// <param name="worldPoint"></param>
+    /// <param name="strength">Strength should be a value from -1 to 1</param>
+    /// <param name="blend">Should be a value from 0 to 1</param>
+    public void TerraformPoint(Vector3 worldPoint, float strength, float blend)
     {
         terraformMarker.Position = worldPoint;
 
@@ -359,37 +423,6 @@ public partial class ChunkManager : Node3D
         var closestChunkPos = closestChunk.GetSampleVector3I();
 
         // Might as well hard code it since it's easier that way
-        Span<Vector3I> offsetsToUpdate =
-        [
-            new Vector3I(-1, -1, -1),
-            new Vector3I(-1, -1, 0),
-            new Vector3I(-1, -1, 1),
-            new Vector3I(-1, 0, -1),
-            new Vector3I(-1, 0, 0),
-            new Vector3I(-1, 0, 1),
-            new Vector3I(-1, 1, -1),
-            new Vector3I(-1, 1, 0),
-            new Vector3I(-1, 1, 1),
-            new Vector3I(0, -1, -1),
-            new Vector3I(0, -1, 0),
-            new Vector3I(0, -1, 1),
-            new Vector3I(0, 0, -1),
-            new Vector3I(0, 0, 0),
-            new Vector3I(0, 0, 1),
-            new Vector3I(0, 1, -1),
-            new Vector3I(0, 1, 0),
-            new Vector3I(0, 1, 1),
-            new Vector3I(1, -1, -1),
-            new Vector3I(1, -1, 0),
-            new Vector3I(1, -1, 1),
-            new Vector3I(1, 0, -1),
-            new Vector3I(1, 0, 0),
-            new Vector3I(1, 0, 1),
-            new Vector3I(1, 1, -1),
-            new Vector3I(1, 1, 0),
-            new Vector3I(1, 1, 1)
-        ];
-
         foreach (var chunkOffset in offsetsToUpdate)
         {
             bool modified = false;
@@ -402,15 +435,15 @@ public partial class ChunkManager : Node3D
             }
             var chunkData = knownChunkData[currentChunkID];
 
-            var chunkWorldPos = currentChunkID.GetSampleVector() * TerrainData.CHUNK_SIZE;
+            var chunkWorldPos = currentChunkID.GetSampleVector() * TerrainConsts.ChunkScale;
 
-            var localTerraformPos = (worldPoint - chunkWorldPos) / TerrainData.CHUNK_SIZE;
+            var localTerraformPos = (worldPoint - chunkWorldPos) / TerrainConsts.ChunkScale;
 
             // Now the terraform pos is from 0 to 1
             localTerraformPos += new Vector3(0.5f, 0.5f, 0.5f);
 
             // Scale it to the number of sample points per chunk
-            localTerraformPos *= TerrainData.VOXELS_PER_AXIS;
+            localTerraformPos *= TerrainConsts.VoxelsPerAxisMinusTwo;
 
             localTerraformPos = localTerraformPos.Round();
             // if (chunkOffset == Vector3I.Zero)
@@ -436,7 +469,7 @@ public partial class ChunkManager : Node3D
                     **/
                     if (
                         (curTerraformPos[element] < -1)
-                        || (curTerraformPos[element] > TerrainData.SAMPLE_POINTS_PER_AXIS)
+                        || (curTerraformPos[element] > (TerrainConsts.VoxelsPerAxisMinusTwo))
                     )
                     {
                         validPosition = false;
@@ -453,9 +486,9 @@ public partial class ChunkManager : Node3D
                 // The -1...17 coord becomes 0...18
                 var correctedCoord = curTerraformPos + Vector3.One;
 
-                int modIndex = TerrainData.Coord3DToIndex(
+                int modIndex = TerrainConsts.Coord3DToIndex(
                     (Vector3I)correctedCoord.Round(),
-                    TerrainData.SAMPLE_ARRAY_PER_AXIS
+                    TerrainConsts.VoxelsPerAxis
                 );
 
                 if (modIndex >= 0 && modIndex < chunkData.Length)
@@ -463,21 +496,18 @@ public partial class ChunkManager : Node3D
                     var thisTerraAmount = strength;
                     if (curTerraformPos != localTerraformPos)
                     {
-                        thisTerraAmount *= 0.15f;
+                        thisTerraAmount *= blend;
                     }
 
                     // Whether to add or subtract
                     // Adding terrain "adds" negative values to the terrain
                     // because isolevel < 0 is "inside" terrain
-                    int sign = add ? -1 : 1;
+                    // int sign = add ? -1 : 1;
 
-                    chunkData[modIndex] = Convert.ToByte(
-                        Math.Clamp(
-                            chunkData[modIndex] + (sign * (thisTerraAmount * byte.MaxValue)),
-                            byte.MinValue,
-                            byte.MaxValue
-                        )
+                    chunkData[modIndex] = sbyte.CreateSaturating(
+                        chunkData[modIndex] - (thisTerraAmount * sbyte.MaxValue)
                     );
+
                     // if (chunkData[modIndex] > TerrainData.CENTER_ISOLEVEL)
                     // {
                     //     chunkData[modIndex] = TerrainData.CENTER_ISOLEVEL + 1;

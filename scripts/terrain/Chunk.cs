@@ -1,19 +1,19 @@
 namespace Game.Terrain;
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 using Godot;
-using static Game.Terrain.ChunkData;
 
 public partial class Chunk : MeshInstance3D
 {
+    //////////// Useful constants //////////////
+    public const int IndicesPerTri = 3;
+
+    ///////////// Godot Node references ////////////
     [Export]
     StaticBody3D physicsBody;
 
@@ -23,285 +23,748 @@ public partial class Chunk : MeshInstance3D
     [Export]
     Material chunkMaterial;
 
-    StringName finalizeName = new(nameof(FinalizeInScene));
+    [Export]
+    MeshInstance3D testObj;
 
-    // Mesh data stuff
-    ArrayMesh chunkMesh = new();
-    ConcavePolygonShape3D chunkShape = new();
+    //////////////  Actual Godot visual mesh and physics shape //////////////
+    ArrayMesh visualMesh = new();
+    ConcavePolygonShape3D physicsShape = new();
 
-    Godot.Collections.Array meshData = [];
-    Godot.Collections.Dictionary collisionData = [];
+    ////////////////// Mesh and physics collider information for Godot interop ////////
+    Godot.Collections.Array meshInfoArray = [];
+    Godot.Collections.Dictionary collisionInfoDict = [];
 
-    // Maps vertex IDs to their index in the surface array
-    readonly Dictionary<(int, int), int> existingVertexIDs = [];
+    /////////// Output vertex arrays, normals, indices lists ///////////////
+    readonly List<Godot.Vector3> verts = [];
+    readonly List<Godot.Vector3> normals = [];
+    int[] indices = new int[100];
+    int numIndices;
 
-    // For the Godot surface array
-    readonly List<Vector3> verts = [];
-    readonly List<Vector3> normals = [];
-    readonly List<TriangleIndex> indices = [];
+    ////////// Physics shape vertices /////////
+    Vector3[] collisionVertices = new Vector3[100];
 
-    readonly List<Vector3> collisionVertices = [];
-    Vector3[] collisionVertexArray;
+    // readonly List<Godot.Vector3> collisionVertices = [];
 
-    const int INDICES_PER_TRI = 3;
+    ////////// Cached Godot resource Ids ////////
+    Rid physicsShapeRid;
+    Rid visualMeshRid;
+    Rid visualMaterialRid;
 
-    Rid chunkShapeRid;
-    Rid chunkMeshRid;
-    Rid chunkMaterialRid;
-
-    ChunkID currentChunkID;
+    // Cached chunk sample coordinate
     Vector3I chunkSampleCoord;
+    sbyte[] terrainVolume;
 
-    byte[] terrainData;
+    // Buffer to use during mesh generation
+    int[] buffer = new int[
+        (TerrainConsts.VoxelsPerAxis + 1) * (TerrainConsts.VoxelsPerAxis + 1) * 2
+    ];
 
-    public unsafe void ProcessChunk(ChunkID cID, byte[] terrainData) //, Stopwatch s)
+    public unsafe void ProcessChunk(ChunkID currentChunkID, sbyte[] terrainVolume) //, Stopwatch s)
     {
         Stopwatch s = Stopwatch.StartNew();
-        currentChunkID = cID;
-        chunkSampleCoord = currentChunkID.GetSampleVector3I();
 
-        // s.Restart();
-        existingVertexIDs.Clear();
+        this.chunkSampleCoord = currentChunkID.GetSampleVector3I();
+
         verts.Clear();
         normals.Clear();
-        indices.Clear();
-        collisionVertices.Clear();
+        // Array.Clear(indices);
+        numIndices = 0;
+        // collisionVertices.Clear();
 
-        // s.Stop();
-        // GD.Print("clear lists ", s.Elapsed.TotalMicroseconds);
-        // s.Restart();
-        this.terrainData = terrainData;
+        this.terrainVolume = terrainVolume;
 
-        Parallel.For(0, TerrainData.VOXELS_PER_CHUNK, ProcessVoxel);
-        // for (int x = 0; x < TerrainData.VOXELS_PER_CHUNK; x++)
-        // {
-        //     ProcessVoxel(x, terrainData);
-        // }
-        // s.Stop();
-        // GD.Print("process voxels ", s.Elapsed.TotalMicroseconds);
-        // s.Restart();
+        s.Stop();
+        var setup = s.Elapsed.TotalMilliseconds;
+        s.Restart();
+
+        // Generate vertices
+        ProcessVoxels();
+
+        s.Stop();
+        var processed = s.Elapsed.TotalMilliseconds;
+        s.Restart();
+
+        // RecalculateNormals();
 
         CreateMesh();
 
-        // s.Stop();
-        // GD.Print("create mesh ", s.Elapsed.TotalMicroseconds);
-        // s.Restart();
+        s.Stop();
+        var generated = s.Elapsed.TotalMilliseconds;
+        s.Restart();
 
-        // Now that the mesh has been generated, let's assign the mesh
-        // FinalizeInScene();
-        CallDeferred(finalizeName);
+        CallDeferred(Chunk.MethodName.FinalizeInScene);
 
         s.Stop();
-        // runningSum += s.ElapsedMilliseconds;
-        // countChunks++;
-        // GD.Print($"{runningSum / countChunks} avg");
-        GD.Print($"time {s.Elapsed.TotalMilliseconds}");
-        // s.Restart();
+
+        // if (numIndices > IndicesPerTri)
+        // {
+        //     GD.Print($"setup {setup}");
+        //     GD.Print($"processed voxels {processed}");
+        //     GD.Print($"generated mesh {generated}");
+        //     GD.Print($"end time {s.Elapsed.TotalMilliseconds}");
+        // }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static unsafe int GetSampleIndex(Vector3I coord)
+    unsafe void ProcessVoxels()
     {
-        coord += Vector3I.One;
-        return TerrainData.Coord3DToIndex(coord, TerrainData.SAMPLE_ARRAY_PER_AXIS);
-    }
+        // GD.Print("hi");
+        // Samples 01 and 02 - those are local arrays of interleaved voxel data (rows of voxels along Z coordinate)
+        //
+        //   imagine a slice of voxel data (YX) :
+        //
+        //     Y
+        //     |
+        //     |
+        //   [   ][   ][   ]
+        //   [ 2 ][ 3 ][   ]
+        //   [ 0 ][ 1 ][   ] ---- X
+        //
+        //   array samples01 are 'bottom' voxels - at current Y value
+        //   array samples23 are 'top' voxels - at next Y value
+        //   Only one array is filled per Y loop step, because we can reuse the other one.
+        //
+        //   More about interleaving voxel data in next steps.
 
-    unsafe float GetFloatAtCoord(Vector3I coord)
-    {
-        return Mathf.Remap(
-            terrainData[GetSampleIndex(coord)],
-            byte.MinValue,
-            byte.MaxValue,
-            -1.0f,
-            1.0f
-        );
-    }
+        var samples01 = stackalloc sbyte[64];
+        var samples23 = stackalloc sbyte[64];
 
-    unsafe void ProcessVoxel(int voxelIndex)
-    {
-        // this voxel coord from 0-15
-        var voxelCoord = TerrainData.IndexToCoord3D(voxelIndex, TerrainData.VOXELS_PER_AXIS);
-        const byte isoLevel = TerrainData.CENTER_ISOLEVEL;
+        var samples = stackalloc float[8];
 
-        // 8 corner positions of the current cube
-        Span<Vector3I> cubeCorners =
-        [
-            // Add this sample point to the corner array
-            voxelCoord + new Vector3I(0, 0, 0),
-            voxelCoord + new Vector3I(1, 0, 0),
-            voxelCoord + new Vector3I(1, 0, 1),
-            voxelCoord + new Vector3I(0, 0, 1),
-            voxelCoord + new Vector3I(0, 1, 0),
-            voxelCoord + new Vector3I(1, 1, 0),
-            voxelCoord + new Vector3I(1, 1, 1),
-            voxelCoord + new Vector3I(0, 1, 1),
-        ];
+        var pos = stackalloc int[3];
 
-        // Calculate unique index for each cube configuration.
-        // There are 256 possible values
-        // A value of 0 means cube is entirely inside surface; 255 entirely outside.
-        // The value is used to look up the edge table, which indicates which edges
-        // of the cube are cut by the isosurface.
-        byte cubeConfig = 0;
-        if (terrainData[GetSampleIndex(cubeCorners[0])] < isoLevel)
-            cubeConfig |= 1;
-        if (terrainData[GetSampleIndex(cubeCorners[1])] < isoLevel)
-            cubeConfig |= 2;
-        if (terrainData[GetSampleIndex(cubeCorners[2])] < isoLevel)
-            cubeConfig |= 4;
-        if (terrainData[GetSampleIndex(cubeCorners[3])] < isoLevel)
-            cubeConfig |= 8;
-        if (terrainData[GetSampleIndex(cubeCorners[4])] < isoLevel)
-            cubeConfig |= 16;
-        if (terrainData[GetSampleIndex(cubeCorners[5])] < isoLevel)
-            cubeConfig |= 32;
-        if (terrainData[GetSampleIndex(cubeCorners[6])] < isoLevel)
-            cubeConfig |= 64;
-        if (terrainData[GetSampleIndex(cubeCorners[7])] < isoLevel)
-            cubeConfig |= 128;
-
-        // Create triangles for current cube configuration
-        // int numIndices = MarchingCubeTables.LUT_INDEX_LENGTHS[cubeConfig];
-        // int offset = MarchingCubeTables.LUT_OFFSETS[cubeConfig];
-        var currentTriangulation = MarchingCubeTables.EdgeTable[cubeConfig];
-
-        for (int i = 0; i < currentTriangulation.Length; i += 3)
+        fixed (sbyte* volumePtr = &terrainVolume[0])
         {
-            // Get indices of corner points A and B for each of the three edges
-            // of the cube that need to be joined to form the triangle.
-            int v0 = currentTriangulation[i];
-            int a0 = MarchingCubeTables.CornerIndexAFromEdge[v0];
-            int b0 = MarchingCubeTables.CornerIndexBFromEdge[v0];
+            // Reusable masks with voxels sign bits
+            uint mask0 = 0,
+                mask1 = 0,
+                mask2 = 0,
+                mask3 = 0;
 
-            int v1 = currentTriangulation[i + 1];
-            int a1 = MarchingCubeTables.CornerIndexAFromEdge[v1];
-            int b1 = MarchingCubeTables.CornerIndexBFromEdge[v1];
-
-            int v2 = currentTriangulation[i + 2];
-            int a2 = MarchingCubeTables.CornerIndexAFromEdge[v2];
-            int b2 = MarchingCubeTables.CornerIndexBFromEdge[v2];
-
-            // Calculate vertex positions and add indices
-            TriangleIndex newTriIndex =
-                new(
-                    GenerateVertex(cubeCorners[a2], cubeCorners[b2], out var pos1),
-                    GenerateVertex(cubeCorners[a1], cubeCorners[b1], out var pos2),
-                    GenerateVertex(cubeCorners[a0], cubeCorners[b0], out var pos3)
-                );
-            lock (indices)
+            for (int x = 0; x < TerrainConsts.VoxelsPerAxisMinusOne; x++)
             {
-                indices.Add(newTriIndex);
+                // (0) Because some values are saved between loop iterations (along Y), so it is needed to precalc some values.
+                //
+                (mask2, mask3) = ExtractSignBitsAndSamples(volumePtr, samples23, x);
 
-                collisionVertices.Add(pos1);
-                collisionVertices.Add(pos2);
-                collisionVertices.Add(pos3);
+                for (int y = 0; y < TerrainConsts.VoxelsPerAxisMinusOne; y++)
+                {
+                    // Samples arrays are reused in Y loop, so swap those:
+                    // samples01 should contain voxels at current Y coordinate.
+                    // samples23 should contain voxels at Y + 1 coordinate.
+                    // So they can be reused while iterating over Y.
+                    //
+                    var temp = samples01;
+                    samples01 = samples23;
+                    samples23 = temp;
+
+                    // Previous masks are also reused:
+                    //
+                    mask0 = mask2;
+                    mask1 = mask3;
+
+                    (mask2, mask3) = ExtractSignBitsAndSamples(volumePtr, samples23, x, y);
+
+                    // (6) Store all masks (4 voxels 'rows' each 32 voxels == 4x 32 bit masks) in masks simd vector variable.
+                    //
+                    var masks = Vector128.Create(mask0, mask1, mask2, mask3);
+
+                    // (7) Early termination check - check if there is a mix of zeroes and ones in masks.
+                    // (7) If not, it means whole column (32 x 2 x 2 voxels) is either under surface or above - so no need to mesh those, because meshing will not produce any triangles.
+                    // (7) v128(UInt32.MaxValue) is a mask (all 1) controlling which bits should be tested.
+                    //
+                    // var zerosOnes = Sse41.TestNotZAndNotC(
+                    //     masks.AsInt32(),
+                    //     Vector128<int>.AllBitsSet
+                    // );
+                    if (masks == Vector128<uint>.AllBitsSet)
+                    {
+                        continue;
+                    }
+                    if (masks == Vector128<uint>.Zero)
+                    {
+                        continue;
+                    }
+
+                    // var zerosOnes =
+                    //     (masks != Vector128<uint>.AllBitsSet) && (masks != Vector128<uint>.Zero);
+                    // var ZF = (Vector128<uint>.AllBitsSet & masks) == Vector128<uint>.Zero;
+                    // var CF = (Vector128<uint>.Zero & masks) == Vector128<uint>.Zero;
+                    // var zerosOnes = (!ZF) && (!CF);
+
+                    // if (!zerosOnes)
+                    //     continue;
+                    // (7) test_mix_ones_zeroes : https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#expand=2528,951,4482,391,832,1717,291,338,5486,5304,5274,5153,5153,5153,5596,3343,3864,5903&techs=SSE4_1&cats=Logical&ig_expand=7214
+
+
+                    // (8) Extract last bits from each of 4 masks and store them in upper bits 4-7 (leave bits 0-3 zeroed).
+                    // (8) Because movemask extract sign bits (highests bits), reversing masks in step 4 & 5 was necessary.
+                    //
+                    uint cornerMask = Vector128.ExtractMostSignificantBits(masks) << 4;
+                    // (8) movemask_ps : https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#expand=2528,951,4482,391,832,1717,291,338,5486,5304,5274,5153,5153,5153,5596,3343,3864&cats=Miscellaneous&techs=SSE&ig_expand=4878
+
+                    // samples[0] = 0;
+                    // samples[1] = 0;
+                    // samples[2] = 0;
+                    // samples[3] = 0;
+                    // samples[4] = 0;
+                    // samples[5] = 0;
+                    // samples[6] = 0;
+                    // samples[7] = 0;
+
+                    for (int z = 0; z < TerrainConsts.VoxelsPerAxisMinusOne; z++)
+                    {
+                        // (9) Thats why we shifted masks 4 bits to left in step (8)
+                        // (9) In each iteration along Z value we can reuse masks extracted in previous step.
+                        //
+                        cornerMask >>= 4;
+
+                        // (10) Previously we extracted highests bits in masks, to extract next bits we just need to left shift them.
+                        // (10) slli_epi32 shift parameter mu be const.
+                        //
+                        // masks = Sse2.ShiftLeftLogical(masks, 1);
+                        masks <<= 1;
+                        // (10) slli_epi32 : https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#expand=2528,951,4482,391,832,1717,291,338,5486,5304,5274&othertechs=BMI1,BMI2&techs=SSE,SSE2,SSE3,SSSE3,SSE4_1,SSE4_2&cats=Shift&ig_expand=6537
+
+                        // (11) Extract next 4 bits from masks to build proper CornerMask for group (2x2x2) of voxels.
+                        // (11) Corner mask is 8 bit where each bit tell if specific voxel from group (2x2x2) is negative or not.
+                        // (11) In step (9) we reuse currently extracted 4 bits by right shifting.
+                        //
+                        // var movemask = Vector128.masks.AsSingle()
+                        cornerMask |= Vector128.ExtractMostSignificantBits(masks) << 4;
+
+                        // (12) Early termination,
+                        // (12) If all bits are 0 or 1 no triangles will be produced (no edge crossing)
+                        //
+                        if (cornerMask == 0 || cornerMask == 255)
+                            continue;
+
+                        // (13) Extract edgemask from cornermask (edgeTable is precalculated array)
+                        //
+                        int edgeMask = SurfaceNetUtils.EdgeTable[cornerMask];
+
+                        // (14) Collect 8 samples (voxel values) from interleaved sample arrays (01 23)
+                        //
+                        var zz = z + z;
+                        samples[0] = samples01[zz + 0];
+                        samples[1] = samples01[zz + 1];
+                        samples[2] = samples23[zz + 0];
+                        samples[3] = samples23[zz + 1];
+                        samples[4] = samples01[zz + 2];
+                        samples[5] = samples01[zz + 3];
+                        samples[6] = samples23[zz + 2];
+                        samples[7] = samples23[zz + 3];
+
+                        // Indexer acces is required in next step (pos[variable]...) so cant use plain int values
+                        // I could use int3 struct, but for some reasons those simple stackallocated arrays works faster. No idea why.
+                        //
+                        pos[0] = x;
+                        pos[1] = y;
+                        pos[2] = z;
+
+                        // Flip Orientation Depending on Corner Sign
+                        var flipTriangle = (cornerMask & 1) != 0;
+
+                        MeshSamples(pos, samples, edgeMask, flipTriangle);
+                    }
+                }
             }
         }
     }
 
-    // Returns the index of the vertex in the vert list
-    unsafe int GenerateVertex(Vector3I localPosA, Vector3I localPosB, out Vector3 vertexPos)
+    static unsafe (uint, uint) ExtractSignBitsAndSamples(
+        sbyte* volumePtr,
+        sbyte* samples23,
+        int x,
+        int y = -1 /* first case, outside Y loop */
+    )
     {
-        const float isoLevel = 0;
+        // Used for reversing voxels in simd vector in step (4)
 
-        var worldVec1 = TerrainData.ChunkToRelativeWorldSpace(
-            TerrainData.CoordToChunkSpace(localPosA)
+        var shuffleReverseByteOrder = Vector128.Create(
+            15,
+            14,
+            13,
+            12,
+            11,
+            10,
+            9,
+            8,
+            7,
+            6,
+            5,
+            4,
+            3,
+            2,
+            1,
+            0
         );
-        var worldVec2 = TerrainData.ChunkToRelativeWorldSpace(
-            TerrainData.CoordToChunkSpace(localPosB)
-        );
 
-        float n1 = GetFloatAtCoord(localPosA);
-        float n2 = GetFloatAtCoord(localPosB);
+        // (1) Pointer is needed for SSE instructions :
+        //
+        // GD.Print(this.terrainVolume.Length);
+        var ptr = volumePtr + (x << SurfaceNetUtils.xShift) + ((y + 1) << SurfaceNetUtils.yShift);
 
-        float t = (isoLevel - n1) / (n2 - n1);
+        // (2) Load voxel data in parts of 16.
+        // (2) 'lo' and 'hi' - SSE buffers are 16 bytes in size, but chunk is in size 32, so those values refer to first 16 voxels and second 16 voxels in a row along Z coordinate.
+        //
+        // MemoryMarshal.Cast<sbyte, Vector128<sbyte>>(ptr);
+        // var lo2 = Vector128.Load(ptr); //Sse2.LoadVector128(ptr + 0); /* load first 16 voxels */
+        // var hi2 = Vector128.Load(ptr + 16); /* load next  16 voxels */
+        // var lo3 = Vector128.Load(ptr + 1024); /* load first 16 voxels on X + 1 */
+        // var hi3 = Vector128.Load(ptr + 1040); /* load next  16 voxels on X + 1 */
+        var lo2 = Vector128.Load(ptr + 0); /* load first 16 voxels */
+        var hi2 = Vector128.Load(ptr + 16); /* load next  16 voxels */
+        var lo3 = Vector128.Load(ptr + 1024); /* load first 16 voxels on X + 1 */
+        var hi3 = Vector128.Load(ptr + 1040); /* load next  16 voxels on X + 1 */
 
-        Vector3 position = worldVec1 + (t * (worldVec2 - worldVec1));
+        // (2) load_si128 : https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#expand=2528,951,4482,391,832,1717,291,338,5486,5304,5274,5153,5153,5153,5596,3343&techs=SSE2&ig_expand=4294,6942,6952,6942,6942,4294&cats=Load
+        //
+        // todo: use Sse4_1.stream_load_si128 instead ?
+        // todo: use loadu_si128 for unaligned access ??
 
-        var posID = GetVertexID(localPosA, localPosB);
-        vertexPos = position;
 
-        Vector3 normalA = GetCoordinateNormal(localPosA);
-        Vector3 normalB = GetCoordinateNormal(localPosB);
-        Vector3 normal = (normalA + (t * (normalB - normalA))).Normalized();
+        // (3) Save voxel data in local samplesArrays.
+        // (3) But, instead of storing them one by one like in volume array, we interleave voxels with their neighbours on X + 1 coordinate
+        // (3) The unpacklo/hi intrinsics are used to interleave provided data.
+        // (3) Imagine a voxel slice (XZ) at Y == 0 :
+        //
+        //		  Z
+        //		  |
+        //		  |
+        //		 [ 31 ][ 1055 ]   []          =>  [ hi2 ][ hi3 ]
+        //		 ...
+        //		 [  2 ][ 1026 ]   []		  =>  [ lo2 ][ lo3 ]
+        //		 [  1 ][ 1025 ]   []
+        //		 [  0 ][ 1024 ]...[] ----- X
+        //
+        //		Voxels 0-15 are loaded into lo2, voxels 16-31 into hi2.
+        //		Same for voxels at X + 1 (lo3/hi3).
+        //
+        //		Result of unpack intrinsics looks like:
+        //
+        //		[ 1055 ]  (64 element array - samples23)
+        //		[   31 ]
+        //		...
+        //		[ 1025 ]
+        //		[    1 ]
+        //		[ 1024 ]
+        //		[    0 ]
+        //
+        //	(3) Such way of storing voxels makes future steps faster,
+        //		because we need to access neighbouring voxels (at X + 1) while iterating along Z coordinate,
+        //		so instead of accessing 2 'arrays' we access only 1.
+        //
+        //  (3) Second samples array (samples01) is used in same way. More about this inside loop Y
+        //
+        // Vector128.shu
+        // var (lo2_lo3_low, lo2_lo3_high) = Vector128.Widen(lo2, lo3);
+        // lo2.interleave(lo3);
+        // var (hi2_hi3_low, hi2_hi3_high) = hi2.interleave(hi3);
 
-        int thisVertexID;
+        // Vector128.Shuffle(lo2, lo3);
+        // Vector.Narrow(lo2, lo3);
+        // // lo2.StoreAlignedNonTemporal()
 
-        lock (existingVertexIDs)
+        // Vector128.StoreAligned(Vector128.WithLower(lo2, lo3.GetLower()), samples23 + 00);
+        // Vector128.StoreAligned(Vector128.WithUpper(lo2, lo3.GetUpper()), samples23 + 16);
+        // Vector128.StoreAligned(Vector128.WithLower(hi2, hi3.GetLower()), samples23 + 32);
+        // Vector128.StoreAligned(Vector128.WithUpper(hi2, hi3.GetUpper()), samples23 + 48);
+
+        Vector128.Store(SurfaceNetUtils.UnpackLow(lo2, lo3), samples23 + 00);
+        Vector128.Store(SurfaceNetUtils.UnpackHigh(lo2, lo3), samples23 + 16);
+        Vector128.Store(SurfaceNetUtils.UnpackLow(hi2, hi3), samples23 + 32);
+        Vector128.Store(SurfaceNetUtils.UnpackHigh(hi2, hi3), samples23 + 48);
+        // Vector128.Store()
+
+        // var (lo2_lower, lo2_upper) = Vector128.Widen(lo2);
+        // var (lo2_lower, lo2_upper) = Vector128.Widen(lo3);
+        // var (lo2_lower, lo2_upper) = Vector128.Widen(lo2);
+        // var (lo2_lower, lo2_upper) = Vector128.Widen(lo2);
+        // Vector256.Create(lo2, lo3);
+        // Vector128.LoadAligned
+
+        // Vector128.StoreAligned(Sse2.UnpackLow(lo2, lo3), samples23 + 00);
+        // Vector128.StoreAligned(Sse2.UnpackHigh(lo2, lo3), samples23 + 16);
+        // Vector128.StoreAligned(Sse2.UnpackLow(hi2, hi3), samples23 + 32);
+        // Vector128.StoreAligned(Sse2.UnpackHigh(hi2, hi3), samples23 + 48);
+        // (3) store_si128 : https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#expand=2528,951,4482,391,832,1717,291,338,5486,5304,5274,5153,5153,5153,5596&techs=SSE2&cats=Store&ig_expand=6872
+        // (3) unpack(lo/hi)_epi8 : https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#expand=2528,951,4482,391,832,1717,291,338,5486,5304,5274,5153,5153,6090,6033&othertechs=BMI1,BMI2&techs=SSE2&cats=Swizzle&ig_expand=7355
+
+
+        // (4) Shuffle bytes:
+        // (4) shuffleReverseByteOrder its a SSE vector with indices controlling shuffle operation (what and where to put)
+        //
+
+        // lo2 = Ssse3.Shuffle(lo2, shuffleReverseByteOrder);
+        // lo3 = Ssse3.Shuffle(lo3, shuffleReverseByteOrder);
+        // hi2 = Ssse3.Shuffle(hi2, shuffleReverseByteOrder);
+        // hi3 = Ssse3.Shuffle(hi3, shuffleReverseByteOrder);
+
+        lo2 = Vector128.Shuffle(lo2, shuffleReverseByteOrder);
+        lo3 = Vector128.Shuffle(lo3, shuffleReverseByteOrder);
+        hi2 = Vector128.Shuffle(hi2, shuffleReverseByteOrder);
+        hi3 = Vector128.Shuffle(hi3, shuffleReverseByteOrder);
+        // (4) shuffle_epi8 : https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#expand=2528,951,4482,391,832,1717,291,338,5486,5304,5274,5153,5153,5153&techs=SSSE3&cats=Swizzle&ig_expand=6386
+
+
+        // (5) Extract sign bits from 8 bit values.
+        // (5) movemask intrinsics do that, 16 voxels at a time per instruction
+        // (5) Result with (4) is that, the masks are reversed (first voxel sign bit is now last)
+        // (5) Each mask stores bitsigns of one voxel 'row' along Z coordinate.
+        // (5) Whats important, is that the bitsigns are nagated (~)
+        //
+        // var mask2 = Vector128.mask
+        // Vector.
+        // Vector128.
+        // var mask2 = Vector128.AsInt32(Vector128.Create(lo2.GetLower(), hi2.GetLower())).ToScalar();
+        // var mask3 = Vector128.AsInt32(Vector128.Create(lo3.GetLower(), hi3.GetLower())).ToScalar();
+
+        // var mask2 = Sse2.MoveMask(lo2) << 16 | (Sse2.MoveMask(hi2));
+        // var mask3 = Sse2.MoveMask(lo3) << 16 | (Sse2.MoveMask(hi3));
+
+        var mask2 =
+            Vector128.ExtractMostSignificantBits(lo2) << 16
+            | (Vector128.ExtractMostSignificantBits(hi2));
+        var mask3 =
+            Vector128.ExtractMostSignificantBits(lo3) << 16
+            | (Vector128.ExtractMostSignificantBits(hi3));
+        // (5) movemask_epi8 : https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#expand=2528,951,4482,391,832,1717,291,338,5486,5304,5274,5153,5153,5153,5596,3343,3864&cats=Miscellaneous&techs=SSE2&ig_expand=4873
+
+
+        // those weird mask reversing operation (4 & 5) is used later in step (8).
+        return (mask2, mask3);
+    }
+
+    const float ChunkScalingFactor =
+        TerrainConsts.ChunkScale
+        * (((float)TerrainConsts.VoxelsPerAxis) / ((float)TerrainConsts.VoxelsPerAxis - 2));
+
+    unsafe void MeshSamples(int* pos, float* samples, int edgeMask, bool flipTriangle)
+    {
+        const int R0 = (TerrainConsts.VoxelsPerAxis + 1) * (TerrainConsts.VoxelsPerAxis + 1);
+
+        int* R = stackalloc int[3] { R0, TerrainConsts.VoxelsPerAxis + 1, 1 };
+        int bufferIndex = pos[2] + (TerrainConsts.VoxelsPerAxis + 1) * pos[1];
+
+        if (pos[0] % 2 == 0)
         {
-            if (!existingVertexIDs.TryGetValue(posID, out thisVertexID))
+            bufferIndex +=
+                1 + (TerrainConsts.VoxelsPerAxis + 1) * (TerrainConsts.VoxelsPerAxis + 2);
+        }
+        else
+        {
+            R[0] = -R[0];
+            bufferIndex += TerrainConsts.VoxelsPerAxis + 2;
+        }
+
+        // Buffer array is used to store vertex indices from previous loop steps.
+        // We are using it to obtain indices for triangle.
+        buffer[bufferIndex] = verts.Count;
+
+        var chunkSpacePos = (
+            new Godot.Vector3(pos[0], pos[1], pos[2])
+            + GetVertexPositionFromSamples(samples, edgeMask)
+        );
+
+        var position =
+            (chunkSpacePos - TerrainConsts.HalfVoxelAxisLengths) / TerrainConsts.VoxelsPerAxis;
+
+        position *= ChunkScalingFactor;
+        // GD.Print(GetVertexPositionFromSamples(samples, edgeMask));
+        // / TerrainConsts.VoxelsPerAxisMinusOne
+        // * TerrainConsts.ChunkScale;
+
+        verts.Add(position);
+
+        normals.Add(false ? Godot.Vector3.Zero : GetVertexNormalFromSamples(samples));
+
+        // bounds.item.Encapsulate(position);
+
+        // This buffer indexing stuff (buffer array, bufferIndex, R) and triangulation comes from:
+        // https://github.com/TomaszFoster/NaiveSurfaceNets/blob/bec66c7a93c5b8ad4e52adf4f3091134c4c11c74/NaiveSurfaceNets.cs#L486
+
+
+
+        // Add Faces (Loop Over 3 Base Components)
+        for (var i = 0; i < 3; i++)
+        {
+            // First 3 Entries Indicate Crossings on Edge
+            if ((edgeMask & (1 << i)) == 0)
+                continue;
+
+            var iu = (i + 1) % 3;
+            var iv = (i + 2) % 3;
+
+            if (pos[iu] == 0 || pos[iv] == 0)
+                continue;
+
+            var du = R[iu];
+            var dv = R[iv];
+
+            if (indices.Length < (numIndices + 6))
             {
-                verts.Add(position);
-                normals.Add(normal);
-                existingVertexIDs[posID] = verts.Count - 1;
-                thisVertexID = verts.Count - 1;
+                Array.Resize(ref indices, indices.Length * 2);
+                Array.Resize(ref collisionVertices, collisionVertices.Length * 2);
+            }
+
+            fixed (int* indicesPtr = &indices[numIndices])
+            {
+                // this resizing gives a lot perf (from around ~0.420 to ~0.355 [ms])
+                if (flipTriangle)
+                {
+                    indicesPtr[0] = buffer[bufferIndex]; //indices.Add(buffer[bufferIndex]);
+                    indicesPtr[1] = buffer[bufferIndex - du - dv]; //indices.Add(buffer[bufferIndex - du - dv]);
+                    indicesPtr[2] = buffer[bufferIndex - du]; //indices.Add(buffer[bufferIndex - du]);
+                    indicesPtr[3] = buffer[bufferIndex]; //indices.Add(buffer[bufferIndex]);
+                    indicesPtr[4] = buffer[bufferIndex - dv]; //indices.Add(buffer[bufferIndex - dv]);
+                    indicesPtr[5] = buffer[bufferIndex - du - dv]; //indices.Add(buffer[bufferIndex - du - dv]);
+                }
+                else
+                {
+                    indicesPtr[0] = buffer[bufferIndex]; //indices.Add(buffer[bufferIndex]);
+                    indicesPtr[1] = buffer[bufferIndex - du - dv]; //indices.Add(buffer[bufferIndex - du - dv]);
+                    indicesPtr[2] = buffer[bufferIndex - dv]; //indices.Add(buffer[bufferIndex - dv]);
+                    indicesPtr[3] = buffer[bufferIndex]; //indices.Add(buffer[bufferIndex]);
+                    indicesPtr[4] = buffer[bufferIndex - du]; //indices.Add(buffer[bufferIndex - du]);
+                    indicesPtr[5] = buffer[bufferIndex - du - dv]; //indices.Add(buffer[bufferIndex - du - dv]);
+                }
+
+                fixed (Godot.Vector3* colPtr = &collisionVertices[numIndices])
+                {
+                    for (int x = 0; x < 6; x++)
+                    {
+                        colPtr[x] = verts[indicesPtr[x]];
+                    }
+                }
+                numIndices += 6;
             }
         }
-        return thisVertexID;
     }
 
-    unsafe Vector3 GetCoordinateNormal(Vector3I coord)
+    static unsafe Godot.Vector3 GetVertexPositionFromSamples(float* samples, int edgeMask)
     {
-        Vector3I offsetX = new(1, 0, 0);
-        Vector3I offsetY = new(0, 1, 0);
-        Vector3I offsetZ = new(0, 0, 1);
+        // Check each of 12 edges for edge crossing (different voxel signs).
+        // Edge mask bits tells if there is edge crossing
+        // If it is, compute crossing position as linear interpolation between 2 corner position.
 
-        Vector3 derivative =
-            new(
-                GetFloatAtCoord(coord + offsetX) - GetFloatAtCoord(coord - offsetX),
-                GetFloatAtCoord(coord + offsetY) - GetFloatAtCoord(coord - offsetY),
-                GetFloatAtCoord(coord + offsetZ) - GetFloatAtCoord(coord - offsetZ)
-            );
-        // GD.Print(derivative);
+        var vertPos = Godot.Vector3.Zero;
+        int edgeCrossings = 0;
 
-        return derivative.Normalized();
+        if ((edgeMask & 1) != 0)
+        {
+            float s0 = samples[0];
+            float s1 = samples[1];
+            float t = s0 / (s0 - s1);
+            vertPos += new Godot.Vector3(t, 0, 0);
+            ++edgeCrossings;
+        }
+        if ((edgeMask & 1 << 1) != 0)
+        {
+            float s0 = samples[0];
+            float s1 = samples[2];
+            float t = s0 / (s0 - s1);
+            vertPos += new Godot.Vector3(0, t, 0);
+            ++edgeCrossings;
+        }
+        if ((edgeMask & 1 << 2) != 0)
+        {
+            float s0 = samples[0];
+            float s1 = samples[4];
+            float t = s0 / (s0 - s1);
+            vertPos += new Godot.Vector3(0, 0, t);
+            ++edgeCrossings;
+        }
+        if ((edgeMask & 1 << 3) != 0)
+        {
+            float s0 = samples[1];
+            float s1 = samples[3];
+            float t = s0 / (s0 - s1);
+            vertPos += new Godot.Vector3(1, t, 0);
+            ++edgeCrossings;
+        }
+        if ((edgeMask & 1 << 4) != 0)
+        {
+            float s0 = samples[1];
+            float s1 = samples[5];
+            float t = s0 / (s0 - s1);
+            vertPos += new Godot.Vector3(1, 0, t);
+            ++edgeCrossings;
+        }
+        if ((edgeMask & 1 << 5) != 0)
+        {
+            float s0 = samples[2];
+            float s1 = samples[3];
+            float t = s0 / (s0 - s1);
+            vertPos += new Godot.Vector3(t, 1, 0);
+            ++edgeCrossings;
+        }
+        if ((edgeMask & 1 << 6) != 0)
+        {
+            float s0 = samples[2];
+            float s1 = samples[6];
+            float t = s0 / (s0 - s1);
+            vertPos += new Godot.Vector3(0, 1, t);
+            ++edgeCrossings;
+        }
+        if ((edgeMask & 1 << 7) != 0)
+        {
+            float s0 = samples[3];
+            float s1 = samples[7];
+            float t = s0 / (s0 - s1);
+            vertPos += new Godot.Vector3(1, 1, t);
+            ++edgeCrossings;
+        }
+        if ((edgeMask & 1 << 8) != 0)
+        {
+            float s0 = samples[4];
+            float s1 = samples[5];
+            float t = s0 / (s0 - s1);
+            vertPos += new Godot.Vector3(t, 0, 1);
+            ++edgeCrossings;
+        }
+        if ((edgeMask & 1 << 9) != 0)
+        {
+            float s0 = samples[4];
+            float s1 = samples[6];
+            float t = s0 / (s0 - s1);
+            vertPos += new Godot.Vector3(0, t, 1);
+            ++edgeCrossings;
+        }
+        if ((edgeMask & 1 << 10) != 0)
+        {
+            float s0 = samples[5];
+            float s1 = samples[7];
+            float t = s0 / (s0 - s1);
+            vertPos += new Godot.Vector3(1, t, 1);
+            ++edgeCrossings;
+        }
+        if ((edgeMask & 1 << 11) != 0)
+        {
+            float s0 = samples[6];
+            float s1 = samples[7];
+            float t = s0 / (s0 - s1);
+            vertPos += new Godot.Vector3(t, 1, 1);
+            ++edgeCrossings;
+        }
+
+        // calculate mean position inside 1x1x1 box
+        return vertPos / edgeCrossings;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static unsafe (int, int) GetVertexID(Vector3I coord1, Vector3I coord2)
+    static unsafe Godot.Vector3 GetVertexNormalFromSamples(float* samples)
     {
-        int index1 = TerrainData.Coord3DToIndex(coord1, TerrainData.SAMPLE_POINTS_PER_AXIS);
-        int index2 = TerrainData.Coord3DToIndex(coord2, TerrainData.SAMPLE_POINTS_PER_AXIS);
-        return (Math.Min(index1, index2), Math.Max(index1, index2));
+        // return Godot.Vector3.One;
+        // Estimate normal vector from voxel values
+        Godot.Vector3 normal =
+            new()
+            {
+                Z =
+                    0
+                    + (samples[4] - samples[0])
+                    + (samples[5] - samples[1])
+                    + (samples[6] - samples[2])
+                    + (samples[7] - samples[3]),
+                Y =
+                    0
+                    + (samples[2] - samples[0])
+                    + (samples[3] - samples[1])
+                    + (samples[6] - samples[4])
+                    + (samples[7] - samples[5]),
+                X =
+                    0
+                    + (samples[1] - samples[0])
+                    + (samples[3] - samples[2])
+                    + (samples[5] - samples[4])
+                    + (samples[7] - samples[6])
+            };
+        return normal * 0.002f; // scale normal because sampels are in range -127 127
+    }
+
+    unsafe void RecalculateNormals()
+    {
+        var verticesPtr = CollectionsMarshal.AsSpan(verts);
+        var indicesPtr = indices; //CollectionsMarshal.AsSpan(indices);
+        var normalPtr = CollectionsMarshal.AsSpan(normals);
+        // var verticesPtr = (Vertex*)vertices.GetUnsafePtr();
+        // var indicesPtr = (int*)indices.GetUnsafePtr();
+
+        // var indicesLength = indices.Count;
+
+        for (int i = 0; i < numIndices; i += 6)
+        {
+            // Each 2 consecutive triangles share one edge, so we need only 4 vertices
+            var idx0 = indicesPtr[i + 0];
+            var idx1 = indicesPtr[i + 1];
+            var idx2 = indicesPtr[i + 2];
+            var idx3 = indicesPtr[i + 4];
+
+            var vert0 = verticesPtr[idx0];
+            var vert1 = verticesPtr[idx1];
+            var vert2 = verticesPtr[idx2];
+            var vert3 = verticesPtr[idx3];
+
+            var tangent0 = vert1 - vert0;
+            var tangent1 = vert2 - vert0;
+            var tangent2 = vert3 - vert0;
+
+            var triangleNormal0 = tangent1.Cross(tangent0);
+            var triangleNormal1 = tangent0.Cross(tangent2);
+
+            if (float.IsNaN(triangleNormal0.X))
+            {
+                triangleNormal0 = Godot.Vector3.Zero;
+            }
+            if (float.IsNaN(triangleNormal1.X))
+            {
+                triangleNormal1 = Godot.Vector3.Zero;
+            }
+
+            normalPtr[idx0] = normalPtr[idx0] + triangleNormal0 + triangleNormal1;
+            normalPtr[idx1] = normalPtr[idx1] + triangleNormal0 + triangleNormal1;
+            normalPtr[idx2] = normalPtr[idx2] + triangleNormal0;
+            normalPtr[idx3] = normalPtr[idx3] + triangleNormal1;
+        }
     }
 
     void CreateMesh()
     {
-        chunkMesh.ClearSurfaces();
-
-        if (indices.Count >= INDICES_PER_TRI)
+        // visualMesh.ClearSurfaces();
+        RenderingServer.MeshClear(visualMeshRid);
+        if (numIndices >= IndicesPerTri)
         {
+            // GD.Print(numIndices);
             // Make our Godot array and throw the data in
 
-            meshData[(int)Mesh.ArrayType.Vertex] = CollectionsMarshal.AsSpan(verts);
-            meshData[(int)Mesh.ArrayType.Normal] = CollectionsMarshal.AsSpan(normals);
-            meshData[(int)Mesh.ArrayType.Index] = MemoryMarshal.Cast<TriangleIndex, int>(
-                CollectionsMarshal.AsSpan(indices)
-            );
+            meshInfoArray[(int)Mesh.ArrayType.Vertex] = CollectionsMarshal.AsSpan(verts);
+            meshInfoArray[(int)Mesh.ArrayType.Normal] = CollectionsMarshal.AsSpan(normals);
+            meshInfoArray[(int)Mesh.ArrayType.Index] = indices.AsSpan(0, numIndices);
 
-            collisionData["faces"] = CollectionsMarshal.AsSpan(collisionVertices);
-
-            PhysicsServer3D.ShapeSetData(chunkShapeRid, collisionData);
-
+            collisionInfoDict["faces"] = collisionVertices.AsSpan(0, numIndices); //CollectionsMarshal.AsSpan();
+            // physicsShape.Data = collisionVertices.AsSpan(0, numIndices).ToArray();
             RenderingServer.MeshAddSurfaceFromArrays(
-                chunkMeshRid,
+                visualMeshRid,
                 RenderingServer.PrimitiveType.Triangles,
-                meshData
+                meshInfoArray
             );
-            RenderingServer.MeshSurfaceSetMaterial(chunkMeshRid, 0, chunkMaterialRid);
+
+            RenderingServer.MeshSurfaceSetMaterial(visualMeshRid, 0, visualMaterialRid);
+
+            PhysicsServer3D.ShapeSetData(physicsShapeRid, collisionInfoDict);
         }
     }
 
     public void FinalizeInScene()
     {
-        Position = (Vector3)chunkSampleCoord * TerrainData.CHUNK_SIZE;
+        Position = (Godot.Vector3)chunkSampleCoord * TerrainConsts.ChunkScale;
 
         // Sometimes we'll have not enough vertices for a triangle
-        if (indices.Count < INDICES_PER_TRI)
+        if (numIndices < IndicesPerTri)
         {
             collider.Disabled = true;
             return;
         }
+
+        // physicsShape.Data = collisionVertices.AsSpan(0, numIndices).ToArray();
         collider.Disabled = false;
     }
 
@@ -314,15 +777,15 @@ public partial class Chunk : MeshInstance3D
     public override void _Ready()
     {
         // Ensure this chunk has the ArrayMesh
-        this.Mesh = chunkMesh;
-        collider.Shape = chunkShape;
-        meshData.Resize((int)Mesh.ArrayType.Max);
+        this.Mesh = visualMesh;
+        collider.Shape = physicsShape;
+        meshInfoArray.Resize((int)Mesh.ArrayType.Max);
 
-        chunkShapeRid = chunkShape.GetRid();
-        chunkMeshRid = chunkMesh.GetRid();
-        chunkMaterialRid = chunkMaterial.GetRid();
+        physicsShapeRid = physicsShape.GetRid();
+        visualMeshRid = visualMesh.GetRid();
+        visualMaterialRid = chunkMaterial.GetRid();
 
-        collisionData["backface_collision"] = false;
+        collisionInfoDict["backface_collision"] = false;
     }
 
     // Not needed

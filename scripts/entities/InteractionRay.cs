@@ -7,7 +7,7 @@ public partial class InteractionRay : RayCast3D
 {
     const float MIN_DISTANCE_SQ = 2.1f * 2.1f;
     ulong lastTerraform = Time.GetTicksMsec();
-    const ulong TERRAFORM_INTERVAL = 30; //ms
+    const ulong TERRAFORM_INTERVAL = 16; //30; //ms
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready() { }
@@ -36,18 +36,18 @@ public partial class InteractionRay : RayCast3D
             && collisionObj.GetParent<Node3D>() is Chunk
         )
         {
-            bool add;
+            float add;
             if (Input.IsActionPressed(GameActions.PLAYER_PRIMARY_USE))
             {
                 if ((GetCollisionPoint() - GlobalPosition).LengthSquared() < MIN_DISTANCE_SQ)
                 {
                     return;
                 }
-                add = true;
+                add = 1;
             }
             else if (Input.IsActionPressed(GameActions.PLAYER_SECONDARY_USE))
             {
-                add = false;
+                add = -1;
             }
             else
             {
@@ -57,9 +57,9 @@ public partial class InteractionRay : RayCast3D
             // var pos = (GlobalBasis.Z * 2) + GlobalPosition;
             // if (IsColliding()) // && (GetCollisionPoint() - GlobalPosition).Length() <= 2)
             // {
-            var pos = GetCollisionPoint();
+            var pos = GetCollisionPoint() + (add * (GetCollisionNormal() * 0.25f));
             // }
-            Manager.Instance.ChunkManager?.TerraformPoint(pos, 0.1f, add);
+            Manager.Instance.ChunkManager?.TerraformPoint(pos, 0.1f * add, 0.5f);
             // GD.Print("hi", GetCollisionPoint(), GetCollisionNormal());
 
             lastTerraform = Time.GetTicksMsec();

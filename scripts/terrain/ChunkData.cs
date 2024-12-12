@@ -44,7 +44,7 @@ public readonly partial record struct ChunkID
     public static ChunkID GetNearestID(Vector3 position)
     {
         // Put this global position into chunk space
-        position /= TerrainData.CHUNK_SIZE;
+        position /= TerrainConsts.ChunkScale;
 
         // Snap it to the nearest chunk
         return new(
