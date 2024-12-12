@@ -35,7 +35,7 @@ public static class TerrainConsts
     // Length of our input sample array
     public const int VoxelArrayLength = VoxelsPerAxis * VoxelsPerAxis * VoxelsPerAxis;
 
-    public const int ChunkViewDistance = 3; // Distance of viewable chunks (in each 3 dimensions)
+    public const int ChunkViewDistance = 2; // Distance of viewable chunks (in each 3 dimensions)
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int Coord3DToIndex(Vector3I coord, int axisLength)

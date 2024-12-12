@@ -59,6 +59,11 @@ public static class SurfaceNetUtils
         }
     }
 
+    /// <summary>
+    /// These two were taken from
+    /// https://github.com/dotnet/runtime/blob/28cf901ccec85466635407edbe93d45b0ad2452d/src/libraries/System.Private.CoreLib/src/System/Runtime/Intrinsics/Vector128.cs#L3870
+    ///
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector128<sbyte> UnpackLow(Vector128<sbyte> left, Vector128<sbyte> right)
     {
@@ -75,6 +80,11 @@ public static class SurfaceNetUtils
         return AdvSimd.Arm64.ZipLow(left, right);
     }
 
+    /// <summary>
+    /// These two were taken from
+    /// https://github.com/dotnet/runtime/blob/28cf901ccec85466635407edbe93d45b0ad2452d/src/libraries/System.Private.CoreLib/src/System/Runtime/Intrinsics/Vector128.cs#L3870
+    ///
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector128<sbyte> UnpackHigh(Vector128<sbyte> left, Vector128<sbyte> right)
     {

@@ -26,7 +26,7 @@ public partial class ChunkManager : Node3D
     readonly ConcurrentDictionary<ChunkID, Chunk> loadedChunks = [];
 
     readonly ConcurrentQueue<ChunkID> chunksToReload = new(); // If it doesn't exist, load it, otherwise reload
-    readonly ConcurrentDictionary<ChunkID, byte> queuedChunkSet = [];
+    readonly ConcurrentDictionary<ChunkID, byte> loadingChunks = [];
 
     readonly ConcurrentQueue<Chunk> freeChunks = new(); // For object pooling
 
@@ -50,14 +50,15 @@ public partial class ChunkManager : Node3D
 
     // readonly FastNoiseLiteSharp noiseGenerator = new();
 
-    public void QueueChunk(ChunkID chunkID)
-    {
-        if (!queuedChunkSet.TryAdd(chunkID, 0))
-        {
-            return;
-        }
-        chunksToReload.Enqueue(chunkID);
-    }
+    // public void QueueChunk(ChunkID chunkID)
+    // {
+    //     if (!loadingChunks.TryAdd(chunkID, 0))
+    //     {
+    //         return;
+    //     }
+    //     chunksToReload.Enqueue(chunkID);
+    //     GD.Print(chunksToReload.Count);
+    // }
 
     // For when we receive some chunk mods from the server
     public void UpdateChunkData(ChunkID chunkID, sbyte[] chunkData)
@@ -73,14 +74,16 @@ public partial class ChunkManager : Node3D
         }
         else
         {
-            QueueChunk(chunkID);
+            ReloadChunk(chunkID).Wait();
+            // QueueChunk(chunkID);
             // chunksToReload.
         }
     }
 
     Task ReloadChunk(ChunkID chunkID)
     {
-        currentlyComputing = true;
+        loadingChunks.TryAdd(chunkID, 0);
+
         // If this chunk is already loaded, reload it
         // Otherwise grab a new one and move it where it needs to go
         if (!loadedChunks.TryGetValue(chunkID, out Chunk chunkToLoad))
@@ -110,6 +113,8 @@ public partial class ChunkManager : Node3D
             loadedChunks[chunkID] = chunkToLoad;
 
             currentlyComputing = false;
+
+            _ = loadingChunks.Remove(chunkID, out _);
 
             // s.Stop();
             // GD.Print("chunk time ", s.Elapsed.TotalMilliseconds);
@@ -288,11 +293,13 @@ public partial class ChunkManager : Node3D
         // QueueChunk(new(0, 0, 0));
         // // QueueChunk(new(0, 2, 1));
         RefreshPlayerChunks();
+        lastRefreshMs = Time.GetTicksMsec();
         // GD.Print("Max Mod Bytes ", TerrainParams.MAX_MOD_BYTES);
     }
 
     void RefreshPlayerChunks()
     {
+        // int idx = 0;
         // make the loop bigger by one to remove the outermost chunk IDs
         const int GenerateDistance = TerrainConsts.ChunkViewDistance;
 
@@ -310,12 +317,14 @@ public partial class ChunkManager : Node3D
                         );
 
                     bool chunkIsLoaded = loadedChunks.ContainsKey(toQueue);
-                    bool chunkIsQueued = queuedChunkSet.ContainsKey(toQueue);
-
-                    if (!chunkIsLoaded && !chunkIsQueued)
+                    bool chunkIsQueued = loadingChunks.ContainsKey(toQueue);
+                    // GD.Print("coord ", idx, chunkIsLoaded, chunkIsQueued);
+                    // idx++;
+                    if ((!chunkIsLoaded) && (!chunkIsQueued))
                     {
                         // queue only if the chunk is not there and it's not already queued
-                        QueueChunk(toQueue);
+                        // _ = ReloadChunk(toQueue);
+                        chunksToReload.Enqueue(toQueue);
                         // GD.Print("Queueing ", toQueue);
                     }
                 }
@@ -340,6 +349,7 @@ public partial class ChunkManager : Node3D
 
     public override void _PhysicsProcess(double delta)
     {
+        // GD.Print("l ", loadingChunks.Count);
         if (!loadedChunks.ContainsKey(currentPlayerChunk))
         {
             ReloadChunk(currentPlayerChunk).Wait();
@@ -352,15 +362,15 @@ public partial class ChunkManager : Node3D
             // Update our current chunk
             currentPlayerChunk = newPlayerChunk;
 
-            if ((Time.GetTicksMsec() - lastRefreshMs) >= MinRefreshInterval)
-            {
-                RefreshPlayerChunks();
+            // if ((Time.GetTicksMsec() - lastRefreshMs) >= MinRefreshInterval)
+            // {
+            RefreshPlayerChunks();
 
-                // the timer is so we don't trigger a ton of reloads
-                // when near the edge of two chunks. Shouldn't cause a problem
-                // because we already ensure the current player chunk is loaded.
-                lastRefreshMs = Time.GetTicksMsec();
-            }
+            // the timer is so we don't trigger a ton of reloads
+            // when near the edge of two chunks. Shouldn't cause a problem
+            // because we already ensure the current player chunk is loaded.
+            lastRefreshMs = Time.GetTicksMsec();
+            // }
         }
     }
 
@@ -372,7 +382,11 @@ public partial class ChunkManager : Node3D
         // {
         if (chunksToReload.TryDequeue(out var chunkID))
         {
-            _ = queuedChunkSet.Remove(chunkID, out _);
+            // If it somehow already got loaded,skip
+            if (loadedChunks.ContainsKey(chunkID) || loadingChunks.ContainsKey(chunkID))
+            {
+                return;
+            }
             _ = ReloadChunk(chunkID);
         }
         // }
@@ -412,7 +426,7 @@ public partial class ChunkManager : Node3D
     /// <summary>
     /// Terraform a point on the terrain
     /// </summary>
-    /// <param name="worldPoint"></param>
+    /// <param name="worldPoint">Point in world space to modify</param>
     /// <param name="strength">Strength should be a value from -1 to 1</param>
     /// <param name="blend">Should be a value from 0 to 1</param>
     public void TerraformPoint(Vector3 worldPoint, float strength, float blend)
