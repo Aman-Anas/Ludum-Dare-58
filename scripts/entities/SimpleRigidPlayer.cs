@@ -12,7 +12,7 @@ public partial class SimpleRigidPlayer : RigidBody3D
 
     // Movement
     const float MOVEMENT_FORCE = 30;
-    const float MAX_MOVEMENT_SPEED = 5;
+    const float MAX_MOVEMENT_SPEED = 100;
     const float AIR_MOVEMENT_MULTIPLIER = 0.1f;
     const float GRAVITY_CORRECTION_SPEED = 4.0f;
     const bool DEV_MODE = true;

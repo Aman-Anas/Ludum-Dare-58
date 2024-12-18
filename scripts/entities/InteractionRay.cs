@@ -57,9 +57,17 @@ public partial class InteractionRay : RayCast3D
             // var pos = (GlobalBasis.Z * 2) + GlobalPosition;
             // if (IsColliding()) // && (GetCollisionPoint() - GlobalPosition).Length() <= 2)
             // {
-            var pos = GetCollisionPoint() + (add * (GetCollisionNormal() * 0.25f));
-            // }
-            Manager.Instance.ChunkManager?.TerraformPoint(pos, 0.1f * add, 0.5f);
+            var pos =
+                GetCollisionPoint()
+                + (
+                    add
+                    * (
+                        GetCollisionNormal()
+                        * ((TerrainConsts.ChunkScale / TerrainConsts.VoxelsPerAxis) / 2)
+                    )
+                );
+
+            Manager.Instance.ChunkManager?.TerraformPoint(pos, add * 0.1f, 0.5f);
             // GD.Print("hi", GetCollisionPoint(), GetCollisionNormal());
 
             lastTerraform = Time.GetTicksMsec();

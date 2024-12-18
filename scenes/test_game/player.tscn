@@ -165,6 +165,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.77636e-15, -1.19209e-07, 0.
 transform = Transform3D(-1, 8.40257e-19, -1.50996e-07, 6.77626e-20, 1, 9.66338e-13, 1.50996e-07, 0, -1, 1.50996e-08, 0, 0.1)
 fov = 90.0
 near = 0.02
+far = 100000.0
 
 [node name="RayCast3D" type="RayCast3D" parent="CameraYawTarget/CameraPitchTarget/MainPlayerCamera" index="0"]
 transform = Transform3D(-1, 8.13152e-19, 1.50996e-07, 1.76183e-19, 1, 9.66338e-13, -1.50996e-07, 0, -1, 0, 0, 0)

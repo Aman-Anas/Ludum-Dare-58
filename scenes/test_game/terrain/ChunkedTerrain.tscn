@@ -23,12 +23,14 @@ ssao_enabled = true
 glow_enabled = true
 glow_bloom = 1.0
 glow_blend_mode = 4
-fog_enabled = true
 fog_aerial_perspective = 1.0
+fog_sky_affect = 0.0
+fog_depth_begin = 30.0
+fog_depth_end = 40.0
 volumetric_fog_density = 0.024
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_myfvk"]
-radius = 40.0
+radius = 800.0
 
 [node name="ChunkedTerrain" type="Node3D"]
 
@@ -43,22 +45,22 @@ player = NodePath("../Player")
 terraformMarker = NodePath("../CSGSphere3D")
 
 [node name="CSGBox3D" type="CSGBox3D" parent="."]
+size = Vector3(0.5, 0.5, 0.5)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_3bldx")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.712069, 0.12941, -0.69008, 0.656913, 0.224144, 0.719878, 0.247837, -0.965926, 0.0745951, 0, 9, 0)
+transform = Transform3D(0.712069, 0.12941, -0.69008, 0.656913, 0.224144, 0.719878, 0.247837, -0.965926, 0.0745948, 0, 9, 0)
+light_indirect_energy = 4.034
 shadow_enabled = true
 
 [node name="Pause" parent="." instance=ExtResource("3_qxdqc")]
 
 [node name="Area3D" type="Area3D" parent="."]
-visible = false
 collision_layer = 3
 collision_mask = 3
-monitoring = false
-monitorable = false
+gravity_space_override = 3
 gravity_point = true
 gravity_point_center = Vector3(0, 0, 0)
 gravity_direction = Vector3(0, 0, 0)
@@ -67,16 +69,21 @@ gravity_direction = Vector3(0, 0, 0)
 shape = SubResource("SphereShape3D_myfvk")
 
 [node name="Player" parent="." instance=ExtResource("4_h72e6")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.90874, 44.3279, 0.839481)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.90874, 559.937, 0.839481)
 
 [node name="CSGBox3D2" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.180176, 35.3175, 1.76606)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.180176, 555.081, 1.76606)
 use_collision = true
 size = Vector3(10, 0.001, 4)
 material = ExtResource("5_iy1ah")
 
 [node name="TestBall2" parent="." instance=ExtResource("5_hgi0l")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 48.1818, 2.50608)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 567.945, 2.50608)
 
 [node name="TestBall3" parent="." instance=ExtResource("5_hgi0l")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 48.1818, 2.50608)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 567.945, 2.50608)
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="."]
+
+[node name="CSGBox3D10" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -39.6435, 0, 0)

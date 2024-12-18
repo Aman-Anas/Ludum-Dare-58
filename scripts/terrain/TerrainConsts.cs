@@ -7,7 +7,7 @@ using Godot;
 public static class TerrainConsts
 {
     // Terrain chunk size
-    public const float ChunkScale = 32;
+    public const float ChunkScale = 64;
 
     // Resolution on each axis per chunk
     public const int VoxelsPerAxis = 32;
@@ -52,12 +52,25 @@ public static class TerrainConsts
         return new Vector3I(x, y, z);
     }
 
-    // [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    // public static Vector3 CoordToChunkSpace(Vector3I coord)
-    // {
-    //     // -0.5 to 0.5  position relative to chunk
-    //     return (((Vector3)coord) / VoxelAxisLengths) - new Vector3(0.5f, 0.5f, 0.5f);
-    // }
+    public static Vector3I GetNearestChunkID(Vector3 position)
+    {
+        // Put this global position into chunk space
+        position /= TerrainConsts.ChunkScale;
+
+        // Snap it to the nearest chunk
+        return new(
+            Mathf.RoundToInt(position.X),
+            Mathf.RoundToInt(position.Y),
+            Mathf.RoundToInt(position.Z)
+        );
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector3 CoordToChunkSpace(Vector3I coord)
+    {
+        // -0.5 to 0.5  position relative to chunk
+        return (((Vector3)coord) / VoxelAxisLengthsMinusTwo) - new Vector3(0.5f, 0.5f, 0.5f);
+    }
 
     // [MethodImpl(MethodImplOptions.AggressiveInlining)]
     // public static Vector3 ChunkToWorldSpace(Vector3 position, Vector3I chunkCoord)

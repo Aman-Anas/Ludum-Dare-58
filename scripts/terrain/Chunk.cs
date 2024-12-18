@@ -13,6 +13,8 @@ public partial class Chunk : MeshInstance3D
     //////////// Useful constants //////////////
     public const int IndicesPerTri = 3;
 
+    const bool RecalcNormals = false; // this understandably messes up seamless chunking
+
     ///////////// Godot Node references ////////////
     [Export]
     StaticBody3D physicsBody;
@@ -59,11 +61,11 @@ public partial class Chunk : MeshInstance3D
         (TerrainConsts.VoxelsPerAxis + 1) * (TerrainConsts.VoxelsPerAxis + 1) * 2
     ];
 
-    public unsafe void ProcessChunk(ChunkID currentChunkID, sbyte[] terrainVolume) //, Stopwatch s)
+    public unsafe void ProcessChunk(Vector3I currentChunkID, sbyte[] terrainVolume) //, Stopwatch s)
     {
         Stopwatch s = Stopwatch.StartNew();
 
-        this.chunkSampleCoord = currentChunkID.GetSampleVector3I();
+        this.chunkSampleCoord = currentChunkID;
 
         verts.Clear();
         normals.Clear();
@@ -84,8 +86,10 @@ public partial class Chunk : MeshInstance3D
         var processed = s.Elapsed.TotalMilliseconds;
         s.Restart();
 
-        // RecalculateNormals();
-
+        if (RecalcNormals)
+        {
+            RecalculateNormals();
+        }
         CreateMesh();
 
         s.Stop();
@@ -476,7 +480,7 @@ public partial class Chunk : MeshInstance3D
 
         verts.Add(position);
 
-        normals.Add(false ? Godot.Vector3.Zero : GetVertexNormalFromSamples(samples));
+        normals.Add(RecalcNormals ? Godot.Vector3.Zero : GetVertexNormalFromSamples(samples));
 
         // bounds.item.Encapsulate(position);
 
@@ -656,27 +660,23 @@ public partial class Chunk : MeshInstance3D
         // return Godot.Vector3.One;
         // Estimate normal vector from voxel values
         Godot.Vector3 normal =
-            new()
-            {
-                Z =
-                    0
-                    + (samples[4] - samples[0])
-                    + (samples[5] - samples[1])
-                    + (samples[6] - samples[2])
-                    + (samples[7] - samples[3]),
-                Y =
-                    0
+            new(
+                0
+                    + (samples[1] - samples[0])
+                    + (samples[3] - samples[2])
+                    + (samples[5] - samples[4])
+                    + (samples[7] - samples[6]),
+                0
                     + (samples[2] - samples[0])
                     + (samples[3] - samples[1])
                     + (samples[6] - samples[4])
                     + (samples[7] - samples[5]),
-                X =
-                    0
-                    + (samples[1] - samples[0])
-                    + (samples[3] - samples[2])
-                    + (samples[5] - samples[4])
-                    + (samples[7] - samples[6])
-            };
+                0
+                    + (samples[4] - samples[0])
+                    + (samples[5] - samples[1])
+                    + (samples[6] - samples[2])
+                    + (samples[7] - samples[3])
+            );
         return normal * 0.002f; // scale normal because sampels are in range -127 127
     }
 

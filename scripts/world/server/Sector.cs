@@ -44,7 +44,7 @@ public partial class Sector
     // Terrain and world gen data
     public bool ContainsTerrain { get; set; }
 
-    public Dictionary<ChunkID, byte[]> ChunkData { get; set; } = [];
+    public Dictionary<Vector3I, byte[]> ChunkData { get; set; } = [];
 
     public SectorParameters Parameters { get; set; } = new();
 
