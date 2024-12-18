@@ -7,7 +7,7 @@ using Godot;
 public static class TerrainConsts
 {
     // Terrain chunk size
-    public const float ChunkScale = 64;
+    public const float ChunkScale = 128;
 
     // Resolution on each axis per chunk
     public const int VoxelsPerAxis = 32;
@@ -35,7 +35,7 @@ public static class TerrainConsts
     // Length of our input sample array
     public const int VoxelArrayLength = VoxelsPerAxis * VoxelsPerAxis * VoxelsPerAxis;
 
-    public const int ChunkViewDistance = 2; // Distance of viewable chunks (in each 3 dimensions)
+    public const int ChunkViewDistance = 1; // Distance of viewable chunks (in each 3 dimensions)
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int Coord3DToIndex(Vector3I coord, int axisLength)
