@@ -1,0 +1,15 @@
+[gd_scene load_steps=5 format=3 uid="uid://ce6p7nr06gnyr"]
+
+[ext_resource type="PackedScene" uid="uid://3rgvlsypfh0j" path="res://scenes/entities/example/test_wall.tscn" id="1_36uxi"]
+[ext_resource type="Resource" uid="uid://chx45djd7abpk" path="res://scenes/entities/example/test_wall_entity.tres" id="2_2rir1"]
+[ext_resource type="PackedScene" uid="uid://b5161nje632iv" path="res://scenes/entities/example/test_room.tscn" id="3_qcuil"]
+[ext_resource type="Resource" uid="uid://dqvqanobob8ps" path="res://scenes/entities/example/test_room_entity.tres" id="4_ekpx3"]
+
+[node name="Example" type="Node3D"]
+
+[node name="TestWall" parent="." instance=ExtResource("1_36uxi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -3.16314)
+Data = ExtResource("2_2rir1")
+
+[node name="TestWall2" parent="." instance=ExtResource("3_qcuil")]
+Data = ExtResource("4_ekpx3")

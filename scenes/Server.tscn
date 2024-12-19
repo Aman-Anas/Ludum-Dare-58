@@ -6,3 +6,4 @@
 [node name="Server" type="Node3D"]
 script = ExtResource("1_smr86")
 playerTemplate = ExtResource("2_bvfi7")
+testSceneTemplate = "res://scenes/sector_templates/example.tscn"

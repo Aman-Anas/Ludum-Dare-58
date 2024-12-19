@@ -101,6 +101,25 @@ public partial class Sector
         }
     }
 
+    public void LoadFromTemplate(
+        string scenePath,
+        Vector3 position = default,
+        Vector3 rotation = default
+    )
+    {
+        var scene = GD.Load<PackedScene>(scenePath);
+        var instance = scene.Instantiate();
+        foreach (var child in instance.GetChildren())
+        {
+            GD.Print(child);
+            if (child is INetEntity entity)
+            {
+                GD.Print("entity", child);
+                SpawnNewEntity(position + entity.Position, rotation + entity.Rotation, entity.Data);
+            }
+        }
+    }
+
     public void SpawnNewEntity<T>(Vector3 position, Vector3 rotation, T data)
         where T : EntityData
     {

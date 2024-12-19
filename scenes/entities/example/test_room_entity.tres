@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="StaticPropData" load_steps=2 format=3 uid="uid://dqvqanobob8ps"]
+
+[ext_resource type="Script" path="res://scripts/entities/types/StaticProp/StaticPropData.cs" id="1_4hydf"]
+
+[resource]
+script = ExtResource("1_4hydf")
+ServerScene = "res://scenes/entities/example/test_room.tscn"
+ClientScene = "res://scenes/entities/example/test_room.tscn"

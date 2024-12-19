@@ -9,13 +9,13 @@
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_4rm7k"]
 
-[sub_resource type="Sky" id="Sky_gf606"]
+[sub_resource type="Sky" id="Sky_0yn60"]
 sky_material = SubResource("ProceduralSkyMaterial_4rm7k")
 
 [sub_resource type="Environment" id="Environment_xgs2d"]
 background_mode = 2
 background_canvas_max_layer = -100
-sky = SubResource("Sky_gf606")
+sky = SubResource("Sky_0yn60")
 tonemap_mode = 2
 ssil_enabled = true
 glow_enabled = true

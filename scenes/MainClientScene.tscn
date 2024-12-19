@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3 uid="uid://cnj5l2mx5fn22"]
+
+[ext_resource type="PackedScene" uid="uid://be68kkhnkgb6u" path="res://scenes/main_menu/Pause.tscn" id="1_r62o0"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_65ekj"]
+
+[sub_resource type="Sky" id="Sky_gf606"]
+sky_material = SubResource("ProceduralSkyMaterial_65ekj")
+
+[sub_resource type="Environment" id="Environment_oir48"]
+background_mode = 2
+background_canvas_max_layer = -100
+sky = SubResource("Sky_gf606")
+tonemap_mode = 2
+ssil_enabled = true
+glow_enabled = true
+volumetric_fog_density = 0.024
+
+[node name="MainClientScene" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_oir48")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, 0.12941, 0.482963, -0.5, 0.224144, 0.836516, 0, -0.965926, 0.258819, 0, 9, 0)
+shadow_enabled = true
+
+[node name="Pause" parent="." instance=ExtResource("1_r62o0")]

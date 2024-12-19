@@ -82,7 +82,7 @@ public abstract partial class EntityData : MemoryPackableResource, IEntityData
     public INetEntity SpawnInstance(bool onServer)
     {
         string scene = onServer ? ServerScene : ClientScene;
-        GD.Print(scene);
+        // GD.Print(scene);
         var newEntity = NetHelper.InstanceFromScene<INetEntity>(scene);
         newEntity.Data = this;
         newEntity.Position = Position;

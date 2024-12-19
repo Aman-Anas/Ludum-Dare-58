@@ -26,6 +26,9 @@ public partial class ServerManager : Node, INetEventListener
     [Export]
     PlayerEntityData playerTemplate;
 
+    [Export(PropertyHint.File)]
+    string testSceneTemplate;
+
     public ServerManager()
     {
         NetServer = new(this);
@@ -39,6 +42,7 @@ public partial class ServerManager : Node, INetEventListener
         if (!WorldData.SectorMetadata.ContainsKey(0))
         {
             newSector = WorldData.AddNewSector("Home", new(false, 0, Vector3.Zero));
+            newSector.LoadFromTemplate(testSceneTemplate);
         }
         else
         {
