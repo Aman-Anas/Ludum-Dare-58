@@ -17,7 +17,7 @@ public interface INetMessage
 {
     public void OnServer(NetPeer peer, ServerManager server);
     public void OnClient(ClientManager client);
-    public MessageType GetMessageType();
+    public MessageType MessageType { get; }
 }
 
 // Adding a new message type:
@@ -39,6 +39,9 @@ public enum MessageType : ushort
     // Custom transform update for players
     PlayerTransform,
     UsePortal,
+
+    StorageMove,
+    StorageUpdate,
 }
 
 public static class NetMessageUtil
@@ -68,7 +71,7 @@ public static class NetMessageUtil
                 ProcessNetMessage<TransformUpdate>(reader, peer, server, client);
                 break;
             case MessageType.DestroyEntity:
-                ProcessNetMessage<DestroyEntity>(reader, peer, server, client);
+                ProcessNetMessage<RemoveEntity>(reader, peer, server, client);
                 break;
             case MessageType.SpawnEntity:
                 ProcessNetMessage<SpawnEntity>(reader, peer, server, client);
@@ -127,7 +130,7 @@ public static class NetMessageUtil
         {
             writer.Reset(initialCapacity);
         }
-        writer.Put((ushort)message.GetMessageType());
+        writer.Put((ushort)message.MessageType);
         MemoryPackSerializer.Serialize(writer, message);
         return writer;
     }
@@ -150,45 +153,22 @@ public static class NetMessageUtil
         writer.RecycleWriter();
     }
 
-    /// <summary>
-    /// Helper extension method to call UpdateEntity() for the correct entity on the server
-    /// </summary>
-    public static void UpdateEntity<T>(
-        this T message,
-        NetPeer peer,
-        bool echo = true,
-        DeliveryMethod echoMethod = DeliveryMethod.Unreliable
-    )
-        where T : IEntityUpdate
-    {
-        message.UpdateEntity(peer.GetLocalEntity(message.EntityID));
-
-        if (echo)
-            peer.GetPlayerState().CurrentSector.EchoToSector(message, echoMethod, peer);
-    }
-
-    /// <summary>
-    /// Helper extension method to call UpdateEntity() for the correct entity on the client
-    /// </summary>
-    public static void UpdateEntity<T>(this T message, ClientManager client)
-        where T : IEntityUpdate
-    {
-        message.UpdateEntity(client.Entities[message.EntityID]);
-    }
-
-    /// <summary>
-    /// Helper extension method to get some entity's data on the server
-    /// </summary>
-    public static INetEntity GetLocalEntity(this NetPeer peer, uint entityID)
+    public static INetEntity GetLocalEntity(this NetPeer peer, ulong entityID)
     {
         var currentSector = peer.GetPlayerState().CurrentSector;
         return currentSector.Entities[entityID];
     }
 
-    public static bool OwnsEntity(this NetPeer peer, uint entityID)
+    public static bool OwnsEntity(this NetPeer peer, ulong entityID)
     {
         var foundEntity = peer.GetLocalEntity(entityID);
-        return foundEntity.Data.Owners.Contains(peer.GetPlayerState().Username);
+        return peer.OwnsEntity(foundEntity);
+    }
+
+    public static bool OwnsEntity(this NetPeer peer, INetEntity entity)
+    {
+        var owners = entity.Data.Owners;
+        return owners.Contains(0ul) || owners.Contains(peer.GetPlayerState().PlayerID);
     }
 }
 
@@ -226,16 +206,9 @@ public class BufferedNetDataWriter(int initialSize)
     }
 }
 
-/// <summary>
-/// <para>Helper interface to define a "entity update" type of message</para>
-/// <para>
-/// This makes it easy to send small bits of data between entities and their data.
-/// For example, an entity data that implements IHealth could use the HealthUpdate message
-/// to send a HP update to the server or to a client
-/// </para>
-/// </summary>
-public interface IEntityUpdate : INetMessage
-{
-    public uint EntityID { get; init; }
-    void UpdateEntity(INetEntity entity);
-}
+
+
+// public interface IEntityUpdate : IEntityUpdate<EntityData>
+// {
+//     void UpdateEntity(INetEntityM entity);
+// }

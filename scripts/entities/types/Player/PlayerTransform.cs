@@ -10,32 +10,33 @@ using MemoryPack;
 /// </summary>
 [MemoryPackable]
 public readonly partial record struct PlayerTransform(
-    uint EntityID,
+    ulong EntityID,
     Vector3 Position,
     Vector3 Rotation,
     Vector3 GlobalHeadRotation
-) : IEntityUpdate
+) : IEntityUpdate<PlayerEntityData>
 {
-    public readonly MessageType GetMessageType() => MessageType.PlayerTransform;
+    public MessageType MessageType => MessageType.PlayerTransform;
 
-    public readonly void OnClient(ClientManager client) => this.UpdateEntity(client);
+    public void OnClient(ClientManager client) =>
+        this.UpdateClientEntity<PlayerTransform, PlayerEntityData>(client);
 
-    public readonly void OnServer(NetPeer peer, ServerManager server)
+    public void OnServer(NetPeer peer, ServerManager server)
     {
         // Only allow updating transform of entities owned by this user
         if (!peer.OwnsEntity(EntityID))
             return;
 
-        this.UpdateEntity(peer);
+        this.UpdateServerEntity<PlayerTransform, PlayerEntityData>(peer);
     }
 
-    public readonly void UpdateEntity(INetEntity entity)
+    public void UpdateEntity(INetEntity<PlayerEntityData> entity)
     {
         // We don't need to update the pos and rot in the data atm,
         // since we can just update it in the data for all
         // entities when we save/unload the sector
         entity.Position = Position;
         entity.Rotation = Rotation;
-        ((PlayerEntityData)entity.Data).HeadRotation = GlobalHeadRotation;
+        entity.Data.HeadRotation = GlobalHeadRotation;
     }
 }

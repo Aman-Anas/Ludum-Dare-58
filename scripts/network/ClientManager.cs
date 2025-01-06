@@ -23,8 +23,8 @@ public partial class ClientManager : Node, INetEventListener
     public NetPeer ServerLink { get; private set; }
 
     // Replace with a ClientData class for "world" info?
-    public Dictionary<uint, EntityData> EntitiesData { get; set; } = [];
-    public Dictionary<uint, INetEntity> Entities { get; set; } = [];
+    public Dictionary<ulong, EntityData> EntitiesData { get; set; } = [];
+    public Dictionary<ulong, INetEntity> Entities { get; set; } = [];
 
     [Export(PropertyHint.File)]
     string controllablePlayerPath;
@@ -121,9 +121,13 @@ public partial class ClientManager : Node, INetEventListener
         Entities[data.EntityID] = newEntity;
     }
 
-    public void RemoveEntity(uint entityID)
+    public void RemoveEntity(ulong entityID, bool destroy = true)
     {
-        EntitiesData.Remove(entityID);
+        if (EntitiesData.Remove(entityID, out var data) && destroy)
+        {
+            data.OnDestroy();
+        }
+
         if (Entities.Remove(entityID, out var entity))
         {
             var node = entity.GetNode();

@@ -26,7 +26,7 @@ public record PortalNode
     /// <summary>
     /// The target entity should be an IPortalHolder
     /// </summary>
-    public uint TargetEntity { get; set; }
+    public ulong TargetEntity { get; set; }
 
     /// <summary>
     /// The id of the target node in the IPortalHolder's array
@@ -43,7 +43,7 @@ public record PortalNode
 
 public static class PortalHolderExt
 {
-    public static void UsePortal(this IPortalHolder data, byte portalID, uint userEntityID)
+    public static void UsePortal(this IPortalHolder data, byte portalID, ulong userEntityID)
     {
         // Call function to move the entity with ID "userEntityID" to another sector, and copy
         // position + rotation using the PortalNode on the other side

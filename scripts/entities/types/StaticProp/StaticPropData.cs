@@ -5,6 +5,7 @@ using Game.Networking;
 using Godot;
 using MemoryPack;
 
+[GlobalClass]
 [MemoryPackable]
 public partial class StaticPropData : EntityData
 {

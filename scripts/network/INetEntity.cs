@@ -16,10 +16,10 @@ public interface INetEntity
     public Node3D GetNode() => (Node3D)this;
 }
 
-public interface INetEntity<T> : INetEntity
-    where T : EntityData
+public interface INetEntity<out T> : INetEntity
+    where T : IEntityData
 {
-    public new T Data { get; set; }
+    public new T Data { get; }
 }
 
 public static class EntityExtensions
@@ -42,17 +42,17 @@ public static class EntityExtensions
         entity.Data.SendMessage(transformUpdate);
     }
 
-    public static void SendMessage<TData, TMessage>(this TData Data, TMessage message)
+    public static void SendMessage<TData, TMessage>(this TData data, TMessage message)
         where TData : IEntityData
         where TMessage : INetMessage
     {
-        if (Data.CurrentSector == null)
+        if (data.CurrentSector == null)
         {
-            Data.Client.ServerLink.EncodeAndSend(message);
+            data.Client.ServerLink.EncodeAndSend(message);
         }
         else
         {
-            Data.CurrentSector.EchoToSector(message);
+            data.CurrentSector.EchoToSector(message);
         }
     }
 

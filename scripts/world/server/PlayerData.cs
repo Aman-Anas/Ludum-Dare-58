@@ -5,9 +5,20 @@ namespace Game.World.Data;
 // ;
 
 [MemoryPackable]
-public partial record PlayerData(uint CurrentSectorID, uint CurrentEntityID)
+public partial class PlayerData(
+    ulong playerID,
+    string username,
+    uint currentSectorID,
+    ulong currentEntityID,
+    string password
+)
 {
-    // public uint CurrentSectorID { get; set; }
+    public ulong PlayerID { get; init; } = playerID;
+    public string Username { get; init; } = username;
 
-    // public uint CurrentEntityID { get; set; }
+    public uint CurrentSectorID { get; set; } = currentSectorID;
+    public ulong CurrentEntityID { get; set; } = currentEntityID;
+
+    // TODO: Make this more secure with salt hash whatever
+    public string Password { get; set; } = password;
 }

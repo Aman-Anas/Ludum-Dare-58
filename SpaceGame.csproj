@@ -5,16 +5,21 @@
     <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net8.0</TargetFramework>
     <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'ios' ">net8.0</TargetFramework>
     <EnableDynamicLoading>true</EnableDynamicLoading>
-    <!--Enable NativeAOT-->
-    <PublishAot>true</PublishAot>
+
+    <!-- Enable NativeAOT -->
+    <PublishAot>false</PublishAot>
     <IsAotCompatible>true</IsAotCompatible>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TrimMode>partial</TrimMode>
+
+    <!--Add the recommended C# analyzers-->
     <AnalysisMode>Recommended</AnalysisMode>
+
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="LiteNetLib" Version="1.2.0" />
     <PackageReference Include="MemoryPack" Version="1.21.3" />
+    
     <PackageReference Include="MessagePack" Version="2.5.187" />
     <PackageReference Include="MessagePackAnalyzer" Version="2.5.187">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

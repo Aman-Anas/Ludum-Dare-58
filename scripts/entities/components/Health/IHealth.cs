@@ -14,7 +14,7 @@ public interface IHealth : IEntityData
 
 public static class HealthExt
 {
-    public static void UpdateHealth(this IHealth data, int newHealth)
+    public static void SetHealthServer(this IHealth data, int newHealth)
     {
         // If new health would be less than zero, call the action
         if (newHealth <= 0)
@@ -30,6 +30,6 @@ public static class HealthExt
 
     public static void ChangeHealthBy(this IHealth data, int amount)
     {
-        data.UpdateHealth(data.Health + amount);
+        data.SetHealthServer(data.Health + amount);
     }
 }

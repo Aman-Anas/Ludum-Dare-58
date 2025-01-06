@@ -3,7 +3,13 @@ namespace Game.World.Data;
 using LiteNetLib;
 
 // Data to be stored about a player that is live
-public record LivePlayerState(NetPeer Peer, string Username, Sector CurrentSector, PlayerData Data);
+public class LivePlayerState(NetPeer Peer, ulong PlayerID, Sector CurrentSector, PlayerData Data)
+{
+    public NetPeer Peer { get; init; } = Peer;
+    public ulong PlayerID { get; init; } = PlayerID;
+    public Sector CurrentSector { get; set; } = CurrentSector;
+    public PlayerData Data { get; init; } = Data;
+}
 
 public static class PlayerStateExt
 {

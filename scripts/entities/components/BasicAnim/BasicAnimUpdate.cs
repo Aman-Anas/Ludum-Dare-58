@@ -7,23 +7,24 @@ using LiteNetLib;
 using MemoryPack;
 
 [MemoryPackable]
-public readonly partial record struct BasicAnimUpdate(uint EntityID, byte CurrentAnim)
-    : IEntityUpdate
+public readonly partial record struct BasicAnimUpdate(ulong EntityID, byte CurrentAnim)
+    : IEntityUpdate<IBasicAnim>
 {
-    public readonly MessageType GetMessageType() => MessageType.BasicAnimUpdate;
+    public MessageType MessageType => MessageType.BasicAnimUpdate;
 
-    public readonly void OnClient(ClientManager client) => this.UpdateEntity(client);
+    public void OnClient(ClientManager client) =>
+        this.UpdateClientEntity<BasicAnimUpdate, IBasicAnim>(client);
 
-    public readonly void OnServer(NetPeer peer, ServerManager server)
+    public void OnServer(NetPeer peer, ServerManager server)
     {
         if (!peer.OwnsEntity(EntityID))
             return;
 
-        this.UpdateEntity(peer);
+        this.UpdateServerEntity<BasicAnimUpdate, IBasicAnim>(peer);
     }
 
-    public readonly void UpdateEntity(INetEntity entity)
+    public void UpdateEntity(INetEntity<IBasicAnim> entity)
     {
-        ((IBasicAnim)entity.Data).CurrentAnim = CurrentAnim;
+        entity.Data.CurrentAnim = CurrentAnim;
     }
 }

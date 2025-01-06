@@ -33,7 +33,7 @@ public partial class InteractionRay : RayCast3D
 
         if (
             (Time.GetTicksMsec() - lastTerraform) >= TERRAFORM_INTERVAL
-            && collisionObj.GetParent<Node3D>() is Chunk
+            && collisionObj.GetParent<Node>() is Chunk
         )
         {
             float add;

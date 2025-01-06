@@ -7,25 +7,26 @@ using MemoryPack;
 
 [MemoryPackable]
 public readonly partial record struct TransformUpdate(
-    uint EntityID,
+    ulong EntityID,
     Vector3 Position,
     Vector3 Rotation
-) : IEntityUpdate
+) : IEntityUpdate<EntityData>
 {
-    public readonly MessageType GetMessageType() => MessageType.TransformUpdate;
+    public MessageType MessageType => MessageType.TransformUpdate;
 
-    public readonly void OnClient(ClientManager client) => this.UpdateEntity(client);
+    public void OnClient(ClientManager client) =>
+        this.UpdateClientEntity<TransformUpdate, EntityData>(client);
 
-    public readonly void OnServer(NetPeer peer, ServerManager server)
+    public void OnServer(NetPeer peer, ServerManager server)
     {
         // Only allow updating transform of entities owned by this user
         if (!peer.OwnsEntity(EntityID))
             return;
 
-        this.UpdateEntity(peer);
+        this.UpdateServerEntity<TransformUpdate, EntityData>(peer);
     }
 
-    public readonly void UpdateEntity(INetEntity entity)
+    public void UpdateEntity(INetEntity<EntityData> entity)
     {
         // We don't need to update the pos and rot in the data atm,
         // since we can just update it in the data for all

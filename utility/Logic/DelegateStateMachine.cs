@@ -51,17 +51,10 @@ public partial class DelegateStateMachine : RefCounted
         stateFlows?.EnterState?.Invoke();
     }
 
-    private class StateFlow
+    private sealed class StateFlow(State normal, State enterState = null, State leaveState = null)
     {
-        public State Normal { get; }
-        public State EnterState { get; }
-        public State LeaveState { get; }
-
-        public StateFlow(State normal, State enterState = null, State leaveState = null)
-        {
-            Normal = normal;
-            EnterState = enterState;
-            LeaveState = leaveState;
-        }
+        public State Normal { get; } = normal;
+        public State EnterState { get; } = enterState;
+        public State LeaveState { get; } = leaveState;
     }
 }

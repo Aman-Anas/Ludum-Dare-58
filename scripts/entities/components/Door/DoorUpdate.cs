@@ -6,16 +6,19 @@ using LiteNetLib;
 using MemoryPack;
 
 [MemoryPackable]
-public readonly partial record struct DoorUpdate(uint EntityID, bool DoorState) : IEntityUpdate
+public readonly partial record struct DoorUpdate(ulong EntityID, bool DoorState)
+    : IEntityUpdate<IDoor>
 {
-    public readonly MessageType GetMessageType() => MessageType.DoorUpdate;
+    public MessageType MessageType => MessageType.DoorUpdate;
 
-    public readonly void OnClient(ClientManager client) => this.UpdateEntity(client);
+    public void OnClient(ClientManager client) =>
+        this.UpdateClientEntity<DoorUpdate, IDoor>(client);
 
-    public readonly void OnServer(NetPeer peer, ServerManager server) => this.UpdateEntity(peer);
+    public void OnServer(NetPeer peer, ServerManager server) =>
+        this.UpdateServerEntity<DoorUpdate, IDoor>(peer);
 
-    public void UpdateEntity(INetEntity entity)
+    public void UpdateEntity(INetEntity<IDoor> entity)
     {
-        ((IDoor)entity.Data).DoorState = DoorState;
+        entity.Data.DoorState = DoorState;
     }
 }

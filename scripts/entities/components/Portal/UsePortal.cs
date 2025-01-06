@@ -6,19 +6,17 @@ using LiteNetLib;
 using MemoryPack;
 
 [MemoryPackable]
-public readonly partial record struct UsePortal(uint EntityID, byte PortalID) : IEntityUpdate
+public readonly partial record struct UsePortal(ulong EntityID, byte PortalID)
+    : IEntityUpdate<IPortalHolder>
 {
-    public readonly MessageType GetMessageType() => MessageType.UsePortal;
+    public MessageType MessageType => MessageType.UsePortal;
 
-    public readonly void OnClient(ClientManager client) { } // => this.UpdateEntity(client);
+    public void OnClient(ClientManager client) { }
 
-    public readonly void OnServer(NetPeer peer, ServerManager server)
-    {
-        // Maybe we don't want the clients to be able to directly affect other object's health
-        this.UpdateEntity(peer);
-    }
+    public void OnServer(NetPeer peer, ServerManager server) =>
+        this.UpdateServerEntity<UsePortal, IPortalHolder>(peer);
 
-    public readonly void UpdateEntity(INetEntity entity)
+    public void UpdateEntity(INetEntity<IPortalHolder> entity)
     {
         // Set health directly (the update* methods are for emitting this message, so we
         // don't want to call them)

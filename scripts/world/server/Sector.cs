@@ -46,19 +46,19 @@ public partial class Sector
 
     public Dictionary<Vector3I, byte[]> ChunkData { get; set; } = [];
 
-    public SectorParameters Parameters { get; set; } = new();
+    public SectorParameters Parameters { get; set; }
 
-    // Entity data
-    public Dictionary<uint, EntityData> EntitiesData { get; set; } = [];
+    // Entity data TODO: Periodically compress entity IDs
+    public Dictionary<ulong, EntityData> EntitiesData { get; set; } = [];
 
-    public Dictionary<uint, SecretData> EntitySecrets { get; set; } = [];
+    // public Dictionary<ulong, SecretData> EntitySecrets { get; set; } = [];
 
     [MemoryPackIgnore]
-    public Dictionary<uint, INetEntity> Entities { get; set; } = [];
+    public Dictionary<ulong, INetEntity> Entities { get; set; } = [];
 
-    // List of players in area (to broadcast messages to)
+    // Dict of players (playerID -> peer) in area (to broadcast messages to)
     [MemoryPackIgnore]
-    public List<NetPeer> Players { get; set; } = [];
+    public Dictionary<ulong, NetPeer> Players { get; set; } = [];
 
     // Reference to world data, so we can update "global" world things (entity counter, directory)
     [MemoryPackIgnore]
@@ -75,11 +75,39 @@ public partial class Sector
         where T : INetMessage
     {
         var writer = NetMessageUtil.EncodeNetMessage(message);
-        foreach (var player in Players)
+        foreach (var player in Players.Values)
         {
             if (player != ignorePeer)
                 player.Send(writer, method);
         }
+        writer.RecycleWriter();
+    }
+
+    public void EchoToOwners<TData, TMessage>(
+        TData data,
+        TMessage message,
+        DeliveryMethod method = DeliveryMethod.Unreliable
+    )
+        where TData : IEntityData
+        where TMessage : INetMessage
+    {
+        var owners = data.Owners;
+
+        if (data.Owners.Contains(0L))
+        {
+            EchoToSector(message);
+            return;
+        }
+
+        var writer = NetMessageUtil.EncodeNetMessage(message);
+        foreach (var playerID in owners)
+        {
+            if (Players.TryGetValue(playerID, out var player))
+            {
+                player.Send(writer, method);
+            }
+        }
+
         writer.RecycleWriter();
     }
 
@@ -90,12 +118,6 @@ public partial class Sector
         foreach (var data in EntitiesData.Values)
         {
             data.CurrentSector = this;
-
-            // If there is some stored secret data, link it to our entity
-            if (EntitySecrets.TryGetValue(data.EntityID, out var secrets))
-            {
-                data.Secrets = secrets;
-            }
 
             InstanceEntity(data);
         }
@@ -136,32 +158,34 @@ public partial class Sector
 
         // When spawning a new entity, we can use GetSecrets to
         // get the secret data from the entity resource
-        var secrets = data.Secrets;
+        // var secrets = data.Secrets;
 
         // Usually there won't be any secret data, if there is, save it
-        if (secrets != null)
-        {
-            EntitySecrets[data.EntityID] = secrets;
-        }
+        // if (secrets != null)
+        // {
+        //     EntitySecrets[data.EntityID] = secrets;
+        // }
 
         InstanceEntity(data);
 
         EchoToSector(new SpawnEntity(data), DeliveryMethod.ReliableUnordered);
     }
 
-    public void DestroyEntity(uint entityID)
+    public EntityData RemoveEntity(ulong entityID, bool destroy = true)
     {
         // Remove the entity (and its secrets data if it exists)
-        _ = EntitiesData.Remove(entityID);
-        _ = EntitySecrets.Remove(entityID);
+        _ = EntitiesData.Remove(entityID, out var data);
+        // _ = EntitySecrets.Remove(entityID, out var secrets);
 
         // Remove entity if it's instanced
         if (Entities.Remove(entityID, out var entity))
         {
-            EchoToSector(new DestroyEntity(entityID), DeliveryMethod.ReliableUnordered);
+            EchoToSector(new RemoveEntity(entityID, destroy), DeliveryMethod.ReliableUnordered);
             var node = entity.GetNode();
             node.QueueFree();
         }
+
+        return data;
     }
 
     /// <summary>
@@ -197,6 +221,6 @@ public partial class Sector
         var entity = Entities[state.Data.CurrentEntityID];
         entity.Data.Position = entity.Position;
         entity.Data.Rotation = entity.Rotation;
-        Players.Remove(peer);
+        Players.Remove(state.PlayerID);
     }
 }

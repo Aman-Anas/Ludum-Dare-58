@@ -10,12 +10,12 @@ using MemoryPack;
 
 [MemoryPackable]
 public partial record ClientInitializer(
-    uint PlayerEntityID,
-    Dictionary<uint, EntityData> EntitiesData,
+    ulong PlayerEntityID,
+    Dictionary<ulong, EntityData> EntitiesData,
     SectorParameters TerrainParameters
 ) : INetMessage
 {
-    public MessageType GetMessageType() => MessageType.ClientInitializer;
+    public MessageType MessageType => MessageType.ClientInitializer;
 
     public void OnClient(ClientManager client)
     {

@@ -1,7 +1,7 @@
 using System;
 using Godot;
 
-class SDFUtils
+public class SDFUtils
 {
     public static float SdSphere(Vector3 p, float s)
     {

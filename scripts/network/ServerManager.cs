@@ -78,12 +78,11 @@ public partial class ServerManager : Node, INetEventListener
     {
         var loginData = DecodeData<LoginPacket>(request.Data);
         GD.Print("Received request from user ", loginData.Username);
-        bool valid = WorldData.ValidatePlayer(loginData, playerTemplate);
 
-        if (valid)
+        if (WorldData.ValidatePlayer(loginData, playerTemplate, out var playerID))
         {
             var newPeer = request.Accept();
-            var playerData = WorldData.PlayerData[loginData.Username];
+            var playerData = WorldData.PlayerData[playerID];
 
             if (!WorldData.LoadedSectors.ContainsKey(playerData.CurrentSectorID))
             {
@@ -95,11 +94,11 @@ public partial class ServerManager : Node, INetEventListener
             var currentSector = WorldData.LoadedSectors[playerData.CurrentSectorID];
 
             // make a LivePlayerState to provide easy access to the player's current sector etc
-            LivePlayerState state = new(newPeer, loginData.Username, currentSector, playerData);
+            LivePlayerState state = new(newPeer, playerData.PlayerID, currentSector, playerData);
             newPeer.Tag = state;
 
             WorldData.ActivePlayers[loginData.Username] = newPeer;
-            currentSector.Players.Add(newPeer);
+            currentSector.Players.Add(playerID, newPeer);
 
             GD.Print($"Accepted login from user {loginData.Username}");
             newPeer.EncodeAndSend(

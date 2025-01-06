@@ -2,6 +2,7 @@ namespace Game.World.Data;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Game.Entities;
 using Game.Networking;
@@ -15,32 +16,35 @@ using Utilities.Collections;
 [MemoryPackable]
 public partial class ServerData
 {
-    public const string WORLD_DATA_FILE = "world.dat";
-    public const string SECTOR_DIR_NAME = "sectors";
+    public const string WorldDataFile = "world.dat";
+    public const string SectorDirName = "sectors";
 
     // This is used to save/load data for sectors
     [MemoryPackIgnore]
     public string SaveDirectory { get; set; }
 
-    // Store player login data (username -> pword)
-    public Dictionary<string, string> LoginData { get; set; } = [];
+    // ID 0 is kind of a wildcard, e.g. for entity ownership it means all players are owners
+    public ulong PlayerIDCounter { get; set; } = 1;
 
-    // Store general player data (username -> data)
-    public Dictionary<string, PlayerData> PlayerData { get; set; } = [];
+    // Store username to player ID
+    public Dictionary<string, ulong> PlayerIDs { get; set; } = [];
+
+    // Store general player data (playerID -> data)
+    public Dictionary<ulong, PlayerData> PlayerData { get; set; } = [];
 
     // Dynamic store of active (logged in) players
     [MemoryPackIgnore]
     public Dictionary<string, NetPeer> ActivePlayers { get; set; } = [];
 
-    public uint EntityIDCounter { get; set; } = 0;
+    public ulong EntityIDCounter { get; set; }
 
-    public uint SectorIDCounter { get; set; } = 0;
+    public uint SectorIDCounter { get; set; }
 
     // Store metadata about all sector names etc (key is sector ID)
     public Dictionary<uint, SectorMetadata> SectorMetadata { get; set; } = [];
 
     // Map entityID -> the sectorID it's located in
-    public Dictionary<uint, uint> EntityDirectory { get; set; } = [];
+    public Dictionary<ulong, uint> EntityDirectory { get; set; } = [];
 
     // Store objects, chunks, etc for each sector. This should be dynamically loaded from file.
     // Ignore serializing to ensure only loaded areas are in this dict
@@ -76,7 +80,7 @@ public partial class ServerData
     public Sector LoadSector(uint sectorID)
     {
         var loadedSector = DataUtils.LoadData<Sector>(
-            $"{SaveDirectory}/{SECTOR_DIR_NAME}/{sectorID}.dat"
+            $"{SaveDirectory}/{SectorDirName}/{sectorID}.dat"
         );
         loadedSector.WorldData = this;
         loadedSector.ReloadArea(Manager.Instance.GameServer.GetNewSectorViewport());
@@ -86,7 +90,7 @@ public partial class ServerData
 
     public void SaveSector(Sector sector)
     {
-        var sectorDir = $"{SaveDirectory}/{SECTOR_DIR_NAME}";
+        var sectorDir = $"{SaveDirectory}/{SectorDirName}";
 
         if (!DirAccess.DirExistsAbsolute(sectorDir))
         {
@@ -116,7 +120,7 @@ public partial class ServerData
 
     public void SaveServerData()
     {
-        DataUtils.SaveData($"{SaveDirectory}/{WORLD_DATA_FILE}", this);
+        DataUtils.SaveData($"{SaveDirectory}/{WorldDataFile}", this);
 
         // Save all sectors that are currently loaded
         foreach (var sector in LoadedSectors.Values)
@@ -127,42 +131,62 @@ public partial class ServerData
 
     public static ServerData LoadServerData(string directory)
     {
-        var loadedData = DataUtils.LoadData<ServerData>($"{directory}/{WORLD_DATA_FILE}");
+        var loadedData = DataUtils.LoadData<ServerData>($"{directory}/{WorldDataFile}");
         loadedData.SaveDirectory = directory;
         return loadedData;
     }
 
-    public bool ValidatePlayer(LoginPacket loginData, PlayerEntityData playerTemplate)
+    public bool ValidatePlayer(
+        LoginPacket loginData,
+        PlayerEntityData playerTemplate,
+        out ulong playerID
+    )
     {
         if (ActivePlayers.ContainsKey(loginData.Username))
         {
+            playerID = default;
             return false;
         }
 
-        if (LoginData.TryGetValue(loginData.Username, out string actualPword))
+        if (PlayerIDs.TryGetValue(loginData.Username, out var existingID))
         {
-            return loginData.Password == actualPword;
+            playerID = existingID;
+            return loginData.Password == PlayerData[existingID].Password;
         }
         else
         {
             GD.Print("he no exist");
-            GD.Print(LoginData.Count);
-            GD.Print(LoginData);
+            // GD.Print(LoginData.Count);
+            // GD.Print(LoginData);
             // If the username is not in the registry, then let's add it
-            LoginData[loginData.Username] = loginData.Password;
-            var newPlayerData = playerTemplate.CopyFromResource();
-            newPlayerData.Owners.Add(loginData.Username);
+            // PlayerData[loginData.Username] = loginData.Password;
+            var newEntityData = playerTemplate.CopyFromResource();
 
-            LoadedSectors[0].SpawnNewEntity(Vector3.Zero, Vector3.Zero, newPlayerData);
+            LoadedSectors[0].SpawnNewEntity(Vector3.Zero, Vector3.Zero, newEntityData);
 
-            PlayerData[loginData.Username] = new(0, newPlayerData.EntityID);
+            var newPlayerData = new PlayerData(
+                PlayerIDCounter,
+                loginData.Username,
+                0,
+                newEntityData.EntityID,
+                loginData.Password
+            );
+
+            newEntityData.Owners.Add(newPlayerData.PlayerID);
+
+            PlayerData[newPlayerData.PlayerID] = newPlayerData;
+            PlayerIDs[loginData.Username] = newPlayerData.PlayerID;
+            playerID = newPlayerData.PlayerID;
+
+            PlayerIDCounter++;
+
             return true;
         }
     }
 
     public void PlayerDisconnect(NetPeer peer)
     {
-        ActivePlayers.Remove(peer.GetPlayerState().Username);
+        ActivePlayers.Remove(peer.GetPlayerState().Data.Username);
         peer.GetPlayerState().CurrentSector.PlayerDisconnect(peer);
     }
 }

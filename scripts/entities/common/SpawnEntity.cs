@@ -8,7 +8,7 @@ using MemoryPack;
 [MemoryPackable]
 public partial record SpawnEntity(EntityData Data) : INetMessage
 {
-    public MessageType GetMessageType() => MessageType.SpawnEntity;
+    public MessageType MessageType => MessageType.SpawnEntity;
 
     public void OnClient(ClientManager client)
     {

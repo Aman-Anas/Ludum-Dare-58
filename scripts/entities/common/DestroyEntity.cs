@@ -6,17 +6,16 @@ using LiteNetLib;
 using MemoryPack;
 
 [MemoryPackable]
-public readonly partial record struct DestroyEntity(uint EntityID) : INetMessage
+public readonly partial record struct RemoveEntity(ulong EntityID, bool Destroy) : INetMessage
 {
-    public readonly MessageType GetMessageType() => MessageType.DestroyEntity;
+    public MessageType MessageType => MessageType.DestroyEntity;
 
-    public readonly void OnClient(ClientManager client)
+    public void OnClient(ClientManager client)
     {
-        var id = EntityID;
-        client.RemoveEntity(id);
+        client.RemoveEntity(EntityID, Destroy);
     }
 
-    public readonly void OnServer(NetPeer peer, ServerManager server)
+    public void OnServer(NetPeer peer, ServerManager server)
     {
         // Only allow destruction of entities owned by this user
         if (!peer.OwnsEntity(EntityID))
@@ -24,7 +23,6 @@ public readonly partial record struct DestroyEntity(uint EntityID) : INetMessage
 
         var currentSector = peer.GetPlayerState().CurrentSector;
 
-        var id = EntityID;
-        currentSector.DestroyEntity(id);
+        currentSector.RemoveEntity(EntityID, Destroy);
     }
 }
