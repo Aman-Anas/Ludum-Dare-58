@@ -1,6 +1,7 @@
 namespace Game.Entities;
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Game.Networking;
 using Godot;
@@ -8,7 +9,7 @@ using MemoryPack;
 
 [GlobalClass]
 [MemoryPackable]
-public partial class PlayerEntityData : EntityData, IHealth, IBasicAnim
+public partial class PlayerEntityData : EntityData, IHealth, IBasicAnim, IStorageContainer
 {
     [Export]
     public int Health { get; set; }
@@ -29,6 +30,12 @@ public partial class PlayerEntityData : EntityData, IHealth, IBasicAnim
 
     [MemoryPackIgnore]
     public Action HealthDepleted { get; set; }
+
+    /////// Inventory ///////
+    public Dictionary<short, InventoryItem> Inventory { get; set; } = [];
+    public short MaxSlots { get; set; }
+    public (short, short) VisualGridSize { get; set; }
+    public bool AutoPickup { get; set; } = true;
 
     static readonly StringName IdleName = new(nameof(PlayerAnims.Idle));
     static readonly StringName RunningName = new(nameof(PlayerAnims.Run));

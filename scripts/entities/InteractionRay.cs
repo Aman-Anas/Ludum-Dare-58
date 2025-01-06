@@ -37,7 +37,7 @@ public partial class InteractionRay : RayCast3D
         )
         {
             float add;
-            if (Input.IsActionPressed(GameActions.PLAYER_PRIMARY_USE))
+            if (Input.IsActionPressed(GameActions.PlayerPrimaryUse))
             {
                 if ((GetCollisionPoint() - GlobalPosition).LengthSquared() < MIN_DISTANCE_SQ)
                 {
@@ -45,7 +45,7 @@ public partial class InteractionRay : RayCast3D
                 }
                 add = 1;
             }
-            else if (Input.IsActionPressed(GameActions.PLAYER_SECONDARY_USE))
+            else if (Input.IsActionPressed(GameActions.PlayerSecondaryUse))
             {
                 add = -1;
             }

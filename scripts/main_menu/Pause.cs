@@ -52,7 +52,7 @@ public partial class Pause : Control
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta)
     {
-        if (Input.IsActionJustPressed(GameActions.PAUSE_GAME))
+        if (Input.IsActionJustPressed(GameActions.PauseGame))
         {
             if (Visible)
             {

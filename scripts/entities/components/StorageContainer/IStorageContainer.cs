@@ -22,6 +22,11 @@ public interface IStorageContainer : IEntityData
 {
     public Dictionary<short, InventoryItem> Inventory { get; set; }
 
+    /// <summary>
+    /// Whether or not this entity automatically picks up dropped items
+    /// </summary>
+    public bool AutoPickup { get; set; }
+
     public short MaxSlots { get; set; }
 
     public (short, short) VisualGridSize { get; set; }
@@ -59,5 +64,15 @@ public static class StorageExt
         }
 
         nextStore[newIndex] = data;
+
+        storage.UpdateInventory();
+    }
+
+    public static void UpdateInventory(this IStorageContainer container)
+    {
+        container.CurrentSector?.EchoToOwners(
+            container.Owners,
+            new StorageUpdate(container.EntityID, container.Inventory)
+        );
     }
 }

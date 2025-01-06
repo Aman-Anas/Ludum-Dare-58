@@ -83,19 +83,16 @@ public partial class Sector
         writer.RecycleWriter();
     }
 
-    public void EchoToOwners<TData, TMessage>(
-        TData data,
+    public void EchoToOwners<TMessage>(
+        HashSet<ulong> owners,
         TMessage message,
         DeliveryMethod method = DeliveryMethod.Unreliable
     )
-        where TData : IEntityData
         where TMessage : INetMessage
     {
-        var owners = data.Owners;
-
-        if (data.Owners.Contains(0L))
+        if (owners.Contains(0L))
         {
-            EchoToSector(message);
+            EchoToSector(message, method);
             return;
         }
 

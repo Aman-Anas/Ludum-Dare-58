@@ -110,10 +110,10 @@ public partial class SimpleRigidPlayer : RigidBody3D
         Orthonormalize();
 
         var inputVec = Input.GetVector(
-            GameActions.PLAYER_STRAFE_RIGHT,
-            GameActions.PLAYER_STRAFE_LEFT,
-            GameActions.PLAYER_BACKWARD,
-            GameActions.PLAYER_FORWARD
+            GameActions.PlayerStrafeRight,
+            GameActions.PlayerStrafeLeft,
+            GameActions.PlayerBackward,
+            GameActions.PlayerForward
         );
 
         var touchingFloor = false;
@@ -159,12 +159,12 @@ public partial class SimpleRigidPlayer : RigidBody3D
         }
 
         // Dev mode jetpack
-        if (DEV_MODE && Input.IsActionPressed(GameActions.PLAYER_JUMP))
+        if (DEV_MODE && Input.IsActionPressed(GameActions.PlayerJump))
         {
             state.ApplyCentralImpulse(GlobalBasis * Vector3.Up * 0.3f);
         }
 
-        if (Input.IsActionPressed(GameActions.PLAYER_JUMP) && touchingFloor && !justJumped)
+        if (Input.IsActionPressed(GameActions.PlayerJump) && touchingFloor && !justJumped)
         {
             state.ApplyCentralImpulse(GlobalBasis * JUMP_IMPULSE);
             justJumped = true;

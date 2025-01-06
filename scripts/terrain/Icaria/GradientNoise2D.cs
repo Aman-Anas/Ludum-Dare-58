@@ -28,15 +28,15 @@ namespace Game.Terrain.Noise
             // you the value at the remaining 3 corners, which reduces the multiplies per hash by a factor of 3.
             // this behaves poorly at x = 0 or y = 0 so we add a very large constant offset
             // to the x and y coordinates before calculating the hash.
-            ix += Const.Offset;
-            iy += Const.Offset;
-            ix += Const.SeedPrime * seed; // add seed before hashing to propigate its effect
-            int p1 = ix * Const.XPrime1 + iy * Const.YPrime1;
-            int p2 = ix * Const.XPrime2 + iy * Const.YPrime2;
+            ix += IcariaConstants.Offset;
+            iy += IcariaConstants.Offset;
+            ix += IcariaConstants.SeedPrime * seed; // add seed before hashing to propigate its effect
+            int p1 = ix * IcariaConstants.XPrime1 + iy * IcariaConstants.YPrime1;
+            int p2 = ix * IcariaConstants.XPrime2 + iy * IcariaConstants.YPrime2;
             int llHash = p1 * p2;
-            int lrHash = (p1 + Const.XPrime1) * (p2 + Const.XPrime2);
-            int ulHash = (p1 + Const.YPrime1) * (p2 + Const.YPrime2);
-            int urHash = (p1 + Const.XPlusYPrime1) * (p2 + Const.XPlusYPrime2);
+            int lrHash = (p1 + IcariaConstants.XPrime1) * (p2 + IcariaConstants.XPrime2);
+            int ulHash = (p1 + IcariaConstants.YPrime1) * (p2 + IcariaConstants.YPrime2);
+            int urHash = (p1 + IcariaConstants.XPlusYPrime1) * (p2 + IcariaConstants.XPlusYPrime2);
             return InterpolateGradients2D(llHash, lrHash, ulHash, urHash, fx, fy);
         }
 
@@ -48,23 +48,23 @@ namespace Game.Terrain.Noise
             float fx = x - ix;
             float fy = y - iy;
 
-            ix += Const.Offset;
-            iy += Const.Offset;
-            ix += Const.SeedPrime * seed; // add seed before hashing to propigate its effect
-            int p1 = ix * Const.XPrime1 + iy * Const.YPrime1;
-            int p2 = ix * Const.XPrime2 + iy * Const.YPrime2;
+            ix += IcariaConstants.Offset;
+            iy += IcariaConstants.Offset;
+            ix += IcariaConstants.SeedPrime * seed; // add seed before hashing to propigate its effect
+            int p1 = ix * IcariaConstants.XPrime1 + iy * IcariaConstants.YPrime1;
+            int p2 = ix * IcariaConstants.XPrime2 + iy * IcariaConstants.YPrime2;
             int llHash = p1 * p2;
-            int lrHash = (p1 + Const.XPrime1) * (p2 + Const.XPrime2);
-            int ulHash = (p1 + Const.YPrime1) * (p2 + Const.YPrime2);
-            int urHash = (p1 + Const.XPlusYPrime1) * (p2 + Const.XPlusYPrime2);
+            int lrHash = (p1 + IcariaConstants.XPrime1) * (p2 + IcariaConstants.XPrime2);
+            int ulHash = (p1 + IcariaConstants.YPrime1) * (p2 + IcariaConstants.YPrime2);
+            int urHash = (p1 + IcariaConstants.XPlusYPrime1) * (p2 + IcariaConstants.XPlusYPrime2);
 
             x = InterpolateGradients2D(llHash, lrHash, ulHash, urHash, fx, fy);
             // multiplying by a 32-bit value is all you need to reseed already randomized bits.
             y = InterpolateGradients2D(
-                llHash * Const.XPrime1,
-                lrHash * Const.XPrime1,
-                ulHash * Const.XPrime1,
-                urHash * Const.XPrime1,
+                llHash * IcariaConstants.XPrime1,
+                lrHash * IcariaConstants.XPrime1,
+                ulHash * IcariaConstants.XPrime1,
+                urHash * IcariaConstants.XPrime1,
                 fx,
                 fy
             );
@@ -85,7 +85,7 @@ namespace Game.Terrain.Noise
             float fx = x - ix;
             float fy = y - iy;
 
-            seed *= Const.SeedPrime << Const.PeriodShift;
+            seed *= IcariaConstants.SeedPrime << IcariaConstants.PeriodShift;
             ix += seed;
             iy += seed;
 
@@ -101,10 +101,10 @@ namespace Game.Terrain.Noise
             int lower = iy * period.yf;
             int right = left + period.xf;
             int upper = lower + period.yf;
-            left >>= Const.PeriodShift;
-            lower >>= Const.PeriodShift;
-            right >>= Const.PeriodShift;
-            upper >>= Const.PeriodShift;
+            left >>= IcariaConstants.PeriodShift;
+            lower >>= IcariaConstants.PeriodShift;
+            right >>= IcariaConstants.PeriodShift;
+            upper >>= IcariaConstants.PeriodShift;
             int llHash = Hash(left, lower);
             int lrHash = Hash(right, lower);
             int ulHash = Hash(left, upper);
@@ -127,7 +127,7 @@ namespace Game.Terrain.Noise
             float fx = x - ix;
             float fy = y - iy;
 
-            seed *= Const.SeedPrime << Const.PeriodShift;
+            seed *= IcariaConstants.SeedPrime << IcariaConstants.PeriodShift;
             ix += seed;
             iy += seed;
 
@@ -135,10 +135,10 @@ namespace Game.Terrain.Noise
             int lower = iy * period.yf; // lower
             int right = left + period.xf; // right
             int upper = lower + period.yf; // upper
-            left >>= Const.PeriodShift;
-            lower >>= Const.PeriodShift;
-            right >>= Const.PeriodShift;
-            upper >>= Const.PeriodShift;
+            left >>= IcariaConstants.PeriodShift;
+            lower >>= IcariaConstants.PeriodShift;
+            right >>= IcariaConstants.PeriodShift;
+            upper >>= IcariaConstants.PeriodShift;
 
             int llHash = Hash(left, lower);
             int lrHash = Hash(right, lower);
@@ -146,10 +146,10 @@ namespace Game.Terrain.Noise
             int urHash = Hash(right, upper);
             x = InterpolateGradients2D(llHash, lrHash, ulHash, urHash, fx, fy);
             y = InterpolateGradients2D(
-                llHash * Const.XPrime1,
-                lrHash * Const.XPrime1,
-                ulHash * Const.XPrime1,
-                urHash * Const.XPrime1,
+                llHash * IcariaConstants.XPrime1,
+                lrHash * IcariaConstants.XPrime1,
+                ulHash * IcariaConstants.XPrime1,
+                urHash * IcariaConstants.XPrime1,
                 fx,
                 fy
             );
@@ -185,17 +185,17 @@ namespace Game.Terrain.Noise
             // preformance without optimizations enabled.
             int xHash,
                 yHash;
-            xHash = (llHash & Const.GradAndMask) | Const.GradOrMask;
-            yHash = xHash << Const.GradShift1;
+            xHash = (llHash & IcariaConstants.GradAndMask) | IcariaConstants.GradOrMask;
+            yHash = xHash << IcariaConstants.GradShift1;
             float llGrad = fx * *(float*)&xHash + fy * *(float*)&yHash; // dot-product
-            xHash = (lrHash & Const.GradAndMask) | Const.GradOrMask;
-            yHash = xHash << Const.GradShift1;
+            xHash = (lrHash & IcariaConstants.GradAndMask) | IcariaConstants.GradOrMask;
+            yHash = xHash << IcariaConstants.GradShift1;
             float lrGrad = (fx - 1) * *(float*)&xHash + fy * *(float*)&yHash;
-            xHash = (ulHash & Const.GradAndMask) | Const.GradOrMask;
-            yHash = xHash << Const.GradShift1;
+            xHash = (ulHash & IcariaConstants.GradAndMask) | IcariaConstants.GradOrMask;
+            yHash = xHash << IcariaConstants.GradShift1;
             float ulGrad = fx * *(float*)&xHash + (fy - 1) * *(float*)&yHash; // dot-product
-            xHash = (urHash & Const.GradAndMask) | Const.GradOrMask;
-            yHash = xHash << Const.GradShift1;
+            xHash = (urHash & IcariaConstants.GradAndMask) | IcariaConstants.GradOrMask;
+            yHash = xHash << IcariaConstants.GradShift1;
             float urGrad = (fx - 1) * *(float*)&xHash + (fy - 1) * *(float*)&yHash;
             // adjust blending values with the smoothstep function s(x) = x * x * (3 - 2 * x)
             // which gives a result close to x but with a slope of zero at x = 0 and x = 1.
@@ -221,8 +221,8 @@ namespace Game.Terrain.Noise
             // the mask has a second copy of the exponent bits in unsignifigant bits
             // of the mantissa, so bitshifting the masked hash to align the second exponent
             // gives a second random float in the same range as the first.
-            int xHash = (hash & Const.GradAndMask) | Const.GradOrMask;
-            int yHash = xHash << Const.GradShift1;
+            int xHash = (hash & IcariaConstants.GradAndMask) | IcariaConstants.GradOrMask;
+            int yHash = xHash << IcariaConstants.GradShift1;
             return fx * *(float*)&xHash + fy * *(float*)&yHash; // dot-product
         }
 
@@ -240,7 +240,7 @@ namespace Game.Terrain.Noise
             // which is a disaster for hash quality.
             hash += hash >> 5;
             // multiply propigates lower bits to every single bit
-            hash *= Const.XPrime1;
+            hash *= IcariaConstants.XPrime1;
             // xor and add operators are nonlinear relative to eachother, so interleaving like this
             // produces the nonlinearities the hash function needs to avoid visual artifacts.
             // we are bitshifting down to make these nonlinearities occur in low bits so after the final multiply
@@ -249,14 +249,14 @@ namespace Game.Terrain.Noise
             hash += hash >> 2;
             hash ^= hash >> 16;
             // multiply propigates lower bits to every single bit (again)
-            hash *= Const.XPrime2;
+            hash *= IcariaConstants.XPrime2;
             return hash;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static float Lerp(float a, float b, float t) => a + (b - a) * t;
 
-        public static class Const
+        public static class IcariaConstants
         {
             public const int FractalOctaves = 8;
 

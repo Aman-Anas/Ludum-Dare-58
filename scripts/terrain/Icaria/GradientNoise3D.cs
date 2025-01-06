@@ -25,22 +25,29 @@ namespace Game.Terrain.Noise
             float fy = y - iy;
             float fz = z - iz;
 
-            ix += seed * Const.SeedPrime;
+            ix += seed * IcariaConstants.SeedPrime;
 
-            ix += Const.Offset;
-            iy += Const.Offset;
-            iz += Const.Offset;
-            int p1 = ix * Const.XPrime1 + iy * Const.YPrime1 + iz * Const.ZPrime1;
-            int p2 = ix * Const.XPrime2 + iy * Const.YPrime2 + iz * Const.ZPrime2;
+            ix += IcariaConstants.Offset;
+            iy += IcariaConstants.Offset;
+            iz += IcariaConstants.Offset;
+            int p1 =
+                ix * IcariaConstants.XPrime1
+                + iy * IcariaConstants.YPrime1
+                + iz * IcariaConstants.ZPrime1;
+            int p2 =
+                ix * IcariaConstants.XPrime2
+                + iy * IcariaConstants.YPrime2
+                + iz * IcariaConstants.ZPrime2;
             int llHash = p1 * p2;
-            int lrHash = (p1 + Const.XPrime1) * (p2 + Const.XPrime2);
-            int ulHash = (p1 + Const.YPrime1) * (p2 + Const.YPrime2);
-            int urHash = (p1 + Const.XPlusYPrime1) * (p2 + Const.XPlusYPrime2);
+            int lrHash = (p1 + IcariaConstants.XPrime1) * (p2 + IcariaConstants.XPrime2);
+            int ulHash = (p1 + IcariaConstants.YPrime1) * (p2 + IcariaConstants.YPrime2);
+            int urHash = (p1 + IcariaConstants.XPlusYPrime1) * (p2 + IcariaConstants.XPlusYPrime2);
             float zLowBlend = InterpolateGradients3D(llHash, lrHash, ulHash, urHash, fx, fy, fz);
-            llHash = (p1 + Const.ZPrime1) * (p2 + Const.ZPrime2);
-            lrHash = (p1 + Const.XPlusZPrime1) * (p2 + Const.XPlusZPrime2);
-            ulHash = (p1 + Const.YPlusZPrime1) * (p2 + Const.YPlusZPrime2);
-            urHash = (p1 + Const.XPlusYPlusZPrime1) * (p2 + Const.XPlusYPlusZPrime2);
+            llHash = (p1 + IcariaConstants.ZPrime1) * (p2 + IcariaConstants.ZPrime2);
+            lrHash = (p1 + IcariaConstants.XPlusZPrime1) * (p2 + IcariaConstants.XPlusZPrime2);
+            ulHash = (p1 + IcariaConstants.YPlusZPrime1) * (p2 + IcariaConstants.YPlusZPrime2);
+            urHash =
+                (p1 + IcariaConstants.XPlusYPlusZPrime1) * (p2 + IcariaConstants.XPlusYPlusZPrime2);
             float zHighBlend = InterpolateGradients3D(
                 llHash,
                 lrHash,
@@ -66,22 +73,29 @@ namespace Game.Terrain.Noise
             float fy = y - iy;
             float fz = z - iz;
 
-            ix += seed * Const.SeedPrime;
+            ix += seed * IcariaConstants.SeedPrime;
 
-            ix += Const.Offset;
-            iy += Const.Offset;
-            iz += Const.Offset;
-            int p1 = ix * Const.XPrime1 + iy * Const.YPrime1 + iz * Const.ZPrime1;
-            int p2 = ix * Const.XPrime2 + iy * Const.YPrime2 + iz * Const.ZPrime2;
+            ix += IcariaConstants.Offset;
+            iy += IcariaConstants.Offset;
+            iz += IcariaConstants.Offset;
+            int p1 =
+                ix * IcariaConstants.XPrime1
+                + iy * IcariaConstants.YPrime1
+                + iz * IcariaConstants.ZPrime1;
+            int p2 =
+                ix * IcariaConstants.XPrime2
+                + iy * IcariaConstants.YPrime2
+                + iz * IcariaConstants.ZPrime2;
             int llHash = p1 * p2;
-            int lrHash = (p1 + Const.XPrime1) * (p2 + Const.XPrime2);
-            int ulHash = (p1 + Const.YPrime1) * (p2 + Const.YPrime2);
-            int urHash = (p1 + Const.XPlusYPrime1) * (p2 + Const.XPlusYPrime2);
+            int lrHash = (p1 + IcariaConstants.XPrime1) * (p2 + IcariaConstants.XPrime2);
+            int ulHash = (p1 + IcariaConstants.YPrime1) * (p2 + IcariaConstants.YPrime2);
+            int urHash = (p1 + IcariaConstants.XPlusYPrime1) * (p2 + IcariaConstants.XPlusYPrime2);
             float zLowBlend = InterpolateGradients3D(llHash, lrHash, ulHash, urHash, fx, fy, fz);
-            llHash = (p1 + Const.ZPrime1) * (p2 + Const.ZPrime2);
-            lrHash = (p1 + Const.XPlusZPrime1) * (p2 + Const.XPlusZPrime2);
-            ulHash = (p1 + Const.YPlusZPrime1) * (p2 + Const.YPlusZPrime2);
-            urHash = (p1 + Const.XPlusYPlusZPrime1) * (p2 + Const.XPlusYPlusZPrime2);
+            llHash = (p1 + IcariaConstants.ZPrime1) * (p2 + IcariaConstants.ZPrime2);
+            lrHash = (p1 + IcariaConstants.XPlusZPrime1) * (p2 + IcariaConstants.XPlusZPrime2);
+            ulHash = (p1 + IcariaConstants.YPlusZPrime1) * (p2 + IcariaConstants.YPlusZPrime2);
+            urHash =
+                (p1 + IcariaConstants.XPlusYPlusZPrime1) * (p2 + IcariaConstants.XPlusYPlusZPrime2);
             float zHighBlend = InterpolateGradients3D(
                 llHash,
                 lrHash,
@@ -110,21 +124,21 @@ namespace Game.Terrain.Noise
             int xHash,
                 yHash,
                 zHash;
-            xHash = (llHash & Const.GradAndMask) | Const.GradOrMask;
-            yHash = xHash << Const.GradShift1;
-            zHash = xHash << Const.GradShift2;
+            xHash = (llHash & IcariaConstants.GradAndMask) | IcariaConstants.GradOrMask;
+            yHash = xHash << IcariaConstants.GradShift1;
+            zHash = xHash << IcariaConstants.GradShift2;
             float llGrad = fx * *(float*)&xHash + fy * *(float*)&yHash + fz * *(float*)&zHash; // dot-product
-            xHash = (lrHash & Const.GradAndMask) | Const.GradOrMask;
-            yHash = xHash << Const.GradShift1;
-            zHash = xHash << Const.GradShift2;
+            xHash = (lrHash & IcariaConstants.GradAndMask) | IcariaConstants.GradOrMask;
+            yHash = xHash << IcariaConstants.GradShift1;
+            zHash = xHash << IcariaConstants.GradShift2;
             float lrGrad = (fx - 1) * *(float*)&xHash + fy * *(float*)&yHash + fz * *(float*)&zHash;
-            xHash = (ulHash & Const.GradAndMask) | Const.GradOrMask;
-            yHash = xHash << Const.GradShift1;
-            zHash = xHash << Const.GradShift2;
+            xHash = (ulHash & IcariaConstants.GradAndMask) | IcariaConstants.GradOrMask;
+            yHash = xHash << IcariaConstants.GradShift1;
+            zHash = xHash << IcariaConstants.GradShift2;
             float ulGrad = fx * *(float*)&xHash + (fy - 1) * *(float*)&yHash + fz * *(float*)&zHash; // dot-product
-            xHash = (urHash & Const.GradAndMask) | Const.GradOrMask;
-            yHash = xHash << Const.GradShift1;
-            zHash = xHash << Const.GradShift2;
+            xHash = (urHash & IcariaConstants.GradAndMask) | IcariaConstants.GradOrMask;
+            yHash = xHash << IcariaConstants.GradShift1;
+            zHash = xHash << IcariaConstants.GradShift2;
             float urGrad =
                 (fx - 1) * *(float*)&xHash + (fy - 1) * *(float*)&yHash + fz * *(float*)&zHash;
             float sx = fx * fx * (3 - 2 * fx);

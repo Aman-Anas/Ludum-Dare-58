@@ -15,16 +15,16 @@ namespace Game.Terrain.Noise
             float fx = x - ix;
             float fy = y - iy;
 
-            ix += seed * Const.SeedPrime;
+            ix += seed * IcariaConstants.SeedPrime;
 
-            int cx = ix * Const.XPrime1;
-            int rx = (cx + Const.XPrime1) >> Const.PeriodShift;
-            int lx = (cx - Const.XPrime1) >> Const.PeriodShift;
-            cx >>= Const.PeriodShift;
-            int cy = iy * Const.YPrime1;
-            int uy = (cy + Const.YPrime1) >> Const.PeriodShift;
-            int ly = (cy - Const.YPrime1) >> Const.PeriodShift;
-            cy >>= Const.PeriodShift;
+            int cx = ix * IcariaConstants.XPrime1;
+            int rx = (cx + IcariaConstants.XPrime1) >> IcariaConstants.PeriodShift;
+            int lx = (cx - IcariaConstants.XPrime1) >> IcariaConstants.PeriodShift;
+            cx >>= IcariaConstants.PeriodShift;
+            int cy = iy * IcariaConstants.YPrime1;
+            int uy = (cy + IcariaConstants.YPrime1) >> IcariaConstants.PeriodShift;
+            int ly = (cy - IcariaConstants.YPrime1) >> IcariaConstants.PeriodShift;
+            cy >>= IcariaConstants.PeriodShift;
 
             return SearchNeighborhood(
                 fx,
@@ -55,19 +55,19 @@ namespace Game.Terrain.Noise
             float fx = x - ix;
             float fy = y - iy;
 
-            ix += seed * Const.SeedPrime;
+            ix += seed * IcariaConstants.SeedPrime;
 
             // r: right c: center l: left/lower u: upper
             // worley uses 3x3 as supposed to gradient using 2x2
             int cx = ix * period.xf;
-            int rx = (cx + period.xf) >> Const.PeriodShift;
-            int lx = (cx - period.xf) >> Const.PeriodShift;
-            cx >>= Const.PeriodShift;
+            int rx = (cx + period.xf) >> IcariaConstants.PeriodShift;
+            int lx = (cx - period.xf) >> IcariaConstants.PeriodShift;
+            cx >>= IcariaConstants.PeriodShift;
 
             int cy = iy * period.yf;
-            int uy = (cy + period.yf) >> Const.PeriodShift;
-            int ly = (cy - period.yf) >> Const.PeriodShift;
-            cy >>= Const.PeriodShift;
+            int uy = (cy + period.yf) >> IcariaConstants.PeriodShift;
+            int ly = (cy - period.yf) >> IcariaConstants.PeriodShift;
+            cy >>= IcariaConstants.PeriodShift;
 
             return SearchNeighborhood(
                 fx,
@@ -117,7 +117,7 @@ namespace Game.Terrain.Noise
             // the WorleyAndMask and WorleyOrMask set the sign bit to zero so the number is poitive and
             // set the exponent to 1 so that the value is between 1 and 2. This is why the offsets to fx / fy
             // range from 0 to 2 instead of -1 to 1.
-            xHash = (llh & Const.WorleyAndMask) | Const.WorleyOrMask;
+            xHash = (llh & IcariaConstants.WorleyAndMask) | IcariaConstants.WorleyOrMask;
             yHash = xHash << 13;
             dx = fx - *(float*)&xHash + 2f;
             dy = fy - *(float*)&yHash;
@@ -128,7 +128,7 @@ namespace Game.Terrain.Noise
             d0 = d0 < d1 ? d0 : d1;
             d1 = temp;
 
-            xHash = (lch & Const.WorleyAndMask) | Const.WorleyOrMask;
+            xHash = (lch & IcariaConstants.WorleyAndMask) | IcariaConstants.WorleyOrMask;
             yHash = xHash << 13;
             dx = fx - *(float*)&xHash + 1f;
             dy = fy - *(float*)&yHash;
@@ -139,7 +139,7 @@ namespace Game.Terrain.Noise
             d0 = d0 < d1 ? d0 : d1; // min
             d1 = temp;
 
-            xHash = (lrh & Const.WorleyAndMask) | Const.WorleyOrMask;
+            xHash = (lrh & IcariaConstants.WorleyAndMask) | IcariaConstants.WorleyOrMask;
             yHash = xHash << 13;
             dx = fx - *(float*)&xHash + 0f;
             dy = fy - *(float*)&yHash;
@@ -153,7 +153,7 @@ namespace Game.Terrain.Noise
             fy -= 1f;
 
             // middle row
-            xHash = (clh & Const.WorleyAndMask) | Const.WorleyOrMask;
+            xHash = (clh & IcariaConstants.WorleyAndMask) | IcariaConstants.WorleyOrMask;
             yHash = xHash << 13;
             dx = fx - *(float*)&xHash + 2f;
             dy = fy - *(float*)&yHash;
@@ -164,7 +164,7 @@ namespace Game.Terrain.Noise
             d0 = d0 < d1 ? d0 : d1;
             d1 = temp;
 
-            xHash = (cch & Const.WorleyAndMask) | Const.WorleyOrMask;
+            xHash = (cch & IcariaConstants.WorleyAndMask) | IcariaConstants.WorleyOrMask;
             yHash = xHash << 13;
             dx = fx - *(float*)&xHash + 1f;
             dy = fy - *(float*)&yHash;
@@ -175,7 +175,7 @@ namespace Game.Terrain.Noise
             d0 = d0 < d1 ? d0 : d1; // min
             d1 = temp;
 
-            xHash = (crh & Const.WorleyAndMask) | Const.WorleyOrMask;
+            xHash = (crh & IcariaConstants.WorleyAndMask) | IcariaConstants.WorleyOrMask;
             yHash = xHash << 13;
             dx = fx - *(float*)&xHash + 0f;
             dy = fy - *(float*)&yHash;
@@ -189,7 +189,7 @@ namespace Game.Terrain.Noise
             fy -= 1f;
 
             // top row
-            xHash = (ulh & Const.WorleyAndMask) | Const.WorleyOrMask;
+            xHash = (ulh & IcariaConstants.WorleyAndMask) | IcariaConstants.WorleyOrMask;
             yHash = xHash << 13;
             dx = fx - *(float*)&xHash + 2f;
             dy = fy - *(float*)&yHash;
@@ -200,7 +200,7 @@ namespace Game.Terrain.Noise
             d0 = d0 < d1 ? d0 : d1;
             d1 = temp;
 
-            xHash = (uch & Const.WorleyAndMask) | Const.WorleyOrMask;
+            xHash = (uch & IcariaConstants.WorleyAndMask) | IcariaConstants.WorleyOrMask;
             yHash = xHash << 13;
             dx = fx - *(float*)&xHash + 1f;
             dy = fy - *(float*)&yHash;
@@ -211,7 +211,7 @@ namespace Game.Terrain.Noise
             d0 = d0 < d1 ? d0 : d1; // min
             d1 = temp;
 
-            xHash = (urh & Const.WorleyAndMask) | Const.WorleyOrMask;
+            xHash = (urh & IcariaConstants.WorleyAndMask) | IcariaConstants.WorleyOrMask;
             yHash = xHash << 13;
             dx = fx - *(float*)&xHash + 0f;
             dy = fy - *(float*)&yHash;
@@ -226,29 +226,27 @@ namespace Game.Terrain.Noise
             d0 = MathF.Sqrt(d0);
             d1 = MathF.Sqrt(d1);
 
-            r = ((r * Const.ZPrime1) & Const.PortionAndMask) | Const.PortionOrMask;
+            r =
+                ((r * IcariaConstants.ZPrime1) & IcariaConstants.PortionAndMask)
+                | IcariaConstants.PortionOrMask;
             float rFloat = *(float*)&r - 1f;
             return new CellularResults(d0, d1, rFloat);
         }
     }
 
+#pragma warning disable CA1051
     /// <summary>The results of a Cellular Noise evaluation. </summary>
-    public readonly struct CellularResults
+    public readonly struct CellularResults(float d0, float d1, float r)
     {
         /// <summary> The distance to the closest cell center.</summary>
-        public readonly float d0;
+
+        public readonly float d0 = d0;
 
         /// <summary> The distance to the second-closest cell center.</summary>
-        public readonly float d1;
+        public readonly float d1 = d1;
 
         /// <summary> A random 0 - 1 value for each cell. </summary>
-        public readonly float r;
-
-        public CellularResults(float d0, float d1, float r)
-        {
-            this.d0 = d0;
-            this.d1 = d1;
-            this.r = r;
-        }
+        public readonly float r = r;
     }
+#pragma warning restore CA1051
 }

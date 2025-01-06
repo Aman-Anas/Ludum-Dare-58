@@ -88,7 +88,7 @@ public partial class Chunk : MeshInstance3D
 
         if (RecalcNormals)
         {
-            RecalculateNormals();
+            // RecalculateNormals();
         }
         CreateMesh();
 

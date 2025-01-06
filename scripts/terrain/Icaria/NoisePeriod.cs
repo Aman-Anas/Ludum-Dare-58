@@ -36,7 +36,7 @@ namespace Game.Terrain.Noise
         }
 
         public bool IsNull => xf == 0;
-        public static readonly NoisePeriod Null = default;
+        public static readonly NoisePeriod Null;
         internal const int ByteSize = 16;
     }
 }

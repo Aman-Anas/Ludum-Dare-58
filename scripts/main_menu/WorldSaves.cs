@@ -9,28 +9,28 @@ namespace Game.Setup;
 
 public static class WorldSaves
 {
-    public const string WORLD_SAVE_PATH = "user://worlds/";
-    const string WORLD_META_FILE = "worldmeta.dat";
+    public const string WorldSavePath = "user://worlds/";
+    const string WorldMetaFile = "worldmeta.dat";
 
     public static List<(string, WorldMetadata)> GetWorldList()
     {
         // Make the worlds folder if it doesnt exist
-        if (!DirAccess.DirExistsAbsolute(WORLD_SAVE_PATH))
+        if (!DirAccess.DirExistsAbsolute(WorldSavePath))
         {
-            DirAccess.MakeDirRecursiveAbsolute(WORLD_SAVE_PATH);
+            DirAccess.MakeDirRecursiveAbsolute(WorldSavePath);
         }
 
         var newList = new List<(string, WorldMetadata)>();
-        foreach (string worldName in DirAccess.GetDirectoriesAt(WORLD_SAVE_PATH))
+        foreach (string worldName in DirAccess.GetDirectoriesAt(WorldSavePath))
         {
             var worldDir = DirAccess.Open(GetSaveDir(worldName));
-            if (worldDir.FileExists(WORLD_META_FILE))
+            if (worldDir.FileExists(WorldMetaFile))
             {
                 newList.Add(
                     (
                         worldName,
                         DataUtils.LoadData<WorldMetadata>(
-                            $"{GetSaveDir(worldName)}/{WORLD_META_FILE}"
+                            $"{GetSaveDir(worldName)}/{WorldMetaFile}"
                         )
                     )
                 );
@@ -43,7 +43,7 @@ public static class WorldSaves
     public static void MakeNewWorld(string name)
     {
         var dirPath = GetSaveDir(name);
-        var metaPath = $"{dirPath}/{WORLD_META_FILE}";
+        var metaPath = $"{dirPath}/{WorldMetaFile}";
         if (!FileAccess.FileExists(metaPath))
         {
             // If the metadata file doesn't exist, let's make some world metadata
@@ -67,7 +67,7 @@ public static class WorldSaves
 
     static string GetSaveDir(string saveName)
     {
-        return $"{WORLD_SAVE_PATH}/{saveName}";
+        return $"{WorldSavePath}/{saveName}";
     }
 
     public static ServerData LoadWorld(string saveName)
