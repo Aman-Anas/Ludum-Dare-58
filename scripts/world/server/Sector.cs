@@ -134,9 +134,14 @@ public partial class Sector
             if (child is INetEntity entity)
             {
                 GD.Print("entity", child);
-                SpawnNewEntity(position + entity.Position, rotation + entity.Rotation, entity.Data);
+                SpawnNewEntity(
+                    position + entity.Position,
+                    rotation + entity.Rotation,
+                    entity.Data.CopyFromResource()
+                );
             }
         }
+        instance.QueueFree();
     }
 
     public void SpawnNewEntity<T>(Vector3 position, Vector3 rotation, T data)
@@ -168,7 +173,7 @@ public partial class Sector
         EchoToSector(new SpawnEntity(data), DeliveryMethod.ReliableUnordered);
     }
 
-    public EntityData RemoveEntity(ulong entityID, bool destroy = true)
+    public EntityData RemoveEntity(ulong entityID)
     {
         // Remove the entity (and its secrets data if it exists)
         _ = EntitiesData.Remove(entityID, out var data);
@@ -177,7 +182,7 @@ public partial class Sector
         // Remove entity if it's instanced
         if (Entities.Remove(entityID, out var entity))
         {
-            EchoToSector(new RemoveEntity(entityID, destroy), DeliveryMethod.ReliableUnordered);
+            EchoToSector(new RemoveEntity(entityID), DeliveryMethod.ReliableUnordered);
             var node = entity.GetNode();
             node.QueueFree();
         }

@@ -29,7 +29,7 @@ public interface IStorageContainer : IEntityData
 
     public short MaxSlots { get; set; }
 
-    public (short, short) VisualGridSize { get; set; }
+    public Action OnInventoryUpdate { get; set; }
 }
 
 public static class StorageExt
@@ -39,7 +39,7 @@ public static class StorageExt
         return index >= 0 && index < storage.MaxSlots;
     }
 
-    public static void MoveItem(
+    public static void MoveItemServer(
         this IStorageContainer storage,
         IStorageContainer next,
         short prevIndex,
@@ -66,6 +66,21 @@ public static class StorageExt
         nextStore[newIndex] = data;
 
         storage.UpdateInventory();
+        if (storage != next)
+        {
+            next.UpdateInventory();
+        }
+    }
+
+    public static void MoveItemClient(
+        this IStorageContainer storage,
+        IStorageContainer next,
+        short prevIndex,
+        short newIndex
+    )
+    {
+        // GD.Print("hi", prevIndex, newIndex);
+        storage.SendMessage(new StorageMove(storage.EntityID, next.EntityID, prevIndex, newIndex));
     }
 
     public static void UpdateInventory(this IStorageContainer container)

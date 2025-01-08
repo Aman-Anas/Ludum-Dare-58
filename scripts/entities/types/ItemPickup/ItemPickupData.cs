@@ -7,8 +7,25 @@ using Godot;
 using MemoryPack;
 
 [MemoryPackable]
+[GlobalClass]
 public partial class ItemPickupData : EntityData
 {
     // Data, count
-    public List<(EntityData, int)> Items { get; set; }
+    public Queue<(EntityData, int)> Items { get; set; } = [];
+
+    [Export]
+    [MemoryPackIgnore]
+    public Godot.Collections.Array<int> Counts { get; set; }
+
+    [Export]
+    [MemoryPackIgnore]
+    public Godot.Collections.Array<EntityData> Datalist { get; set; }
+
+    public override void OnResourceCopy()
+    {
+        for (int x = 0; x < Datalist.Count; x++)
+        {
+            Items.Enqueue((Datalist[x], Counts[x]));
+        }
+    }
 }

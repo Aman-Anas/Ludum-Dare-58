@@ -1,15 +1,16 @@
-[gd_scene load_steps=7 format=3 uid="uid://bi664ndmrw5pa"]
+[gd_scene load_steps=8 format=3 uid="uid://bi664ndmrw5pa"]
 
 [ext_resource type="PackedScene" uid="uid://c4j2ttclugxdy" path="res://assets/objects/player/player_hitbox.blend" id="1_e2kkv"]
 [ext_resource type="Script" path="res://scripts/entities/types/Player/ControllablePlayer.cs" id="2_uu2p5"]
 [ext_resource type="Script" path="res://utility/Node/PhysicsSmoother.cs" id="3_ug5jb"]
 [ext_resource type="PackedScene" uid="uid://bcbqu4symo7ux" path="res://assets/objects/player/player_rig_default.blend" id="4_qnhgm"]
 [ext_resource type="Script" path="res://scripts/entities/InteractionRay.cs" id="5_6q3ja"]
+[ext_resource type="PackedScene" uid="uid://3mh05ycxlbvq" path="res://scenes/entities/Player/Inventory.tscn" id="6_k0eot"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_lt2x0"]
 friction = 0.0
 
-[node name="ControllablePlayer" node_paths=PackedStringArray("floorSensors", "yawTarget", "pitchTarget", "headMesh", "mouseLookRotationTarget", "animPlayer") instance=ExtResource("1_e2kkv")]
+[node name="ControllablePlayer" node_paths=PackedStringArray("floorSensors", "yawTarget", "pitchTarget", "headMesh", "mouseLookRotationTarget", "animPlayer", "inventoryUI") instance=ExtResource("1_e2kkv")]
 collision_layer = 2
 collision_mask = 3
 physics_material_override = SubResource("PhysicsMaterial_lt2x0")
@@ -21,6 +22,10 @@ pitchTarget = NodePath("CameraYawTarget/CameraPitchTarget")
 headMesh = NodePath("PhysicsSmoother/player_rig_default/PlayerHead")
 mouseLookRotationTarget = NodePath("MouseLookRotationTarget")
 animPlayer = NodePath("PhysicsSmoother/player_rig_default/AnimationPlayer")
+inventoryUI = NodePath("Inventory")
+
+[node name="CollisionShape3D" parent="." index="0"]
+visible = false
 
 [node name="PhysicsSmoother" type="Node3D" parent="." index="1" node_paths=PackedStringArray("target")]
 script = ExtResource("3_ug5jb")
@@ -168,6 +173,7 @@ near = 0.02
 
 [node name="RayCast3D" type="RayCast3D" parent="CameraYawTarget/CameraPitchTarget/MainPlayerCamera" index="0"]
 transform = Transform3D(-1, 8.13152e-19, 1.50996e-07, 1.76183e-19, 1, 9.66338e-13, -1.50996e-07, 0, -1, 0, 0, 0)
+visible = false
 target_position = Vector3(0, 0, 30)
 script = ExtResource("5_6q3ja")
 
@@ -183,5 +189,7 @@ update_scale = false
 
 [node name="MouseLookRotationTarget" type="Node3D" parent="." index="5"]
 transform = Transform3D(1, -2.91323e-13, 2.38419e-07, 1.7053e-13, 1, 5.0664e-07, -2.38419e-07, -5.06639e-07, 1, 0, 0, 0)
+
+[node name="Inventory" parent="." index="6" instance=ExtResource("6_k0eot")]
 
 [editable path="PhysicsSmoother/player_rig_default"]

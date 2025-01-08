@@ -3,6 +3,7 @@ namespace Game.Entities;
 using System;
 using System.Collections.Generic;
 using Game.Networking;
+using Godot;
 using LiteNetLib;
 using MemoryPack;
 
@@ -23,11 +24,11 @@ public readonly partial record struct StorageMove(
         if (
             peer.OwnsEntity(SourceEntityID)
             && peer.OwnsEntity(DestEntityID)
-            && (peer.GetLocalEntity(SourceEntityID) is IStorageContainer store1)
-            && (peer.GetLocalEntity(DestEntityID) is IStorageContainer store2)
+            && (peer.GetLocalEntity(SourceEntityID) is INetEntity<IStorageContainer> store1)
+            && (peer.GetLocalEntity(DestEntityID) is INetEntity<IStorageContainer> store2)
         )
         {
-            store1.MoveItem(store2, PrevIndex, NewIndex);
+            store1.Data.MoveItemServer(store2.Data, PrevIndex, NewIndex);
         }
     }
 }
@@ -48,5 +49,6 @@ public partial record StorageUpdate(ulong EntityID, Dictionary<short, InventoryI
     public void UpdateEntity(INetEntity<IStorageContainer> entity)
     {
         entity.Data.Inventory = Inventory;
+        entity.Data.OnInventoryUpdate.Invoke();
     }
 }

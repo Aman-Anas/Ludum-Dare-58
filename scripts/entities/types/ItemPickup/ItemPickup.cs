@@ -5,8 +5,10 @@ using Game.Networking;
 using Godot;
 using MemoryPack;
 
+[GlobalClass]
 public partial class ItemPickup : Area3D, INetEntity<ItemPickupData>
 {
+    [Export]
     public ItemPickupData Data { get; set; }
 
     EntityData INetEntity.Data
@@ -17,7 +19,7 @@ public partial class ItemPickup : Area3D, INetEntity<ItemPickupData>
 
     public override void _Ready()
     {
-        BodyEntered += TriggerPickup;
+        AreaEntered += TriggerPickup;
     }
 
     private void TriggerPickup(Node3D body)
@@ -27,15 +29,24 @@ public partial class ItemPickup : Area3D, INetEntity<ItemPickupData>
             // On server
             if (Data.CurrentSector != null)
             {
-                foreach (var (item, count) in Data.Items)
+                while (Data.Items.TryDequeue(out (EntityData item, int count) val))
                 {
-                    ((IStorable)item).StoreItem(entity.Data, count);
+                    if (!((IStorable)val.item).StoreItem(entity.Data, val.count))
+                    {
+                        // early exit since we failed to store an item
+                        entity.Data.UpdateInventory();
+                        return;
+                    }
                 }
 
                 entity.Data.UpdateInventory();
+                Data.DestroyEntity();
             }
-
-            Data.DestroyEntity();
         }
+    }
+
+    public override void _Process(double delta)
+    {
+        Rotation = new(0, Rotation.Y + (float)(delta * 3), 0);
     }
 }

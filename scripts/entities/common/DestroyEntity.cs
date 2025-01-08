@@ -6,13 +6,13 @@ using LiteNetLib;
 using MemoryPack;
 
 [MemoryPackable]
-public readonly partial record struct RemoveEntity(ulong EntityID, bool Destroy) : INetMessage
+public readonly partial record struct RemoveEntity(ulong EntityID) : INetMessage
 {
     public MessageType MessageType => MessageType.DestroyEntity;
 
     public void OnClient(ClientManager client)
     {
-        client.RemoveEntity(EntityID, Destroy);
+        client.RemoveEntity(EntityID);
     }
 
     public void OnServer(NetPeer peer, ServerManager server)
@@ -23,6 +23,6 @@ public readonly partial record struct RemoveEntity(ulong EntityID, bool Destroy)
 
         var currentSector = peer.GetPlayerState().CurrentSector;
 
-        currentSector.RemoveEntity(EntityID, Destroy);
+        currentSector.RemoveEntity(EntityID);
     }
 }

@@ -33,9 +33,11 @@ public partial class PlayerEntityData : EntityData, IHealth, IBasicAnim, IStorag
 
     /////// Inventory ///////
     public Dictionary<short, InventoryItem> Inventory { get; set; } = [];
-    public short MaxSlots { get; set; }
-    public (short, short) VisualGridSize { get; set; }
+    public short MaxSlots { get; set; } = InventoryUI.NumSlots;
     public bool AutoPickup { get; set; } = true;
+
+    [MemoryPackIgnore]
+    public Action OnInventoryUpdate { get; set; }
 
     static readonly StringName IdleName = new(nameof(PlayerAnims.Idle));
     static readonly StringName RunningName = new(nameof(PlayerAnims.Run));

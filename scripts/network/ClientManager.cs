@@ -95,7 +95,13 @@ public partial class ClientManager : Node, INetEventListener
 
     public void OnPeerConnected(NetPeer peer) { }
 
-    public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo) { }
+    public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
+    {
+        if (ServerLink.ConnectionState != ConnectionState.Connected)
+        {
+            Manager.Instance.ExitToTitle();
+        }
+    }
 
     public void OnNetworkError(IPEndPoint endPoint, SocketError socketError) { }
 
@@ -121,12 +127,9 @@ public partial class ClientManager : Node, INetEventListener
         Entities[data.EntityID] = newEntity;
     }
 
-    public void RemoveEntity(ulong entityID, bool destroy = true)
+    public void RemoveEntity(ulong entityID)
     {
-        if (EntitiesData.Remove(entityID, out var data) && destroy)
-        {
-            data.OnDestroy();
-        }
+        _ = EntitiesData.Remove(entityID, out _);
 
         if (Entities.Remove(entityID, out var entity))
         {

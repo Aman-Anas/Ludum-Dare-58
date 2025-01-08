@@ -24,6 +24,8 @@ public interface IEntityData
 [MemoryPackUnion(1, typeof(PhysicsProjectileData))]
 [MemoryPackUnion(2, typeof(StaticPropData))]
 [MemoryPackUnion(3, typeof(PlayerEntityData))]
+[MemoryPackUnion(4, typeof(ItemPickupData))]
+[MemoryPackUnion(5, typeof(BurgerData))]
 [MemoryPackable]
 public abstract partial class EntityData : MemoryPackableResource, IEntityData
 {
@@ -61,7 +63,6 @@ public abstract partial class EntityData : MemoryPackableResource, IEntityData
     /// Set of all usernames allowed to mess with this entity. Used for client packet validation
     /// (so you can't just move around whatever entity you want)
     /// </summary>
-    [MemoryPackIgnore]
     public HashSet<ulong> Owners { get; set; } = [];
 
     // For secrets, use these two flags to avoid unneeded serialization

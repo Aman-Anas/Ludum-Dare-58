@@ -162,6 +162,10 @@ public partial class Manager : Node
             GameServer.Stop();
         }
         GetTree().Paused = false;
+
+        // Free the mouse if it was captured
+        Input.MouseMode = Input.MouseModeEnum.Visible;
+
         GetTree().ChangeSceneToPacked(titleScene);
     }
 

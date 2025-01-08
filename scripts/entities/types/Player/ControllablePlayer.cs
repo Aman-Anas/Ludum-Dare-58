@@ -61,11 +61,24 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
     [Export]
     AnimationPlayer animPlayer;
 
+    [Export]
+    InventoryUI inventoryUI;
+
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
         // Need this to capture the mouse of course
         Input.MouseMode = Input.MouseModeEnum.Captured;
+
+        inventoryUI.Hide();
+        inventoryUI.UpdateInventorySlots(Data.Inventory);
+
+        inventoryUI.TryInventoryMove += (src, dst) =>
+        {
+            Data.MoveItemClient(Data, src, dst);
+        };
+
+        Data.OnInventoryUpdate += () => inventoryUI.UpdateInventorySlots(Data.Inventory);
 
         animPlayer.CurrentAnimationChanged += (_) => Data.UpdateAnim();
     }
@@ -86,6 +99,20 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
     {
         RunAnimations();
         UpdateHeadOrientation();
+
+        if (Input.IsActionJustPressed(GameActions.ToggleInventory))
+        {
+            inventoryUI.Visible = !inventoryUI.Visible;
+
+            if (inventoryUI.Visible)
+            {
+                Input.MouseMode = Input.MouseModeEnum.Visible;
+            }
+            else
+            {
+                Input.MouseMode = Input.MouseModeEnum.Captured;
+            }
+        }
     }
 
     void UpdateHeadOrientation()

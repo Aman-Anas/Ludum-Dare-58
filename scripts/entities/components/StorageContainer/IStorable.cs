@@ -13,19 +13,14 @@ public interface IStorable : IEntityData
     public string StackName { get; set; }
     public bool Stackable { get; set; }
     public int MaxStack { get; set; }
+
+    public string IconPath { get; set; }
 }
 
 public static class StorableExt
 {
-    public static void StoreItem(this IStorable storable, IStorageContainer storage, int count)
+    public static bool StoreItem(this IStorable storable, IStorageContainer storage, int count)
     {
-        if (storage.CurrentSector.SectorID != storable.CurrentSector.SectorID)
-        {
-            GD.PrintErr(
-                $"Tried to store {storable.EntityID} in {storage.EntityID} but not in the same sector"
-            );
-        }
-
         // if there's a stack let's add it in
         if (storable.Stackable)
         {
@@ -35,7 +30,7 @@ public static class StorableExt
                 if (existingStore.Stackable && (storable.StackName == existingStore.StackName))
                 {
                     existing.StackSize += count;
-                    return;
+                    return true;
                 }
             }
         }
@@ -43,18 +38,25 @@ public static class StorableExt
         if (storage.Inventory.Count >= storage.MaxSlots)
         {
             // there be no space
-            return;
+            return false;
         }
 
-        var data = storable.CurrentSector.RemoveEntity(storable.EntityID);
+        // Now that we know there's at least one empty slot, let's put our storable in
+        _ = storable.CurrentSector?.RemoveEntity(storable.EntityID);
 
-        for (short x = 0; x < storage.Inventory.Count; x++)
+        var data = (EntityData)storable;
+
+        for (short x = 0; x < storage.MaxSlots; x++)
         {
+            GD.Print(x);
             if (!storage.Inventory.ContainsKey(x))
             {
                 storage.Inventory[x] = new(data, count);
-                break;
+                return true;
             }
         }
+
+        // Should never get here
+        return false;
     }
 }

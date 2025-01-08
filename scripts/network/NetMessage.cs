@@ -35,13 +35,12 @@ public enum MessageType : ushort
     HealthUpdate,
     DoorUpdate,
     BasicAnimUpdate,
+    StorageMove,
+    StorageUpdate,
 
     // Custom transform update for players
     PlayerTransform,
     UsePortal,
-
-    StorageMove,
-    StorageUpdate,
 }
 
 public static class NetMessageUtil
@@ -76,6 +75,7 @@ public static class NetMessageUtil
             case MessageType.SpawnEntity:
                 ProcessNetMessage<SpawnEntity>(reader, peer, server, client);
                 break;
+
             case MessageType.HealthUpdate:
                 ProcessNetMessage<HealthUpdate>(reader, peer, server, client);
                 break;
@@ -85,6 +85,13 @@ public static class NetMessageUtil
             case MessageType.BasicAnimUpdate:
                 ProcessNetMessage<BasicAnimUpdate>(reader, peer, server, client);
                 break;
+            case MessageType.StorageMove:
+                ProcessNetMessage<StorageMove>(reader, peer, server, client);
+                break;
+            case MessageType.StorageUpdate:
+                ProcessNetMessage<StorageUpdate>(reader, peer, server, client);
+                break;
+
             case MessageType.PlayerTransform:
                 ProcessNetMessage<PlayerTransform>(reader, peer, server, client);
                 break;

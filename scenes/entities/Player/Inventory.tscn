@@ -1,0 +1,272 @@
+[gd_scene load_steps=8 format=3 uid="uid://3mh05ycxlbvq"]
+
+[ext_resource type="Texture2D" uid="uid://b5mp2n4ia3mvl" path="res://addons/kenney_prototype_textures/dark/texture_02.png" id="1_5bj41"]
+[ext_resource type="PackedScene" uid="uid://c4wr3wkrywvu7" path="res://scenes/entities/Player/InventoryButton.tscn" id="1_i812k"]
+[ext_resource type="Script" path="res://scripts/entities/types/Player/InventoryUI.cs" id="1_mqm7s"]
+[ext_resource type="Texture2D" uid="uid://bocguvlifg3ue" path="res://addons/kenney_prototype_textures/orange/texture_10.png" id="3_der75"]
+[ext_resource type="Texture2D" uid="uid://c8i6rh3ndeyhb" path="res://addons/kenney_prototype_textures/purple/texture_10.png" id="3_ipbl5"]
+[ext_resource type="Texture2D" uid="uid://dilgtflwmel2d" path="res://addons/kenney_prototype_textures/light/texture_08.png" id="5_fun7a"]
+[ext_resource type="Texture2D" uid="uid://deguimhbtkris" path="res://addons/kenney_prototype_textures/green/texture_10.png" id="5_srb73"]
+
+[node name="Inventory" type="Control" node_paths=PackedStringArray("hotbarRoot", "mainGridRoot")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_mqm7s")
+buttonTemplate = ExtResource("1_i812k")
+hotbarRoot = NodePath("PanelContainer/MarginContainer/VBoxContainer/HotbarRoot")
+mainGridRoot = NodePath("PanelContainer/MarginContainer/VBoxContainer/MainGrid")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -293.0
+offset_top = -238.0
+offset_right = 293.0
+offset_bottom = 238.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect" type="TextureRect" parent="PanelContainer"]
+layout_mode = 2
+texture = ExtResource("1_5bj41")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="MainGrid" type="GridContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 0
+theme_override_constants/v_separation = 0
+columns = 9
+
+[node name="Button" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+tooltip_text = "Bean"
+
+[node name="Button2" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button3" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button4" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button5" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button6" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button7" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button8" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button9" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button10" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button11" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button12" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+icon = ExtResource("3_der75")
+
+[node name="Button13" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button15" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button16" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button17" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button18" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button19" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button14" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button20" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button21" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button22" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button23" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+icon = null
+
+[node name="Button24" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button25" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button26" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button27" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button28" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button29" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button30" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button31" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+icon = null
+
+[node name="Button32" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button33" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+icon = ExtResource("3_ipbl5")
+
+[node name="Button34" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+icon = ExtResource("5_fun7a")
+
+[node name="Button35" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+icon = ExtResource("5_fun7a")
+
+[node name="Button36" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button37" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button38" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button39" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button40" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button41" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button42" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+icon = ExtResource("5_srb73")
+
+[node name="Button43" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+icon = ExtResource("5_srb73")
+
+[node name="Button44" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button45" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button46" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button47" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button48" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button49" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button50" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button51" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button52" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+icon = null
+
+[node name="Button53" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+icon = null
+
+[node name="Button54" parent="PanelContainer/MarginContainer/VBoxContainer/MainGrid" instance=ExtResource("1_i812k")]
+layout_mode = 2
+icon = null
+
+[node name="HotbarRoot" type="GridContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 0
+theme_override_constants/v_separation = 0
+columns = 9
+
+[node name="Button" parent="PanelContainer/MarginContainer/VBoxContainer/HotbarRoot" instance=ExtResource("1_i812k")]
+layout_mode = 2
+tooltip_text = "Bean"
+
+[node name="Button2" parent="PanelContainer/MarginContainer/VBoxContainer/HotbarRoot" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button3" parent="PanelContainer/MarginContainer/VBoxContainer/HotbarRoot" instance=ExtResource("1_i812k")]
+layout_mode = 2
+icon = ExtResource("5_fun7a")
+
+[node name="Button4" parent="PanelContainer/MarginContainer/VBoxContainer/HotbarRoot" instance=ExtResource("1_i812k")]
+layout_mode = 2
+icon = null
+
+[node name="Button5" parent="PanelContainer/MarginContainer/VBoxContainer/HotbarRoot" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button6" parent="PanelContainer/MarginContainer/VBoxContainer/HotbarRoot" instance=ExtResource("1_i812k")]
+layout_mode = 2
+
+[node name="Button7" parent="PanelContainer/MarginContainer/VBoxContainer/HotbarRoot" instance=ExtResource("1_i812k")]
+layout_mode = 2
+icon = null
+
+[node name="Button8" parent="PanelContainer/MarginContainer/VBoxContainer/HotbarRoot" instance=ExtResource("1_i812k")]
+layout_mode = 2
+icon = null
+
+[node name="Button9" parent="PanelContainer/MarginContainer/VBoxContainer/HotbarRoot" instance=ExtResource("1_i812k")]
+layout_mode = 2
