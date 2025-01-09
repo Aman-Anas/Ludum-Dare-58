@@ -195,6 +195,8 @@ public partial class Sector
     /// </summary>
     void InstanceEntity(EntityData data)
     {
+        data.InSaveState = false;
+
         var newInstance = data.SpawnInstance(true);
         SectorSceneRoot.AddChild(newInstance.GetNode());
 
@@ -205,6 +207,7 @@ public partial class Sector
     {
         foreach (var entity in Entities.Values)
         {
+            entity.Data.InSaveState = true;
             entity.Data.Position = entity.Position;
             entity.Data.Rotation = entity.Rotation;
             entity.Data.CurrentSector = null;
@@ -213,6 +216,20 @@ public partial class Sector
         }
         SectorSceneRoot.QueueFree();
         SectorSceneRoot = null;
+    }
+
+    public void PlayerConnect(NetPeer peer)
+    {
+        var playerData = peer.GetPlayerState().Data;
+
+        peer.EncodeAndSend(
+            new ClientInitializer(playerData.CurrentEntityID, EntitiesData, Parameters),
+            DeliveryMethod.ReliableUnordered
+        );
+        foreach (var data in EntitiesData.Values)
+        {
+            data.OnPlayerJoin(peer);
+        }
     }
 
     public void PlayerDisconnect(NetPeer peer)

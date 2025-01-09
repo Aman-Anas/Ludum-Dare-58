@@ -61,7 +61,7 @@ public partial class Pause : Control
             else
             {
                 // TODO: Make this actually pause only when in singleplayer mode
-                // GetTree().Paused = true;
+                GetTree().Paused = true;
                 Show();
                 prevMouseMode = Input.MouseMode;
                 Input.MouseMode = Input.MouseModeEnum.Visible;

@@ -25,7 +25,7 @@ public partial class InventoryUI : Control
     [Export]
     GridContainer mainGridRoot;
 
-    public Action<short, short> TryInventoryMove { get; set; }
+    public Action<(short src, short dest, uint count)> TryInventoryMove { get; set; }
 
     public override void _Ready()
     {
@@ -50,10 +50,10 @@ public partial class InventoryUI : Control
             newSquare.StackCountLabel.Text = "";
 
             buttons[x] = newSquare;
-            newSquare.TryMoved += (src, dest) =>
+            newSquare.TryMoved += ((short src, short dest, uint count) moveCmd) =>
             {
-                TryInventoryMove?.Invoke(src, dest);
-                GD.Print($"tried to move {src} to {dest}");
+                TryInventoryMove?.Invoke((moveCmd.src, moveCmd.dest, moveCmd.count));
+                // GD.Print($"tried to move {src} to {dest}");
             };
 
             if (x < NumHotbarSlots)
@@ -76,12 +76,29 @@ public partial class InventoryUI : Control
             if (items.TryGetValue(x, out var item))
             {
                 square.Icon = GD.Load<Texture2D>(item.StorableInterface.IconPath);
-                square.StackCountLabel.Text = item.StackSize == 1 ? "" : $"{item.StackSize}";
+                square.StackNum = item.StackSize;
             }
             else
             {
                 square.Icon = null;
                 square.StackCountLabel.Text = "";
+            }
+        }
+    }
+
+    public override void _Process(double delta)
+    {
+        if (Input.IsActionJustPressed(GameActions.ToggleInventory))
+        {
+            Visible = !Visible;
+
+            if (Visible)
+            {
+                Input.MouseMode = Input.MouseModeEnum.Visible;
+            }
+            else
+            {
+                Input.MouseMode = Input.MouseModeEnum.Captured;
             }
         }
     }

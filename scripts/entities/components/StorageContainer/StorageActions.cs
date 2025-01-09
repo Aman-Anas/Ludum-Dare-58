@@ -2,20 +2,29 @@ namespace Game.Entities;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Game.Networking;
 using Godot;
 using LiteNetLib;
 using MemoryPack;
 
+// public enum StorageActionTypes : byte
+// {
+//     Move,
+//     Split,
+//     Merge
+// }
+
 [MemoryPackable]
-public readonly partial record struct StorageMove(
+public readonly partial record struct StorageAction(
     ulong SourceEntityID,
     ulong DestEntityID,
     short PrevIndex,
-    short NewIndex
+    short NewIndex,
+    uint Count
 ) : INetMessage
 {
-    public MessageType MessageType => MessageType.StorageMove;
+    public MessageType MessageType => MessageType.StorageAction;
 
     public void OnClient(ClientManager client) { }
 
@@ -28,7 +37,25 @@ public readonly partial record struct StorageMove(
             && (peer.GetLocalEntity(DestEntityID) is INetEntity<IStorageContainer> store2)
         )
         {
-            store1.Data.MoveItemServer(store2.Data, PrevIndex, NewIndex);
+            store1.Data.ExecuteStorageAction(store2.Data, PrevIndex, NewIndex, Count);
+
+            if (store1.Data == store2.Data)
+            {
+                // If this is within the same entity
+                store1.Data.UpdateClientInventory();
+            }
+            else
+            {
+                // Otherwise we need to send an update to all owners of each entity
+                var owners = new HashSet<ulong>();
+                owners.UnionWith(store1.Data.Owners);
+                owners.UnionWith(store2.Data.Owners);
+                store1.Data.CurrentSector.EchoToOwners(
+                    owners,
+                    new StorageUpdate(SourceEntityID, store1.Data.Inventory),
+                    DeliveryMethod.ReliableSequenced
+                );
+            }
         }
     }
 }
@@ -49,6 +76,6 @@ public partial record StorageUpdate(ulong EntityID, Dictionary<short, InventoryI
     public void UpdateEntity(INetEntity<IStorageContainer> entity)
     {
         entity.Data.Inventory = Inventory;
-        entity.Data.OnInventoryUpdate.Invoke();
+        entity.Data.OnInventoryUpdate?.Invoke();
     }
 }

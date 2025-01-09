@@ -3,5 +3,6 @@
 [ext_resource type="Script" path="res://scripts/network/ClientManager.cs" id="1_djrja"]
 
 [node name="Client" type="Node3D"]
+process_mode = 3
 script = ExtResource("1_djrja")
 controllablePlayerPath = "res://scenes/entities/Player/ControllablePlayer.tscn"

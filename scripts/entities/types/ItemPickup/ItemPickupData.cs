@@ -11,11 +11,11 @@ using MemoryPack;
 public partial class ItemPickupData : EntityData
 {
     // Data, count
-    public Queue<(EntityData, int)> Items { get; set; } = [];
+    public Queue<(EntityData, uint)> Items { get; set; } = [];
 
     [Export]
     [MemoryPackIgnore]
-    public Godot.Collections.Array<int> Counts { get; set; }
+    public Godot.Collections.Array<uint> Counts { get; set; }
 
     [Export]
     [MemoryPackIgnore]

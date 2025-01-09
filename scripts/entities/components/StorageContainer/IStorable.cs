@@ -19,7 +19,7 @@ public interface IStorable : IEntityData
 
 public static class StorableExt
 {
-    public static bool StoreItem(this IStorable storable, IStorageContainer storage, int count)
+    public static bool StoreItem(this IStorable storable, IStorageContainer storage, uint count)
     {
         // if there's a stack let's add it in
         if (storable.Stackable)

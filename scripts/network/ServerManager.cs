@@ -101,14 +101,8 @@ public partial class ServerManager : Node, INetEventListener
             currentSector.Players.Add(playerID, newPeer);
 
             GD.Print($"Accepted login from user {loginData.Username}");
-            newPeer.EncodeAndSend(
-                new ClientInitializer(
-                    playerData.CurrentEntityID,
-                    currentSector.EntitiesData,
-                    currentSector.Parameters
-                ),
-                DeliveryMethod.ReliableUnordered
-            );
+
+            currentSector.PlayerConnect(newPeer);
         }
         else
         {

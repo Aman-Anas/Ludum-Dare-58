@@ -8,14 +8,21 @@ using LiteNetLib;
 using MemoryPack;
 
 [MemoryPackable]
-public partial class InventoryItem(EntityData storable, int stackSize)
+public partial class InventoryItem(EntityData storable, uint stackSize)
 {
     public EntityData Storable { get; set; } = storable;
 
-    public int StackSize { get; set; } = stackSize;
+    public uint StackSize { get; set; } = stackSize;
 
     [MemoryPackIgnore]
     public IStorable StorableInterface => (IStorable)Storable;
+
+    public bool CanStore(IStorable other, uint count)
+    {
+        return StorableInterface.Stackable
+            && ((StackSize + count) <= StorableInterface.MaxStack)
+            && (other.StackName == StorableInterface.StackName);
+    }
 };
 
 public interface IStorageContainer : IEntityData
@@ -39,55 +46,89 @@ public static class StorageExt
         return index >= 0 && index < storage.MaxSlots;
     }
 
-    public static void MoveItemServer(
+    public static void UpdateClientInventory(this IStorageContainer storage)
+    {
+        storage.SendToOwners(
+            new StorageUpdate(storage.EntityID, storage.Inventory),
+            DeliveryMethod.ReliableOrdered
+        );
+    }
+
+    public static void ExecuteStorageAction(
         this IStorageContainer storage,
         IStorageContainer next,
         short prevIndex,
-        short newIndex
+        short newIndex,
+        uint count
     )
     {
-        if (!(storage.ValidateIndex(prevIndex) && storage.ValidateIndex(newIndex)))
+        if (!(storage.ValidateIndex(prevIndex) && next.ValidateIndex(newIndex)))
         {
             return;
         }
 
         var nextStore = next.Inventory;
-        if (nextStore.ContainsKey(newIndex))
-        {
-            return;
-        }
-
         var current = storage.Inventory;
-        if (!current.Remove(prevIndex, out var data))
+
+        if (!current.TryGetValue(prevIndex, out var srcData))
+        {
+            return;
+        }
+        if ((count > srcData.StackSize) || (count <= 0))
         {
             return;
         }
 
-        nextStore[newIndex] = data;
+        bool nextSlotEmpty = !nextStore.TryGetValue(newIndex, out var nextData);
 
-        storage.UpdateInventory();
-        if (storage != next)
+        // First check if these can stack
+        if ((!nextSlotEmpty) && nextData.CanStore(srcData.StorableInterface, count))
         {
-            next.UpdateInventory();
+            if (count == srcData.StackSize)
+            {
+                _ = current.Remove(prevIndex);
+            }
+            else
+            {
+                current[prevIndex].StackSize -= count;
+            }
+            nextData.StackSize += count;
         }
-    }
+        else
+        {
+            // If we're moving all items then swap the data (if anything in next)
+            if (count == srcData.StackSize)
+            {
+                nextStore[newIndex] = srcData;
 
-    public static void MoveItemClient(
-        this IStorageContainer storage,
-        IStorageContainer next,
-        short prevIndex,
-        short newIndex
-    )
-    {
-        // GD.Print("hi", prevIndex, newIndex);
-        storage.SendMessage(new StorageMove(storage.EntityID, next.EntityID, prevIndex, newIndex));
-    }
+                if (!nextSlotEmpty)
+                    current[prevIndex] = nextData;
+                else
+                {
+                    _ = current.Remove(prevIndex);
+                }
+            }
+            // Otherwise we just move some amount to our new slot
+            else if (nextSlotEmpty)
+            {
+                current[prevIndex].StackSize -= count;
+                nextStore[newIndex] = new(srcData.Storable.CopyFromResource(), count);
+            }
+            else
+            {
+                return;
+            }
+        }
 
-    public static void UpdateInventory(this IStorageContainer container)
-    {
-        container.CurrentSector?.EchoToOwners(
-            container.Owners,
-            new StorageUpdate(container.EntityID, container.Inventory)
+        storage.OnInventoryUpdate?.Invoke();
+
+        if (storage != next)
+            next.OnInventoryUpdate?.Invoke();
+
+        // If this is a client, send a message to the server
+        storage.Client?.ServerLink.EncodeAndSend(
+            new StorageAction(storage.EntityID, next.EntityID, prevIndex, newIndex, count),
+            DeliveryMethod.ReliableOrdered
         );
     }
 }

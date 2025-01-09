@@ -23,7 +23,7 @@ public partial class ClientManager : Node, INetEventListener
     public NetPeer ServerLink { get; private set; }
 
     // Replace with a ClientData class for "world" info?
-    public Dictionary<ulong, EntityData> EntitiesData { get; set; } = [];
+
     public Dictionary<ulong, INetEntity> Entities { get; set; } = [];
 
     [Export(PropertyHint.File)]
@@ -70,9 +70,9 @@ public partial class ClientManager : Node, INetEventListener
         NetClient.Stop();
 
         // Destroy all the currently loaded entities
-        foreach (var data in EntitiesData.Values)
+        foreach (var entity in Entities.Values)
         {
-            data.DestroyEntity();
+            entity.Data.DestroyEntity();
         }
     }
 
@@ -99,7 +99,7 @@ public partial class ClientManager : Node, INetEventListener
     {
         if (ServerLink.ConnectionState != ConnectionState.Connected)
         {
-            Manager.Instance.ExitToTitle();
+            Manager.Instance.ExitToTitle(); // Calls Stop()
         }
     }
 
@@ -129,8 +129,6 @@ public partial class ClientManager : Node, INetEventListener
 
     public void RemoveEntity(ulong entityID)
     {
-        _ = EntitiesData.Remove(entityID, out _);
-
         if (Entities.Remove(entityID, out var entity))
         {
             var node = entity.GetNode();
@@ -146,16 +144,13 @@ public partial class ClientManager : Node, INetEventListener
         // Clear out all old entities.
         // TODO: Maybe call a method to cleanup terrain stuff
 
-        foreach (var entityData in EntitiesData.Values)
+        foreach (var entity in Entities.Values)
         {
-            entityData.DestroyEntity();
+            entity.Data.DestroyEntity();
         }
 
-        // Store the new entity data
-        EntitiesData = initData.EntitiesData;
-
         // Spawn in all the entities from our new data set
-        foreach (var entityData in EntitiesData.Values)
+        foreach (var entityData in initData.EntitiesData.Values)
         {
             if (entityData.EntityID == initData.PlayerEntityID)
             {

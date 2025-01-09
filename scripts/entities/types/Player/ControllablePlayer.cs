@@ -73,9 +73,9 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
         inventoryUI.Hide();
         inventoryUI.UpdateInventorySlots(Data.Inventory);
 
-        inventoryUI.TryInventoryMove += (src, dst) =>
+        inventoryUI.TryInventoryMove += ((short src, short dest, uint count) moveCmd) =>
         {
-            Data.MoveItemClient(Data, src, dst);
+            Data.ExecuteStorageAction(Data, moveCmd.src, moveCmd.dest, moveCmd.count);
         };
 
         Data.OnInventoryUpdate += () => inventoryUI.UpdateInventorySlots(Data.Inventory);
@@ -99,20 +99,6 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
     {
         RunAnimations();
         UpdateHeadOrientation();
-
-        if (Input.IsActionJustPressed(GameActions.ToggleInventory))
-        {
-            inventoryUI.Visible = !inventoryUI.Visible;
-
-            if (inventoryUI.Visible)
-            {
-                Input.MouseMode = Input.MouseModeEnum.Visible;
-            }
-            else
-            {
-                Input.MouseMode = Input.MouseModeEnum.Captured;
-            }
-        }
     }
 
     void UpdateHeadOrientation()

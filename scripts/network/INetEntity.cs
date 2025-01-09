@@ -13,6 +13,7 @@ public interface INetEntity
     public Vector3 Position { get; set; }
     public Vector3 Rotation { get; set; }
     public EntityData Data { get; set; }
+
     public Node3D GetNode() => (Node3D)this;
 }
 
@@ -42,18 +43,33 @@ public static class EntityExtensions
         entity.Data.SendMessage(transformUpdate);
     }
 
-    public static void SendMessage<TData, TMessage>(this TData data, TMessage message)
+    public static void SendMessage<TData, TMessage>(
+        this TData data,
+        TMessage message,
+        DeliveryMethod method = DeliveryMethod.Unreliable
+    )
         where TData : IEntityData
         where TMessage : INetMessage
     {
         if (data.CurrentSector == null)
         {
-            data.Client.ServerLink.EncodeAndSend(message);
+            data.Client.ServerLink.EncodeAndSend(message, method);
         }
         else
         {
-            data.CurrentSector.EchoToSector(message);
+            data.CurrentSector.EchoToSector(message, method);
         }
+    }
+
+    public static void SendToOwners<TData, TMessage>(
+        this TData data,
+        TMessage message,
+        DeliveryMethod method = DeliveryMethod.Unreliable
+    )
+        where TData : IEntityData
+        where TMessage : INetMessage
+    {
+        data.CurrentSector.EchoToOwners(data.Owners, message, method);
     }
 
     /// <summary>

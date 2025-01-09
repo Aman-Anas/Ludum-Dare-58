@@ -29,17 +29,17 @@ public partial class ItemPickup : Area3D, INetEntity<ItemPickupData>
             // On server
             if (Data.CurrentSector != null)
             {
-                while (Data.Items.TryDequeue(out (EntityData item, int count) val))
+                while (Data.Items.TryDequeue(out (EntityData item, uint count) val))
                 {
                     if (!((IStorable)val.item).StoreItem(entity.Data, val.count))
                     {
                         // early exit since we failed to store an item
-                        entity.Data.UpdateInventory();
+                        entity.Data.UpdateClientInventory();
                         return;
                     }
                 }
 
-                entity.Data.UpdateInventory();
+                entity.Data.UpdateClientInventory();
                 Data.DestroyEntity();
             }
         }

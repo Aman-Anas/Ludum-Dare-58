@@ -59,6 +59,8 @@ public abstract partial class EntityData : MemoryPackableResource, IEntityData
     [MemoryPackIgnore]
     public ClientManager Client { get; set; } // Only accessible on client
 
+    public bool InSaveState { get; set; }
+
     /// <summary>
     /// Set of all usernames allowed to mess with this entity. Used for client packet validation
     /// (so you can't just move around whatever entity you want)

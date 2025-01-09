@@ -1,10 +1,13 @@
 namespace Game.Entities;
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using Game.Networking;
 using Godot;
+using LiteNetLib;
 using MemoryPack;
 
 [GlobalClass]
@@ -32,7 +35,36 @@ public partial class PlayerEntityData : EntityData, IHealth, IBasicAnim, IStorag
     public Action HealthDepleted { get; set; }
 
     /////// Inventory ///////
+    [MemoryPackIgnore]
     public Dictionary<short, InventoryItem> Inventory { get; set; } = [];
+
+    [MemoryPackOnSerialized]
+    static void Saving<TBufferWriter>(
+        ref MemoryPackWriter<TBufferWriter> writer,
+        ref PlayerEntityData value
+    )
+        where TBufferWriter : IBufferWriter<byte>
+    {
+        if (value.InSaveState)
+            writer.WriteValue(value.Inventory);
+    }
+
+    [MemoryPackOnDeserialized]
+    static void Loading(ref MemoryPackReader reader, ref PlayerEntityData value)
+    {
+        if (value.InSaveState)
+            value.Inventory = reader.ReadValue<Dictionary<short, InventoryItem>>();
+    }
+
+    public override void OnPlayerJoin(NetPeer peer)
+    {
+        if (peer.OwnsEntity(EntityID))
+        {
+            var update = new StorageUpdate(EntityID, Inventory);
+            peer.EncodeAndSend(update, DeliveryMethod.ReliableOrdered);
+        }
+    }
+
     public short MaxSlots { get; set; } = InventoryUI.NumSlots;
     public bool AutoPickup { get; set; } = true;
 
