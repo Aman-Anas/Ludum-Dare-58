@@ -1,7 +1,6 @@
 namespace Game.Entities;
 
 using System;
-using System.Globalization;
 using Godot;
 
 public partial class InventoryButton : Button
@@ -28,54 +27,36 @@ public partial class InventoryButton : Button
 
     public override void _GuiInput(InputEvent @event)
     {
+        if (Icon == null)
+        {
+            return;
+        }
+
         if (
             @event is InputEventMouseButton btn
             && btn.Pressed
             && btn.ButtonIndex == MouseButton.Right
         )
         {
-            if (Icon == null)
+            uint amount = Input.IsActionPressed(GameActions.InventorySplit) ? 1 : _stackNum / 2;
+
+            if (((_stackNum - amount) < 0) || (amount == 0))
             {
                 return;
             }
 
-            if ((_stackNum / 2) < 1)
-            {
-                return;
-            }
-
-            var preview = new TextureRect
-            {
-                Texture = Icon,
-                CustomMinimumSize = this.CustomMinimumSize * PreviewScale,
-                ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize
-            };
-
-            var label = new Label()
-            {
-                Text = $"{_stackNum / 2}",
-                HorizontalAlignment = HorizontalAlignment.Right,
-            };
-
-            preview.AddChild(label);
-            label.SetAnchorsAndOffsetsPreset(LayoutPreset.BottomRight);
+            var preview = GetPreview(amount);
 
             Disabled = true;
-            StackCountLabel.Text = $"{_stackNum - (_stackNum / 2)}";
+            StackCountLabel.Text = (_stackNum - amount) <= 1 ? "" : $"{_stackNum - amount}";
 
-            StackCountLabel.Visible = true;
-
-            ForceDrag(new long[] { ButtonIndex, 0, _stackNum / 2 }, preview);
+            // src, dest, count
+            ForceDrag(new long[] { ButtonIndex, 0, amount }, preview);
         }
     }
 
-    public override Variant _GetDragData(Vector2 atPosition)
+    TextureRect GetPreview(uint amount)
     {
-        if (Icon == null)
-        {
-            return default;
-        }
-
         var preview = new TextureRect
         {
             Texture = Icon,
@@ -85,20 +66,39 @@ public partial class InventoryButton : Button
 
         var label = new Label()
         {
-            Text = StackCountLabel.Text,
+            Text = (amount == 1) ? "" : $"{amount}",
             HorizontalAlignment = HorizontalAlignment.Right,
         };
 
         preview.AddChild(label);
         label.SetAnchorsAndOffsetsPreset(LayoutPreset.BottomRight);
 
+        return preview;
+    }
+
+    public override Variant _GetDragData(Vector2 atPosition)
+    {
+        if (Icon == null)
+        {
+            return default;
+        }
+
+        uint amount = _stackNum;
+
+        if (((_stackNum - amount) < 0) || (amount == 0))
+        {
+            return default;
+        }
+
+        var preview = GetPreview(amount);
+
         Disabled = true;
-        StackCountLabel.Visible = false;
+        StackCountLabel.Text = (_stackNum - amount) <= 1 ? "" : $"{_stackNum - amount}";
 
         SetDragPreview(preview);
 
         // src, dest, count
-        return new long[] { ButtonIndex, 0, _stackNum };
+        return new long[] { ButtonIndex, 0, amount };
     }
 
     public override void _Notification(int what)
@@ -106,7 +106,6 @@ public partial class InventoryButton : Button
         if (what == NotificationDragEnd)
         {
             Disabled = false;
-            StackCountLabel.Visible = true;
 
             if (Icon != null)
                 StackCountLabel.Text = _stackNum == 1 ? "" : $"{_stackNum}";

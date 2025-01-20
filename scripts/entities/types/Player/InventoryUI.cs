@@ -7,6 +7,7 @@ using Godot;
 // Player inventory GUI
 public partial class InventoryUI : Control
 {
+    // 9 wide rows
     public const short NumSlots = (6 + 1) * 9;
 
     public const short NumHotbarSlots = 9;
@@ -72,6 +73,7 @@ public partial class InventoryUI : Control
         for (short x = 0; x < NumSlots; x++)
         {
             var square = buttons[x];
+            // square.Text = $"{x}";
 
             if (items.TryGetValue(x, out var item))
             {
@@ -88,7 +90,7 @@ public partial class InventoryUI : Control
 
     public override void _Process(double delta)
     {
-        if (Input.IsActionJustPressed(GameActions.ToggleInventory))
+        if (Input.IsActionJustPressed(GameActions.InventoryToggle))
         {
             Visible = !Visible;
 

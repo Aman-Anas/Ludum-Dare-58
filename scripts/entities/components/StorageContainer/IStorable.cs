@@ -26,8 +26,7 @@ public static class StorableExt
         {
             foreach (var existing in storage.Inventory.Values)
             {
-                var existingStore = existing.StorableInterface;
-                if (existingStore.Stackable && (storable.StackName == existingStore.StackName))
+                if (existing.CanStore(storable, count))
                 {
                     existing.StackSize += count;
                     return true;
@@ -48,7 +47,6 @@ public static class StorableExt
 
         for (short x = 0; x < storage.MaxSlots; x++)
         {
-            GD.Print(x);
             if (!storage.Inventory.ContainsKey(x))
             {
                 storage.Inventory[x] = new(data, count);

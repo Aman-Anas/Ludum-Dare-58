@@ -2,6 +2,7 @@ namespace Utilities.Collections;
 
 using System.Diagnostics.CodeAnalysis;
 using Game;
+using Game.Networking;
 using Godot;
 using MemoryPack;
 

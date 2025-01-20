@@ -46,20 +46,28 @@ public partial class PlayerEntityData : EntityData, IHealth, IBasicAnim, IStorag
         where TBufferWriter : IBufferWriter<byte>
     {
         if (value.InSaveState)
+        {
+            writer.WriteUnmanaged(value.Health);
             writer.WriteValue(value.Inventory);
+        }
     }
 
     [MemoryPackOnDeserialized]
     static void Loading(ref MemoryPackReader reader, ref PlayerEntityData value)
     {
         if (value.InSaveState)
+        {
+            value.Health = reader.ReadUnmanaged<int>();
             value.Inventory = reader.ReadValue<Dictionary<short, InventoryItem>>();
+        }
     }
 
     public override void OnPlayerJoin(NetPeer peer)
     {
         if (peer.OwnsEntity(EntityID))
         {
+            peer.EncodeAndSend(new HealthUpdate(EntityID, Health));
+
             var update = new StorageUpdate(EntityID, Inventory);
             peer.EncodeAndSend(update, DeliveryMethod.ReliableOrdered);
         }

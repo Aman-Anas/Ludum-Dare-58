@@ -8,13 +8,6 @@ using Godot;
 using LiteNetLib;
 using MemoryPack;
 
-// public enum StorageActionTypes : byte
-// {
-//     Move,
-//     Split,
-//     Merge
-// }
-
 [MemoryPackable]
 public readonly partial record struct StorageAction(
     ulong SourceEntityID,
@@ -53,7 +46,7 @@ public readonly partial record struct StorageAction(
                 store1.Data.CurrentSector.EchoToOwners(
                     owners,
                     new StorageUpdate(SourceEntityID, store1.Data.Inventory),
-                    DeliveryMethod.ReliableSequenced
+                    DeliveryMethod.ReliableOrdered
                 );
             }
         }
