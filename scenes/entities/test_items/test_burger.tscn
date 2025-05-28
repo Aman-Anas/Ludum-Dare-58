@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://bov8bx2vqu1p3"]
 
-[ext_resource type="Script" path="res://scripts/entities/types/Burger/Burger.cs" id="1_0nnrs"]
+[ext_resource type="Script" uid="uid://ti81fw31h45e" path="res://scripts/entities/types/Burger/Burger.cs" id="1_0nnrs"]
 
 [sub_resource type="TextMesh" id="TextMesh_asxe3"]
 text = "Hello There"

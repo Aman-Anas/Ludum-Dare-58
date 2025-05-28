@@ -101,8 +101,26 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
         UpdateHeadOrientation();
     }
 
+    Vector2 mouseMovement; // Mouse movement since last frame
+
     void UpdateHeadOrientation()
     {
+        // Apply our mouse look using the accumulated mouse movement
+        var sensitivity = Manager.Instance.Config.MouseSensitivity;
+
+        yawTarget.RotateObjectLocal(Vector3.Up, -mouseMovement.X * sensitivity);
+
+        var pitchRot = pitchTarget.Rotation;
+        pitchRot.X = Mathf.Clamp(
+            pitchRot.X + (mouseMovement.Y * sensitivity),
+            MIN_PITCH,
+            MAX_PITCH
+        );
+        pitchTarget.Rotation = pitchRot;
+
+        // Reset the mouse movement accumulator
+        mouseMovement = Vector2.Zero;
+
         yawTarget.Orthonormalize();
         var yawUpDiff = new Quaternion(yawTarget.GlobalBasis.Y, GlobalBasis.Y).Normalized();
         var axis = yawUpDiff.GetAxis();
@@ -124,17 +142,13 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
         // Direct mouselook for head itself
         if (@event is InputEventMouseMotion motion)
         {
-            var sensitivity = Manager.Instance.Config.MouseSensitivity;
-
-            yawTarget.RotateObjectLocal(Vector3.Up, -motion.Relative.X * sensitivity);
-
-            var pitchRot = pitchTarget.Rotation;
-            pitchRot.X = Mathf.Clamp(
-                pitchRot.X + (motion.Relative.Y * sensitivity),
-                MIN_PITCH,
-                MAX_PITCH
-            );
-            pitchTarget.Rotation = pitchRot;
+            // Accumulate mouse movement
+            // https://yosoyfreeman.github.io/article/godot/tutorial/achieving-better-mouse-input-in-godot-4-the-perfect-camera-controller/
+            // Idk why it has to be this complicated
+            // update: this actually isn't necessarily as long as accumulated
+            // inputs is enabled (which it is at time of writing)
+            var viewportTransform = GetTree().Root.GetFinalTransform();
+            mouseMovement += ((InputEventMouseMotion)motion.XformedBy(viewportTransform)).Relative;
         }
     }
 

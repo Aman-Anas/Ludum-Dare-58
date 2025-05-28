@@ -7,7 +7,7 @@ using Godot;
 public static class TerrainConsts
 {
     // Terrain chunk size
-    public const float ChunkScale = 128;
+    public const float ChunkScale = 32;
 
     // Resolution on each axis per chunk
     public const int VoxelsPerAxis = 32;

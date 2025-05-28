@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://cemklg2tr1ud8"]
 
-[ext_resource type="Script" path="res://scripts/terrain/Chunk.cs" id="1_nbiym"]
+[ext_resource type="Script" uid="uid://byt0pbvoyvcsh" path="res://scripts/terrain/Chunk.cs" id="1_nbiym"]
 [ext_resource type="Material" uid="uid://ddpttrnv7csmc" path="res://scenes/test_game/terrain/terrain_shader.tres" id="2_tnwqy"]
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_gqt8f"]

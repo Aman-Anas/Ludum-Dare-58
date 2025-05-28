@@ -3,7 +3,7 @@
 [ext_resource type="Material" uid="uid://dour81aelbrs3" path="res://assets/materials/test_material.tres" id="2_ks5h1"]
 [ext_resource type="Material" uid="uid://ddulokmr8s0l7" path="res://assets/materials/test_transparent_fade.tres" id="3_445kk"]
 [ext_resource type="Texture2D" uid="uid://c6yiplbg4g5yr" path="res://addons/kenney_prototype_textures/light/texture_07.png" id="4_8an4d"]
-[ext_resource type="Script" path="res://utility/Node/LocalGravityArea.cs" id="5_lxk3v"]
+[ext_resource type="Script" uid="uid://bybhsu0a3gpg0" path="res://utility/Node/LocalGravityArea.cs" id="5_lxk3v"]
 [ext_resource type="PackedScene" uid="uid://be68kkhnkgb6u" path="res://scenes/main_menu/Pause.tscn" id="6_euigh"]
 [ext_resource type="PackedScene" uid="uid://crf33aqia24q7" path="res://scenes/test_game/TestBall.tscn" id="8_gbhpy"]
 

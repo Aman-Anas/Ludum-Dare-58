@@ -2,9 +2,9 @@
 
 [ext_resource type="PackedScene" uid="uid://c4j2ttclugxdy" path="res://assets/objects/player/player_hitbox.blend" id="1_kd8d6"]
 [ext_resource type="PackedScene" uid="uid://bcbqu4symo7ux" path="res://assets/objects/player/player_rig_default.blend" id="2_jjmcg"]
-[ext_resource type="Script" path="res://scripts/entities/SimpleRigidPlayer.cs" id="2_x2qyr"]
-[ext_resource type="Script" path="res://utility/Node/PhysicsSmoother.cs" id="4_8qcpq"]
-[ext_resource type="Script" path="res://scripts/entities/InteractionRay.cs" id="5_ptte0"]
+[ext_resource type="Script" uid="uid://hdbrdvgu3qs0" path="res://scripts/entities/SimpleRigidPlayer.cs" id="2_x2qyr"]
+[ext_resource type="Script" uid="uid://cvsoxlsfuo4cy" path="res://utility/Node/PhysicsSmoother.cs" id="4_8qcpq"]
+[ext_resource type="Script" uid="uid://bxltufk1m4lgw" path="res://scripts/entities/InteractionRay.cs" id="5_ptte0"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_lt2x0"]
 friction = 0.0

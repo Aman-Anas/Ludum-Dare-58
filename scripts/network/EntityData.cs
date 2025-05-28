@@ -85,6 +85,13 @@ public abstract partial class EntityData : MemoryPackableResource, IEntityData
     /// </summary>
     public virtual void OnResourceCopy() { }
 
+    /// <summary>
+    /// Called whenever a player joins the local area of this entity.
+    ///
+    /// This method is useful to send setup packets for nonserialized fields and other secret data
+    /// </summary>
+    ///
+    /// <param name="peer">The peer which joined this area.</param>
     public virtual void OnPlayerJoin(NetPeer peer) { }
 
     public INetEntity SpawnInstance(bool onServer)
@@ -99,7 +106,7 @@ public abstract partial class EntityData : MemoryPackableResource, IEntityData
         return newEntity;
     }
 
-    public virtual void DestroyEntity()
+    public void DestroyEntity()
     {
         OnDestroy();
 

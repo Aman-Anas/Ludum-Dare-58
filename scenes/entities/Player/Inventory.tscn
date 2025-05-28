@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://b5mp2n4ia3mvl" path="res://addons/kenney_prototype_textures/dark/texture_02.png" id="1_5bj41"]
 [ext_resource type="PackedScene" uid="uid://c4wr3wkrywvu7" path="res://scenes/entities/Player/InventoryButton.tscn" id="1_i812k"]
-[ext_resource type="Script" path="res://scripts/entities/types/Player/InventoryUI.cs" id="1_mqm7s"]
+[ext_resource type="Script" uid="uid://rrjhnnmusqcd" path="res://scripts/entities/types/Player/Inventory/InventoryUI.cs" id="1_mqm7s"]
 [ext_resource type="Texture2D" uid="uid://bocguvlifg3ue" path="res://addons/kenney_prototype_textures/orange/texture_10.png" id="3_der75"]
 [ext_resource type="Texture2D" uid="uid://c8i6rh3ndeyhb" path="res://addons/kenney_prototype_textures/purple/texture_10.png" id="3_ipbl5"]
 [ext_resource type="Texture2D" uid="uid://dilgtflwmel2d" path="res://addons/kenney_prototype_textures/light/texture_08.png" id="5_fun7a"]

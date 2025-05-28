@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://covpp856gc240"]
 
-[ext_resource type="Script" path="res://scripts/entities/types/Player/PlayerClient.cs" id="2_sg0yk"]
-[ext_resource type="Script" path="res://utility/Node/PhysicsSmoother.cs" id="3_b8s2l"]
+[ext_resource type="Script" uid="uid://cvl35fsvn1ejm" path="res://scripts/entities/types/Player/PlayerClient.cs" id="2_sg0yk"]
+[ext_resource type="Script" uid="uid://cvsoxlsfuo4cy" path="res://utility/Node/PhysicsSmoother.cs" id="3_b8s2l"]
 [ext_resource type="PackedScene" uid="uid://bcbqu4symo7ux" path="res://assets/objects/player/player_rig_default.blend" id="4_xeuxp"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_lt2x0"]

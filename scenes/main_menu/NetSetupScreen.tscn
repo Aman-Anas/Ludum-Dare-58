@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://jhxffeocg326"]
 
 [ext_resource type="Theme" uid="uid://cmeyu4ofgl2c0" path="res://theme/main_UI_theme.tres" id="1_d1alf"]
-[ext_resource type="Script" path="res://scripts/main_menu/NetSetupScreen.cs" id="1_xpr30"]
+[ext_resource type="Script" uid="uid://dgcaxxoa3opy5" path="res://scripts/main_menu/NetSetupScreen.cs" id="1_xpr30"]
 
 [node name="NetSetupScreen" type="Control" node_paths=PackedStringArray("backToTitle", "joinIP", "joinPort", "joinButton", "makeNewWorld", "hostPort", "hostPlayButton", "hostOnlyButton", "refreshList", "usernameBox", "pwordBox", "worldList", "serverList", "errorWindow", "createWorldWindow", "enterWorldName")]
 layout_mode = 3

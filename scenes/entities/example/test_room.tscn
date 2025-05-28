@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://b5161nje632iv"]
 
-[ext_resource type="Script" path="res://scripts/entities/types/StaticProp/StaticProp.cs" id="1_hrksp"]
+[ext_resource type="Script" uid="uid://cuv0us6ipqrt7" path="res://scripts/entities/types/StaticProp/StaticProp.cs" id="1_hrksp"]
 [ext_resource type="Material" uid="uid://dour81aelbrs3" path="res://assets/materials/test_material.tres" id="2_cr3sl"]
 
 [node name="TestWall" type="StaticBody3D"]

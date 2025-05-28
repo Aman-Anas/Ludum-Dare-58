@@ -12,7 +12,7 @@ config_version=5
 
 config/name="SpaceGame"
 run/main_scene="res://scenes/main_menu/Title.tscn"
-config/features=PackedStringArray("4.3", "C#", "Forward Plus")
+config/features=PackedStringArray("4.4", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
@@ -33,6 +33,19 @@ project/assembly_name="SpaceGame"
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/auto_mat_assign/plugin.cfg", "res://addons/debug_menu/plugin.cfg", "res://addons/input_helper/plugin.cfg", "res://addons/pixpal_tools/plugin.cfg")
+
+[file_customization]
+
+folder_colors={
+"res://addons/": "gray",
+"res://assets/": "yellow",
+"res://scenes/": "green",
+"res://scenes/entities/": "pink",
+"res://scripts/": "blue",
+"res://scripts/entities/": "red",
+"res://scripts/main_menu/": "yellow",
+"res://scripts/world/": "pink"
+}
 
 [gui]
 
@@ -114,7 +127,7 @@ inventory_single_select={
 
 [physics]
 
-3d/physics_engine="JoltPhysics3D"
+3d/physics_engine="Jolt Physics"
 
 [shader_globals]
 

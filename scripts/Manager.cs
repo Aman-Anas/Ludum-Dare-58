@@ -68,12 +68,6 @@ public partial class Manager : Node
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        byte[] myData = MemoryPackSerializer.Serialize(new Dictionary<string, string>());
-        // send the data
-        var receivedData = MemoryPackSerializer.Deserialize<Dictionary<string, string>>(myData);
-        // got it back
-
-
         // At this point all other autoloads are also ready
         // Now we should do actual game stuff (e.g. loading config)
 
