@@ -4,6 +4,7 @@ using Godot;
 
 [GlobalClass]
 // Simple helper node to do physics interpolation
+// EDIT: Should be unnecessary now that 3D physics interpolation has been merged
 public partial class PhysicsSmoother : Node3D
 {
     [Export]

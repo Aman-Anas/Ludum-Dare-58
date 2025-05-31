@@ -1,7 +1,7 @@
 [gd_resource type="ShaderMaterial" load_steps=6 format=3 uid="uid://ddpttrnv7csmc"]
 
 [ext_resource type="Shader" uid="uid://dvathh5dd3hbd" path="res://scenes/test_game/terrain/shader_nodes.tres" id="1_n28d0"]
-[ext_resource type="Texture2D" uid="uid://wkkot5yexsvm" path="res://addons/kenney_prototype_textures/purple/texture_03.png" id="2_kgthv"]
+[ext_resource type="Texture2D" uid="uid://dyumt3w8upctw" path="res://addons/kenney_prototype_textures/green/texture_08.png" id="2_qjxyk"]
 [ext_resource type="Texture2D" uid="uid://cutpnq6bt8ygy" path="res://addons/kenney_prototype_textures/dark/texture_01.png" id="3_k4hpo"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_xrysv"]
@@ -15,7 +15,7 @@ noise = SubResource("FastNoiseLite_xrysv")
 render_priority = 0
 shader = ExtResource("1_n28d0")
 shader_parameter/Rock = ExtResource("3_k4hpo")
-shader_parameter/Grass = ExtResource("2_kgthv")
+shader_parameter/Grass = ExtResource("2_qjxyk")
 shader_parameter/noise = SubResource("NoiseTexture2D_ee7ia")
 shader_parameter/triplanar_scale = Vector3(1, 1, 1)
 shader_parameter/triplanar_offset = Vector3(0, 0, 0)
