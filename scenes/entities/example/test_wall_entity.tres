@@ -4,5 +4,6 @@
 
 [resource]
 script = ExtResource("1_pcdcp")
-ServerScene = "res://scenes/entities/example/test_wall.tscn"
+ServerScene = "uid://3rgvlsypfh0j"
 ClientScene = "res://scenes/entities/example/test_wall.tscn"
+metadata/_custom_type_script = "uid://cpxd6h1mppx58"

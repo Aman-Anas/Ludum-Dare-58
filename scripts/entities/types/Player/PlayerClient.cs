@@ -6,12 +6,12 @@ using Godot;
 public partial class PlayerClient : StaticBody3D, INetEntity<PlayerEntityData>
 {
     [Export]
-    AnimationPlayer player;
+    AnimationPlayer player = null!;
 
     [Export]
-    Node3D HeadRef;
+    Node3D HeadRef = null!;
 
-    public PlayerEntityData Data { get; set; }
+    public PlayerEntityData Data { get; set; } = null!;
 
     EntityData INetEntity.Data
     {

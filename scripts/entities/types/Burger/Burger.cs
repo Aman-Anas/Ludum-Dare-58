@@ -9,10 +9,10 @@ using MemoryPack;
 public partial class Burger : StaticBody3D, INetEntity<BurgerData>
 {
     [Export]
-    public BurgerData Data { get; set; }
+    public BurgerData Data { get; set; } = null!;
 
     [Export]
-    MeshInstance3D textMesh;
+    MeshInstance3D textMesh = null!;
 
     EntityData INetEntity.Data
     {

@@ -15,19 +15,19 @@ using static NetMessageUtil;
 
 public partial class ClientManager : Node, INetEventListener
 {
-    public string ConnectAddress { get; private set; }
+    public string ConnectAddress { get; private set; } = null!;
     public int ConnectPort { get; private set; }
-    public string Username { get; set; }
+    public string Username { get; set; } = null!;
 
     public NetManager NetClient { get; private set; }
-    public NetPeer ServerLink { get; private set; }
+    public NetPeer ServerLink { get; private set; } = null!;
 
     // Replace with a ClientData class for "world" info?
 
     public Dictionary<ulong, INetEntity> Entities { get; set; } = [];
 
     [Export(PropertyHint.File)]
-    string controllablePlayerPath;
+    string controllablePlayerPath = null!;
 
     public ClientManager()
     {

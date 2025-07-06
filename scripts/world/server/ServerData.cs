@@ -21,7 +21,7 @@ public partial class ServerData
 
     // This is used to save/load data for sectors
     [MemoryPackIgnore]
-    public string SaveDirectory { get; set; }
+    public string SaveDirectory { get; set; } = null!;
 
     // ID 0 is kind of a wildcard, e.g. for entity ownership it means all players are owners
     public ulong PlayerIDCounter { get; set; } = 1;
@@ -82,7 +82,7 @@ public partial class ServerData
         var loadedSector = DataUtils.LoadData<Sector>(
             $"{SaveDirectory}/{SectorDirName}/{sectorID}.dat"
         );
-        loadedSector.WorldData = this;
+        loadedSector.ServerData = this;
         loadedSector.ReloadArea(Manager.Instance.GameServer.GetNewSectorViewport());
         LoadedSectors[sectorID] = loadedSector;
         return loadedSector;
@@ -196,5 +196,5 @@ public partial class SectorMetadata
 {
     public uint SectorID { get; set; }
 
-    public string SectorName { get; set; }
+    public string SectorName { get; set; } = null!;
 }

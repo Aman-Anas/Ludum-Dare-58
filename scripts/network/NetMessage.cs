@@ -54,8 +54,8 @@ public static class NetMessageUtil
     public static void SwitchPacket(
         NetDataReader reader,
         NetPeer peer,
-        ServerManager server,
-        ClientManager client
+        ServerManager? server,
+        ClientManager? client
     )
     {
         // (also for all the haters, a switch is O(1) and should compile to a jump table)
@@ -104,7 +104,7 @@ public static class NetMessageUtil
     // Process a network message with known type (use the where opcode to prevent boxing :D)
     public static void ProcessNetMessage<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T
-    >(NetDataReader reader, NetPeer peer, ServerManager server, ClientManager client)
+    >(NetDataReader reader, NetPeer peer, ServerManager? server, ClientManager? client)
         where T : INetMessage
     {
         T data = DecodeData<T>(reader);
@@ -115,7 +115,7 @@ public static class NetMessageUtil
         }
         else
         {
-            data.OnClient(client);
+            data.OnClient(client!);
         }
     }
 

@@ -9,7 +9,7 @@ using MemoryPack;
 public partial class ItemPickup : Area3D, INetEntity<ItemPickupData>
 {
     [Export]
-    public ItemPickupData Data { get; set; }
+    public ItemPickupData Data { get; set; } = null!;
 
     EntityData INetEntity.Data
     {

@@ -7,7 +7,7 @@ using MemoryPack;
 
 public partial class PhysicsProjectileClient : RigidBody3D, INetEntity<PhysicsProjectileData>
 {
-    public PhysicsProjectileData Data { get; set; }
+    public PhysicsProjectileData Data { get; set; } = null!;
 
     EntityData INetEntity.Data
     {

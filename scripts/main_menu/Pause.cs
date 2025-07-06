@@ -5,28 +5,28 @@ using Utilities.Logic;
 
 public partial class Pause : Control
 {
-    SubMenuHelper menu;
+    SubMenuHelper menu = null!;
 
     [Export]
-    Button resumeButton;
+    Button resumeButton = null!;
 
     [Export]
-    Button settingsButton;
+    Button settingsButton = null!;
 
     [Export]
-    Button quitButton;
+    Button quitButton = null!;
 
     [Export]
-    Button backButton;
+    Button backButton = null!;
 
     [Export]
-    Button returnToTitle;
+    Button returnToTitle = null!;
 
     [Export]
-    Control pauseMenuRoot;
+    Control pauseMenuRoot = null!;
 
     [Export]
-    Control settingsMenuRoot;
+    Control settingsMenuRoot = null!;
 
     Input.MouseModeEnum prevMouseMode = Input.MouseModeEnum.Captured;
 

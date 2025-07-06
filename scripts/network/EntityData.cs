@@ -19,7 +19,7 @@ public interface IEntityData
     public HashSet<ulong> Owners { get; set; }
 }
 
-[GlobalClass]
+[GlobalClass, Icon("res://icon.svg")]
 [MemoryPackUnion(0, typeof(DestructiblePropData))]
 [MemoryPackUnion(1, typeof(PhysicsProjectileData))]
 [MemoryPackUnion(2, typeof(StaticPropData))]
@@ -45,19 +45,19 @@ public abstract partial class EntityData : MemoryPackableResource, IEntityData
     /// not a big deal
     /// </summary>
     [Export(PropertyHint.File)]
-    public string ServerScene { get; set; }
+    public string ServerScene { get; set; } = null!;
 
     /// <summary>
     /// The godot scene for this entity on the client
     /// </summary>
     [Export(PropertyHint.File)]
-    public string ClientScene { get; set; }
+    public string ClientScene { get; set; } = null!;
 
     [MemoryPackIgnore]
-    public Sector CurrentSector { get; set; } // Only accessible on server
+    public Sector CurrentSector { get; set; } = null!; // Only accessible on server
 
     [MemoryPackIgnore]
-    public ClientManager Client { get; set; } // Only accessible on client
+    public ClientManager Client { get; set; } = null!; // Only accessible on client
 
     public bool InSaveState { get; set; }
 
@@ -67,21 +67,10 @@ public abstract partial class EntityData : MemoryPackableResource, IEntityData
     /// </summary>
     public HashSet<ulong> Owners { get; set; } = [];
 
-    // For secrets, use these two flags to avoid unneeded serialization
-    // and allow resource storage
-    // [IgnoreMember]
-    // [Export]
-    // [MemoryPackIgnore]
-    // public virtual SecretData Secrets
-    // {
-    //     get { return null; }
-    //     set { }
-    // }
-
     /// <summary>
     /// Method called when an entity is first copied from a resource template.
     /// Useful for converting between Godot [Export] collections/classes and
-    // MemoryPack serializable C# classes
+    ///MemoryPack serializable C# classes
     /// </summary>
     public virtual void OnResourceCopy() { }
 

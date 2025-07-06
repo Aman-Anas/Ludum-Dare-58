@@ -6,19 +6,19 @@ using NathanHoad;
 public partial class KeymapLine : HBoxContainer
 {
     [Export]
-    public Label ActionLabel { get; set; }
+    public Label ActionLabel { get; set; } = null!;
 
     [Export]
-    public Button ChangeButton { get; set; }
+    public Button ChangeButton { get; set; } = null!;
 
     [Export]
-    public Label BindedActions { get; set; }
+    public Label BindedActions { get; set; } = null!;
 
-    StringName actionName;
+    StringName actionName = null!;
 
-    public event Action RebindTriggered;
+    public event Action? RebindTriggered;
 
-    public event Action RebindComplete;
+    public event Action? RebindComplete;
 
     bool rebinding;
 

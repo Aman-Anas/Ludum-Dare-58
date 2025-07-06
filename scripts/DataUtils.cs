@@ -51,13 +51,13 @@ public static class DataUtils
         );
         saveFile.Close();
 
-        return data;
+        return data!;
     }
 
     /// <summary>
     /// Load an object from a file, or return null if nonexistent
     /// </summary>
-    public static T LoadFromFileOrNull<
+    public static T? LoadFromFileOrNull<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T
     >(string filename)
     {

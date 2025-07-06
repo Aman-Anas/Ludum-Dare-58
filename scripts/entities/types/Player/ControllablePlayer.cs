@@ -10,7 +10,8 @@ using Godot;
 [GlobalClass]
 public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityData>
 {
-    public PlayerEntityData Data { get; set; }
+    // Must get set externally
+    public PlayerEntityData Data { get; set; } = null!;
 
     EntityData INetEntity.Data
     {
@@ -21,7 +22,7 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
     public bool MovementEnabled { get; set; } = true;
 
     [Export]
-    Node3D floorSensors; // This should have a bunch of (or one) RayCast3D children
+    Node3D floorSensors = null!; // This should have a bunch of (or one) RayCast3D children
 
     // Movement
     const float MOVEMENT_FORCE = 30;
@@ -41,16 +42,16 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
 
     // Mouselook
     [Export]
-    Node3D yawTarget;
+    Node3D yawTarget = null!;
 
     [Export]
-    Node3D pitchTarget;
+    Node3D pitchTarget = null!;
 
     [Export]
-    Node3D headMesh;
+    Node3D headMesh = null!;
 
     [Export]
-    Node3D mouseLookRotationTarget;
+    Node3D mouseLookRotationTarget = null!;
 
     readonly float MIN_PITCH = Mathf.DegToRad(-90.0f);
     readonly float MAX_PITCH = Mathf.DegToRad(80.0f);
@@ -59,10 +60,10 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
 
     // Player Animation
     [Export]
-    AnimationPlayer animPlayer;
+    AnimationPlayer animPlayer = null!;
 
     [Export]
-    InventoryUI inventoryUI;
+    InventoryUI inventoryUI = null!;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
@@ -145,7 +146,7 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
             // Accumulate mouse movement
             // https://yosoyfreeman.github.io/article/godot/tutorial/achieving-better-mouse-input-in-godot-4-the-perfect-camera-controller/
             // Idk why it has to be this complicated
-            // update: this actually isn't necessarily as long as accumulated
+            // update: this actually isn't necessary as long as accumulated
             // inputs is enabled (which it is at time of writing)
             var viewportTransform = GetTree().Root.GetFinalTransform();
             mouseMovement += ((InputEventMouseMotion)motion.XformedBy(viewportTransform)).Relative;
@@ -270,6 +271,6 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
             Data.CurrentAnim = (byte)PlayerAnims.Idle;
         }
 
-        animPlayer.Play(Data.GetAnimation());
+        animPlayer.Play(Data.GetAnimation(), customBlend: 1);
     }
 }

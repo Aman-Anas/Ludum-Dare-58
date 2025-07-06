@@ -15,11 +15,11 @@ public partial class ItemPickupData : EntityData
 
     [Export]
     [MemoryPackIgnore]
-    public Godot.Collections.Array<uint> Counts { get; set; }
+    public Godot.Collections.Array<uint> Counts { get; set; } = null!;
 
     [Export]
     [MemoryPackIgnore]
-    public Godot.Collections.Array<EntityData> Datalist { get; set; }
+    public Godot.Collections.Array<EntityData> Datalist { get; set; } = null!;
 
     public override void OnResourceCopy()
     {

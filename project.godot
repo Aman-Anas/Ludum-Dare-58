@@ -40,7 +40,6 @@ folder_colors={
 "res://addons/": "gray",
 "res://assets/": "yellow",
 "res://scenes/": "green",
-"res://scenes/entities/": "pink",
 "res://scripts/": "blue",
 "res://scripts/entities/": "red",
 "res://scripts/main_menu/": "yellow",

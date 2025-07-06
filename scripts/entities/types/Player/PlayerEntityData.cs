@@ -17,7 +17,7 @@ public partial class PlayerEntityData : EntityData, IHealth, IBasicAnim, IStorag
 
     [Export]
     // Why save this? because it's funny
-    public float TorsoPivotAngle { get; set; }
+    public float HeadPivotAngle { get; set; }
 
     [Export]
     // For now, use a simple color to differentiate players
@@ -30,7 +30,7 @@ public partial class PlayerEntityData : EntityData, IHealth, IBasicAnim, IStorag
     public byte CurrentAnim { get; set; }
 
     [MemoryPackIgnore]
-    public Action HealthDepleted { get; set; }
+    public Action HealthDepleted { get; set; } = null!;
 
     /////// Inventory ///////
     [MemoryPackIgnore]
@@ -56,7 +56,7 @@ public partial class PlayerEntityData : EntityData, IHealth, IBasicAnim, IStorag
         if (value.InSaveState)
         {
             value.Health = reader.ReadUnmanaged<int>();
-            value.Inventory = reader.ReadValue<Dictionary<short, InventoryItem>>();
+            value.Inventory = reader.ReadValue<Dictionary<short, InventoryItem>>()!;
         }
     }
 
@@ -75,10 +75,10 @@ public partial class PlayerEntityData : EntityData, IHealth, IBasicAnim, IStorag
     public bool AutoPickup { get; set; } = true;
 
     [MemoryPackIgnore]
-    public Action OnInventoryUpdate { get; set; }
+    public Action OnInventoryUpdate { get; set; } = null!;
 
-    static readonly StringName IdleName = new(nameof(PlayerAnims.Idle));
-    static readonly StringName RunningName = new(nameof(PlayerAnims.Run));
+    static readonly StringName IdleName = new("GAME_Breathe");
+    static readonly StringName RunningName = new("GAME_Run");
 
     public StringName GetAnimation()
     {

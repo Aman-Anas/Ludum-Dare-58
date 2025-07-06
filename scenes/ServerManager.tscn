@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://cwcbpiaoojxky"]
+
+[ext_resource type="Script" uid="uid://2vor0eojgixx" path="res://scripts/network/ServerManager.cs" id="1_jd0px"]
+[ext_resource type="Resource" uid="uid://b6wiaipml0wqv" path="res://scenes/entities/Player/PlayerTemplate.tres" id="2_0hyqv"]
+
+[node name="Server" type="Node3D"]
+process_mode = 3
+script = ExtResource("1_jd0px")
+playerTemplate = ExtResource("2_0hyqv")
+testSceneTemplate = "uid://ce6p7nr06gnyr"

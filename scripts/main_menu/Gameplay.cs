@@ -4,10 +4,10 @@ using Godot;
 
 public partial class Gameplay : GridContainer, SettingsMenu.ISettingsSubMenu
 {
-    Manager gameManager;
+    Manager gameManager = null!;
 
     [Export]
-    SpinBox mouseSensitivityBox;
+    SpinBox mouseSensitivityBox = null!;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()

@@ -4,5 +4,6 @@
 
 [resource]
 script = ExtResource("1_4hydf")
-ServerScene = "res://scenes/entities/example/test_room.tscn"
-ClientScene = "res://scenes/entities/example/test_room.tscn"
+ServerScene = "uid://b5161nje632iv"
+ClientScene = "uid://b5161nje632iv"
+metadata/_custom_type_script = "uid://cpxd6h1mppx58"

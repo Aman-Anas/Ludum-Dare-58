@@ -23,7 +23,7 @@ public static class NetHelper
     {
         return MemoryPackSerializer.Deserialize<T>(
             reader.RawData.AsSpan(reader.Position, reader.AvailableBytes)
-        );
+        )!;
     }
 
     public static byte[] EncodeData<T>(T data)

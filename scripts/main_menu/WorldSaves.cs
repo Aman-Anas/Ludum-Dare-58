@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using Game.World.Data;
 using Godot;
 using MemoryPack;
+using Utilities;
 using Utilities.Collections;
 
 namespace Game.Setup;
 
 public static class WorldSaves
 {
-    public const string WorldSavePath = "user://worlds/";
+    public const string WorldSavePath = "user://worlds";
     const string WorldMetaFile = "worldmeta.dat";
 
     public static List<(string, WorldMetadata)> GetWorldList()
@@ -73,6 +74,12 @@ public static class WorldSaves
     public static ServerData LoadWorld(string saveName)
     {
         return ServerData.LoadServerData(GetSaveDir(saveName));
+    }
+
+    public static void DeleteWorld(string saveName)
+    {
+        var dir = GetSaveDir(saveName);
+        DirAccessExtensions.RemoveDir(dir);
     }
 }
 

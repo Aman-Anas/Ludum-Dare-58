@@ -16,18 +16,20 @@ using static NetMessageUtil;
 
 public partial class ServerManager : Node, INetEventListener
 {
-    public string CurrentSaveName { get; set; }
+    // Set externally
+    public string? CurrentSaveName { get; set; }
 
     public NetManager NetServer { get; set; }
     readonly NetDataWriter rejectWriter = new();
 
-    public ServerData WorldData { get; set; }
+    // Set on loading up a server
+    public ServerData WorldData { get; set; } = null!;
 
     [Export]
-    PlayerEntityData playerTemplate;
+    PlayerEntityData playerTemplate = null!;
 
     [Export(PropertyHint.File)]
-    string testSceneTemplate;
+    string testSceneTemplate = null!;
 
     public ServerManager()
     {
@@ -36,7 +38,7 @@ public partial class ServerManager : Node, INetEventListener
 
     public bool StartServer(int port)
     {
-        WorldData = WorldSaves.LoadWorld(CurrentSaveName);
+        WorldData = WorldSaves.LoadWorld(CurrentSaveName!);
 
         Sector newSector;
         if (!WorldData.SectorMetadata.ContainsKey(0))

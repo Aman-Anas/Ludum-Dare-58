@@ -8,14 +8,14 @@ public partial class SimpleRigidPlayer : RigidBody3D
     public bool MovementEnabled { get; set; } = true;
 
     [Export]
-    Node3D floorSensors; // This should have a bunch of (or one) RayCast3D children
+    Node3D floorSensors = null!; // This should have a bunch of (or one) RayCast3D children
 
     // Movement
-    const float MOVEMENT_FORCE = 30;
-    const float MAX_MOVEMENT_SPEED = 100;
+    const float MOVEMENT_FORCE = 20;
+    const float MAX_MOVEMENT_SPEED = 8;
     const float AIR_MOVEMENT_MULTIPLIER = 0.1f;
     const float GRAVITY_CORRECTION_SPEED = 4.0f;
-    const bool DEV_MODE = true;
+    const bool DEV_MODE = false;
 
     Vector3 movementVec = new(0, 0, 0);
 
@@ -28,16 +28,16 @@ public partial class SimpleRigidPlayer : RigidBody3D
 
     // Mouselook
     [Export]
-    Node3D yawTarget;
+    Node3D yawTarget = null!;
 
     [Export]
-    Node3D pitchTarget;
+    Node3D pitchTarget = null!;
 
     [Export]
-    Node3D headMesh;
+    Node3D headMesh = null!;
 
     [Export]
-    Node3D mouseLookRotationTarget;
+    Node3D mouseLookRotationTarget = null!;
 
     readonly float MIN_PITCH = Mathf.DegToRad(-90.0f);
     readonly float MAX_PITCH = Mathf.DegToRad(80.0f);
@@ -46,10 +46,10 @@ public partial class SimpleRigidPlayer : RigidBody3D
 
     // Player Animation
     [Export]
-    AnimationPlayer animPlayer;
+    AnimationPlayer animPlayer = null!;
 
-    readonly StringName DEFAULT_ANIM = new("Idle"); // This should be an idle
-    readonly StringName RUNNING_ANIM = new("Run");
+    readonly StringName DEFAULT_ANIM = new("GAME_Breathe"); // This should be an idle
+    readonly StringName RUNNING_ANIM = new("GAME_Run");
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
@@ -211,9 +211,17 @@ public partial class SimpleRigidPlayer : RigidBody3D
     {
         var horizontalSpeed = GlobalBasis.Inverse() * LinearVelocity;
         horizontalSpeed.Y = 0;
-        if (movementVec.Length() > 0.1 && (horizontalSpeed.Length() > 0.2))
+        if ((horizontalSpeed.Length() > 0.2)) //movementVec.Length() > 0.1 &&
         {
-            animPlayer.Play(RUNNING_ANIM);
+            animPlayer.Play(
+                RUNNING_ANIM,
+                customBlend: MAX_MOVEMENT_SPEED / (horizontalSpeed.Length() + 0.01),
+                customSpeed: Mathf.Clamp(
+                    (horizontalSpeed.Length()) / (MAX_MOVEMENT_SPEED * 0.5f),
+                    0,
+                    1
+                )
+            );
         }
         else
         {

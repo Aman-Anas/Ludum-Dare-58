@@ -79,47 +79,56 @@ public static class StorageExt
             return;
         }
 
-        bool nextSlotEmpty = !nextStore.TryGetValue(newIndex, out var nextData);
+        // Check if there's anything at the target location
+        var nextData = nextStore.GetValueOrDefault(newIndex);
 
-        // First check if these can stack
-        if ((!nextSlotEmpty) && nextData.CanStore(srcData.StorableInterface, count))
+        // If there is, check if these items can stack
+        if ((nextData != null) && nextData.CanStore(srcData.StorableInterface, count))
         {
             if (count == srcData.StackSize)
             {
+                // If we are moving the whole stack then del the old one
                 _ = current.Remove(prevIndex);
             }
             else
             {
+                // Otherwise add the amt
                 current[prevIndex].StackSize -= count;
             }
             nextData.StackSize += count;
         }
-        else
+        else // Either nothing at target dest, or it's non-stackable
         {
             // If we're moving all items then swap the data (if anything in next)
             if (count == srcData.StackSize)
             {
+                // Put our data in the target dest
                 nextStore[newIndex] = srcData;
 
-                if (!nextSlotEmpty)
+                if (nextData != null)
+                {
+                    // Move target into our old slot
                     current[prevIndex] = nextData;
+                }
                 else
                 {
+                    // Or if there's nothing there, then clear our old slot
                     _ = current.Remove(prevIndex);
                 }
             }
-            // Otherwise we just move some amount to our new slot
-            else if (nextSlotEmpty)
+            else
             {
+                // If we're splitting a stack, we have to make sure there's
+                // nothing at the target destination
+                if (nextData != null)
+                    return;
+
                 current[prevIndex].StackSize -= count;
                 nextStore[newIndex] = new(srcData.Storable.CopyFromResource(), count);
             }
-            else
-            {
-                return;
-            }
         }
 
+        // Tell all storages about this inventory change
         storage.OnInventoryUpdate?.Invoke();
 
         if (storage != next)

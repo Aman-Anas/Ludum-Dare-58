@@ -6,10 +6,10 @@ using Godot;
 public partial class WorldBackgroundScene : Node3D
 {
     [Export]
-    Node3D mainScene;
+    Node3D mainScene = null!;
 
-    Viewport backgroundView;
-    Viewport mainView;
+    Viewport backgroundView = null!;
+    Viewport mainView = null!;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()

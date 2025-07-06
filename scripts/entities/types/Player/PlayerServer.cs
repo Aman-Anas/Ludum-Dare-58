@@ -5,7 +5,7 @@ using Godot;
 
 public partial class PlayerServer : Area3D, INetEntity<PlayerEntityData>
 {
-    public PlayerEntityData Data { get; set; }
+    public PlayerEntityData Data { get; set; } = null!;
 
     EntityData INetEntity.Data
     {

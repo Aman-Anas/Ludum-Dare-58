@@ -4,10 +4,10 @@ using NathanHoad;
 public partial class Controls : GridContainer, SettingsMenu.ISettingsSubMenu
 {
     [Export]
-    PackedScene keymapScene;
+    PackedScene keymapScene = null!;
 
     [Export]
-    Control keyPressOverlay;
+    Control keyPressOverlay = null!;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()

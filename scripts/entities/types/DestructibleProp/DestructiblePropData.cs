@@ -12,5 +12,5 @@ public partial class DestructiblePropData : EntityData, IHealth
     public int Health { get; set; }
 
     [MemoryPackIgnore]
-    public Action HealthDepleted { get; set; }
+    public Action HealthDepleted { get; set; } = null!;
 }

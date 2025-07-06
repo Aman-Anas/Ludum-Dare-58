@@ -10,11 +10,11 @@ public partial class InventoryButton : Button
     const float PreviewScale = 0.75f;
 
     [Export]
-    public Label StackCountLabel { get; set; }
+    public Label StackCountLabel { get; set; } = null!;
 
     public short ButtonIndex { get; set; }
 
-    public Action<(short src, short dest, uint count)> TryMoved { get; set; }
+    public Action<(short src, short dest, uint count)> TryMoved { get; set; } = null!;
 
     uint _stackNum;
     public uint StackNum
@@ -27,22 +27,39 @@ public partial class InventoryButton : Button
         }
     }
 
+    /// <summary>
+    /// We need to use this for right click drag events. Godot's built-in dragndrop system is kinda
+    /// basic, might need to replace with something better
+    ///
+    /// This is a situation where imgui is goated
+    /// </summary>
     public override void _GuiInput(InputEvent @event)
     {
+        // If there's nothing in this square then ignore input
         if (Icon == null)
         {
             return;
         }
 
+        // Right click action
         if (
             @event is InputEventMouseButton btn
             && btn.Pressed
             && btn.ButtonIndex == MouseButton.Right
         )
         {
-            uint amount = Input.IsActionPressed(GameActions.InventorySplit) ? 1 : _stackNum / 2;
+            uint amount;
+            // On right click, we want to grab half the stack or just the first one
+            if (Input.IsActionPressed(GameActions.InventorySingleSelect))
+            {
+                amount = 1;
+            }
+            else
+            {
+                amount = _stackNum / 2;
+            }
 
-            if (((_stackNum - amount) < 0) || (amount == 0))
+            if (amount == 0)
             {
                 return;
             }
@@ -87,7 +104,7 @@ public partial class InventoryButton : Button
 
         uint amount = _stackNum;
 
-        if (((_stackNum - amount) < 0) || (amount == 0))
+        if (amount == 0)
         {
             return default;
         }

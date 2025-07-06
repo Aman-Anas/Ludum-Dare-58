@@ -13,7 +13,7 @@ public static class GameActions
     public static readonly StringName PlayerJump = new("player_jump");
 
     public static readonly StringName InventoryToggle = new("inventory_toggle");
-    public static readonly StringName InventorySplit = new("inventory_single_select");
+    public static readonly StringName InventorySingleSelect = new("inventory_single_select");
 
     public static readonly StringName PlayerPrimaryUse = new("player_primary_use");
     public static readonly StringName PlayerSecondaryUse = new("player_secondary_use");

@@ -4,13 +4,13 @@ using Godot;
 
 public class SubMenuHelper
 {
-    public Control CurrentSubMenu { get; set; }
+    public Control? CurrentSubMenu { get; set; }
 
-    public Control MainRoot { get; set; }
+    public Control? MainRoot { get; set; }
 
-    public Button CloseButton { get; set; }
+    public Button? CloseButton { get; set; }
 
-    public SubMenuHelper(Button closeButton = null, Control mainRoot = null)
+    public SubMenuHelper(Button? closeButton = null, Control? mainRoot = null)
     {
         MainRoot = mainRoot;
         CloseButton = closeButton;

@@ -7,61 +7,64 @@ public partial class NetSetupScreen : Control
 {
     // Back to title
     [Export]
-    Button backToTitle;
+    Button backToTitle = null!;
 
     [Export(PropertyHint.File)]
-    string titleScene;
+    string titleScene = null!;
 
     // Join/connect controls
     [Export]
-    LineEdit joinIP;
+    LineEdit joinIP = null!;
 
     [Export]
-    SpinBox joinPort;
+    SpinBox joinPort = null!;
 
     [Export]
-    Button joinButton;
+    Button joinButton = null!;
 
     // Host server controls
     [Export]
-    Button makeNewWorld;
+    Button makeNewWorld = null!;
 
     [Export]
-    SpinBox hostPort;
+    SpinBox hostPort = null!;
 
     [Export]
-    Button hostPlayButton;
+    Button hostPlayButton = null!;
 
     [Export]
-    Button hostOnlyButton;
+    Button hostOnlyButton = null!;
 
     [Export]
-    Button refreshList;
+    Button refreshList = null!;
 
     // login boxes
     [Export]
-    LineEdit usernameBox;
+    LineEdit usernameBox = null!;
 
     [Export]
-    LineEdit pwordBox;
+    LineEdit pwordBox = null!;
 
     // Lists
     [Export]
-    ItemList worldList;
+    ItemList worldList = null!;
 
     [Export]
-    ItemList serverList;
+    ItemList serverList = null!;
 
     // Error modals
     [Export]
-    AcceptDialog errorWindow;
+    AcceptDialog errorWindow = null!;
 
     // Create world name
     [Export]
-    ConfirmationDialog createWorldWindow;
+    ConfirmationDialog createWorldWindow = null!;
 
     [Export]
-    LineEdit enterWorldName;
+    LineEdit enterWorldName = null!;
+
+    [Export]
+    Button debugPlay = null!;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
@@ -72,6 +75,10 @@ public partial class NetSetupScreen : Control
         joinButton.Pressed += JoinGame;
         hostPlayButton.Pressed += HostAndJoinGame;
         hostOnlyButton.Pressed += HostOnlyGame;
+
+#if DEBUG
+        debugPlay.Pressed += QuickStart;
+#endif
 
         worldList.ItemSelected += (long index) =>
             Manager.Instance.GameServer.CurrentSaveName = worldList.GetItemText((int)index);
@@ -86,14 +93,41 @@ public partial class NetSetupScreen : Control
             }
             catch (ArgumentException e)
             {
-                errorWindow.DialogText = e.Message;
-                errorWindow.Show();
+                ShowErrorBox(e.Message);
             }
         };
 
         refreshList.Pressed += RefreshWorldList;
         RefreshWorldList();
     }
+
+    void ShowErrorBox(string msg)
+    {
+        errorWindow.DialogText = msg;
+        errorWindow.Show();
+    }
+
+#if DEBUG
+    // Debug method to quickly host and play a test world
+    async void QuickStart()
+    {
+        const string debugWorldName = "Debug_world_potato";
+        WorldSaves.DeleteWorld(debugWorldName);
+        WorldSaves.MakeNewWorld(debugWorldName);
+        Manager.Instance.GameServer.CurrentSaveName = debugWorldName;
+
+        var success = await Manager.Instance.StartGame(
+            GameNetState.ClientAndServer,
+            8303,
+            new("igalactic", "potato123456")
+        );
+
+        if (!success)
+        {
+            ShowErrorBox("Failed to join game!");
+        }
+    }
+#endif
 
     void RefreshWorldList()
     {
@@ -109,8 +143,7 @@ public partial class NetSetupScreen : Control
     {
         if (usernameBox.Text.Length < 3 || pwordBox.Text.Length < 8)
         {
-            errorWindow.DialogText = "Fill in username or password!";
-            errorWindow.Show();
+            ShowErrorBox("Fill in username or password!");
             return false;
         }
         return true;
@@ -120,8 +153,7 @@ public partial class NetSetupScreen : Control
     {
         if (!worldList.IsAnythingSelected())
         {
-            errorWindow.DialogText = "Select a world my dude";
-            errorWindow.Show();
+            ShowErrorBox("Select a world my dude");
             return false;
         }
         return true;
@@ -142,8 +174,7 @@ public partial class NetSetupScreen : Control
 
         if (!success)
         {
-            errorWindow.DialogText = "Failed to join game!";
-            errorWindow.Show();
+            ShowErrorBox("Failed to join game!");
         }
     }
 
@@ -161,8 +192,7 @@ public partial class NetSetupScreen : Control
 
         if (!success)
         {
-            errorWindow.DialogText = "Failed to start and/or join server!";
-            errorWindow.Show();
+            ShowErrorBox("Failed to start and/or join server!");
         }
     }
 
@@ -179,8 +209,7 @@ public partial class NetSetupScreen : Control
 
         if (!success)
         {
-            errorWindow.DialogText = "Failed to start server!";
-            errorWindow.Show();
+            ShowErrorBox("Failed to start server!");
         }
     }
 }

@@ -8,35 +8,35 @@ public partial class MainMenu : Control
 {
     // Buttons used in interface
     [Export]
-    Button PlayButton;
+    Button PlayButton = null!;
 
     [Export]
-    Button HelpButton;
+    Button HelpButton = null!;
 
     [Export]
-    Button QuitButton;
+    Button QuitButton = null!;
 
     [Export]
-    Button SettingsButton;
+    Button SettingsButton = null!;
 
     [Export]
-    Button HomeButton;
+    Button HomeButton = null!;
 
     // The main menu screens
     [Export]
-    Control MainMenuRoot;
+    Control MainMenuRoot = null!;
 
     [Export]
-    Control HelpMenu;
+    Control HelpMenu = null!;
 
     [Export]
-    Control SettingsMenu;
+    Control SettingsMenu = null!;
 
     [Export]
-    PackedScene netSelectScreen;
+    PackedScene netSelectScreen = null!;
 
     // Helper to manage side menus
-    SubMenuHelper mainHelper;
+    SubMenuHelper mainHelper = null!;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()

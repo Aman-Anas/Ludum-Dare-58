@@ -20,35 +20,36 @@ public enum GameNetState
 
 public partial class Manager : Node
 {
-    public static Manager Instance { get; private set; }
+    public static Manager Instance { get; private set; } = null!;
 
     [Export]
     string configPath = "user://config_user.dat";
 
     const string defaultConfigPath = "user://config_default.dat";
 
-    public GameConfig Config { get; set; }
+    public GameConfig Config { get; set; } = null!;
 
     public GameNetState NetState { get; private set; }
 
-    public ServerManager GameServer { get; private set; }
-    public ClientManager GameClient { get; private set; }
-    public ChunkManager ChunkManager { get; set; }
+    // These should be instantiated in ready()
+    public ServerManager GameServer { get; private set; } = null!;
+    public ClientManager GameClient { get; private set; } = null!;
+    public ChunkManager ChunkManager { get; set; } = null!;
 
     [Export]
-    PackedScene titleScene;
+    PackedScene titleScene = null!;
 
     [Export]
-    PackedScene mainClientScene;
+    PackedScene mainClientScene = null!;
 
     [Export]
-    PackedScene serverOnlyScene;
+    PackedScene serverOnlyScene = null!;
 
     [Export]
-    PackedScene serverScene;
+    PackedScene serverScene = null!;
 
     [Export]
-    PackedScene clientScene;
+    PackedScene clientScene = null!;
 
     public Manager()
     {
@@ -181,19 +182,19 @@ public partial class Manager : Node
     {
         if (!defaultFile)
         {
-            Config = DataUtils.LoadFromFileOrNull<GameConfig>(configPath);
+            Config = DataUtils.LoadFromFileOrNull<GameConfig>(configPath)!;
         }
 
         // Fall back to default config
         if (Config == null || defaultFile)
         {
-            Config = DataUtils.LoadFromFileOrNull<GameConfig>(defaultConfigPath);
+            Config = DataUtils.LoadFromFileOrNull<GameConfig>(defaultConfigPath)!;
         }
 
         // Use current settings if no default either
         Config ??= new();
 
-        Config.UpdateConfig();
+        Config.ApplyConfig();
 
         // If there's no default config yet (e.g. first game start)
         if (!FileAccess.FileExists(defaultConfigPath))

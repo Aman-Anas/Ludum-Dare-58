@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://5tfng4tp7c4"]
 
-[ext_resource type="PackedScene" uid="uid://c4j2ttclugxdy" path="res://assets/objects/player/player_hitbox.blend" id="1_kd8d6"]
-[ext_resource type="PackedScene" uid="uid://bcbqu4symo7ux" path="res://assets/objects/player/player_rig_default.blend" id="2_jjmcg"]
+[ext_resource type="PackedScene" uid="uid://c610j0q8br2ae" path="res://assets/hitboxes/hitbox3.glb" id="1_kd8d6"]
+[ext_resource type="PackedScene" uid="uid://db5mfageo8ulj" path="res://assets/rigs/new_char.glb" id="2_jjmcg"]
 [ext_resource type="Script" uid="uid://hdbrdvgu3qs0" path="res://scripts/entities/SimpleRigidPlayer.cs" id="2_x2qyr"]
 [ext_resource type="Script" uid="uid://bxltufk1m4lgw" path="res://scripts/entities/InteractionRay.cs" id="5_ptte0"]
 
@@ -17,49 +17,28 @@ script = ExtResource("2_x2qyr")
 floorSensors = NodePath("FootRays")
 yawTarget = NodePath("CameraYawTarget")
 pitchTarget = NodePath("CameraYawTarget/CameraPitchTarget")
-headMesh = NodePath("player_rig_default/PlayerHead")
+headMesh = NodePath("player_rig_default/head")
 mouseLookRotationTarget = NodePath("MouseLookRotationTarget")
 animPlayer = NodePath("player_rig_default/AnimationPlayer")
 
-[node name="player_rig_default" parent="." index="1" instance=ExtResource("2_jjmcg")]
+[node name="player_rig_default" parent="." index="0" instance=ExtResource("2_jjmcg")]
 
-[node name="PlayerHead" parent="player_rig_default" index="0"]
-transform = Transform3D(1, -2.91322e-13, 2.38419e-07, 1.7053e-13, 1, 5.06639e-07, -2.38419e-07, -5.06639e-07, 1, -2.90638e-14, 1.74628, 0.0246999)
-top_level = true
+[node name="rig_game" parent="player_rig_default" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.50996e-08, 0, -0.1)
 
-[node name="Skeleton3D" parent="player_rig_default/rig_player" index="0"]
-bones/2/rotation = Quaternion(-0.0568479, 2.86901e-14, -1.35536e-08, 0.998383)
-bones/3/rotation = Quaternion(0.27042, 1.14768e-07, 9.67096e-08, 0.962743)
-bones/3/scale = Vector3(1, 1, 1)
-bones/4/rotation = Quaternion(-0.26091, -1.1508e-07, -9.33085e-08, 0.965363)
-bones/5/rotation = Quaternion(-0.139365, -0.717596, -0.422666, 0.535712)
-bones/5/scale = Vector3(1, 1, 1)
-bones/6/rotation = Quaternion(-0.139365, 0.717596, 0.422666, 0.535712)
-bones/6/scale = Vector3(1, 1, 1)
-bones/7/scale = Vector3(1, 1, 1)
-bones/9/scale = Vector3(1, 1, 1)
-bones/13/scale = Vector3(1, 1, 1)
-bones/15/scale = Vector3(1, 1, 1)
-bones/19/rotation = Quaternion(-0.493167, -0.451538, -0.359942, 0.650647)
-bones/19/scale = Vector3(1, 1, 1)
-bones/20/scale = Vector3(1, 1, 1)
-bones/21/rotation = Quaternion(-4.88944e-08, 6.56582e-08, 9.0804e-08, 1)
-bones/22/scale = Vector3(1, 1, 1)
-bones/25/rotation = Quaternion(-0.493167, 0.451538, 0.359942, 0.650647)
-bones/25/scale = Vector3(1, 1, 1)
-bones/26/scale = Vector3(1, 1, 1)
-bones/30/scale = Vector3(1, 1, 1)
-
-[node name="BoneAttachment3D" type="BoneAttachment3D" parent="player_rig_default/rig_player/Skeleton3D" index="3"]
-transform = Transform3D(1, -2.55795e-13, 2.38419e-07, 1.7053e-13, 1, 5.06639e-07, -2.38419e-07, -5.06639e-07, 1, 2.29834e-14, 1.54628, 0.0247)
+[node name="player_rig_default_rig_player_Skeleton3D#BoneAttachment3D" type="BoneAttachment3D" parent="player_rig_default/rig_game/Skeleton3D" index="5"]
+transform = Transform3D(1, -2.84217e-14, 2.38418e-07, 2.28706e-14, 1, 1.19209e-07, -2.38419e-07, -1.3411e-07, 1, -2.83755e-15, 1.56968, -1.30385e-08)
 bone_name = "DEF-spine.006"
-bone_idx = 4
+bone_idx = 6
 
-[node name="CameraTargetPosition" type="RemoteTransform3D" parent="player_rig_default/rig_player/Skeleton3D/BoneAttachment3D" index="0"]
-transform = Transform3D(1, 0, 0, 2.71051e-20, 1, 0, 0, 0, 1, -8.88178e-16, 0.2, 0)
+[node name="player_rig_default_rig_player_Skeleton3D_BoneAttachment3D#CameraTargetPosition" type="RemoteTransform3D" parent="player_rig_default/rig_game/Skeleton3D/player_rig_default_rig_player_Skeleton3D#BoneAttachment3D" index="0"]
+transform = Transform3D(1, 1.35003e-13, -2.38419e-07, -2.91322e-13, 1, -5.06639e-07, 2.38419e-07, 5.06639e-07, 1, -2.66454e-15, 0.1, 1.49012e-08)
 remote_path = NodePath("../../../../../CameraYawTarget")
 update_rotation = false
 update_scale = false
+
+[node name="head" parent="player_rig_default" index="1"]
+transform = Transform3D(1.00001, -3.23531e-13, 3.01995e-07, 1.70532e-13, 1, 5.06644e-07, -3.01995e-07, -5.06639e-07, 1.00001, -1.50996e-08, 1.66968, -0.1)
 
 [node name="AnimationPlayer" parent="player_rig_default" index="2"]
 playback_default_blend_time = 1.0
@@ -106,20 +85,20 @@ target_position = Vector3(0, -0.11, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
 [node name="CameraYawTarget" type="Node3D" parent="." index="4"]
-transform = Transform3D(1, -2.91323e-13, 2.38419e-07, 1.7053e-13, 1, 5.0664e-07, -2.38419e-07, -5.06639e-07, 1, -2.90638e-14, 1.74628, 0.0246999)
+transform = Transform3D(-1, 2.47031e-13, -1.50996e-07, 1.7053e-13, 1, 5.0664e-07, 1.50996e-07, 5.06639e-07, -1, 2.25877e-14, 1.66968, 0.1)
 top_level = true
 
 [node name="HeadPosition" type="RemoteTransform3D" parent="CameraYawTarget" index="0"]
-remote_path = NodePath("../../player_rig_default/PlayerHead")
+remote_path = NodePath("../../player_rig_default/head")
 update_rotation = false
 update_scale = false
 
 [node name="CameraPitchTarget" type="Node3D" parent="CameraYawTarget" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.77636e-15, -1.19209e-07, 0.1)
+transform = Transform3D(1, 6.77626e-21, 0, 6.77626e-21, 1, 0, 0, 0, 1, 0, 0, 0.15)
 
 [node name="MainPlayerCamera" type="Camera3D" parent="CameraYawTarget/CameraPitchTarget" index="0"]
 transform = Transform3D(-1, 8.40257e-19, -1.50996e-07, 6.77626e-20, 1, 9.66338e-13, 1.50996e-07, 0, -1, 1.50996e-08, 0, 0.1)
-fov = 90.0
+fov = 87.0
 near = 0.02
 far = 100000.0
 
@@ -135,7 +114,7 @@ inner_radius = 0.086
 outer_radius = 0.105
 
 [node name="HeadTransformRotation" type="RemoteTransform3D" parent="CameraYawTarget/CameraPitchTarget" index="1"]
-remote_path = NodePath("../../../player_rig_default/PlayerHead")
+remote_path = NodePath("../../../player_rig_default/head")
 update_position = false
 update_scale = false
 

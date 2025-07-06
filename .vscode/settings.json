@@ -1,0 +1,13 @@
+{
+    // File nesting for godot uid files
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.expand": false,
+    "explorer.fileNesting.patterns": {
+        // ...
+        "*.gd": "$(capture).gd.uid",
+        "*.cs": "$(capture).cs.uid",
+        "*.gdshader": "$(capture).gdshader.uid",
+        "*.shader": "$(capture).shader.uid",
+        // ...
+    },
+}

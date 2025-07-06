@@ -1,7 +1,9 @@
+namespace Game.Terrain.Utils;
+
 using System;
 using Godot;
 
-public class SDFUtils
+public static class SDFUtils
 {
     public static float SdSphere(Vector3 p, float s)
     {

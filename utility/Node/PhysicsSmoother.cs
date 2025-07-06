@@ -8,7 +8,7 @@ using Godot;
 public partial class PhysicsSmoother : Node3D
 {
     [Export]
-    Node3D target;
+    Node3D target = null!;
 
     Transform3D lastFrameTransform;
     Transform3D targetTransform;

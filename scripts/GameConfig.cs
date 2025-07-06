@@ -31,16 +31,20 @@ public partial class GameConfig
         GameInputMap = InputHelper.SerializeInputsForActions();
     }
 
-    public void UpdateConfig()
+    /// <summary>
+    /// Applies all the configured settings
+    /// </summary>
+    public void ApplyConfig()
     {
         DisplayServer.WindowSetMode(WindowMode);
         DisplayServer.WindowSetVsyncMode(VSyncMode);
 
-        // Set resolution
+        // Set the resolution
         if (Resolution != Vector2I.Zero)
         {
             DisplayServer.WindowSetSize(Resolution);
-            // Center the window after changing size
+
+            // Center the window in the screen after changing size
             DisplayServer.WindowSetPosition(
                 (DisplayServer.ScreenGetSize() / 2) - (DisplayServer.WindowGetSize() / 2)
             );
@@ -48,9 +52,11 @@ public partial class GameConfig
 
         // Set maximum FPS
         Engine.MaxFps = MaxFPS;
+
+        // Set language
         TranslationServer.SetLocale(TranslationLocale);
 
-        // Set Antialiasing
+        // Set Antialiasing setting
         // Set both 2D and 3D settings to the same value
         RenderingServer.ViewportSetMsaa2D(
             Manager.Instance.GetTree().Root.GetViewportRid(),
@@ -62,6 +68,10 @@ public partial class GameConfig
         );
     }
 
+    /// <summary>
+    /// Since changes to inputs are stored elsewhere in the input map,
+    /// we need to grab those before saving our settings
+    /// </summary>
     [MemoryPackOnSerializing]
     public void OnBeforeSerialize()
     {
@@ -71,10 +81,7 @@ public partial class GameConfig
     [MemoryPackOnDeserialized]
     public void OnAfterDeserialize()
     {
-        if (GameInputMap != null)
-        {
-            InputHelper.ResetAllActions();
-            InputHelper.DeserializeInputsForActions(GameInputMap);
-        }
+        InputHelper.ResetAllActions();
+        InputHelper.DeserializeInputsForActions(GameInputMap);
     }
 }

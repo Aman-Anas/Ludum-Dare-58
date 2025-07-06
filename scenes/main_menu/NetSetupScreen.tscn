@@ -1,9 +1,12 @@
-[gd_scene load_steps=3 format=3 uid="uid://jhxffeocg326"]
+[gd_scene load_steps=4 format=3 uid="uid://jhxffeocg326"]
 
 [ext_resource type="Theme" uid="uid://cmeyu4ofgl2c0" path="res://theme/main_UI_theme.tres" id="1_d1alf"]
 [ext_resource type="Script" uid="uid://dgcaxxoa3opy5" path="res://scripts/main_menu/NetSetupScreen.cs" id="1_xpr30"]
 
-[node name="NetSetupScreen" type="Control" node_paths=PackedStringArray("backToTitle", "joinIP", "joinPort", "joinButton", "makeNewWorld", "hostPort", "hostPlayButton", "hostOnlyButton", "refreshList", "usernameBox", "pwordBox", "worldList", "serverList", "errorWindow", "createWorldWindow", "enterWorldName")]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_aqsbx"]
+bg_color = Color(0, 0.387204, 0.149656, 1)
+
+[node name="NetSetupScreen" type="Control" node_paths=PackedStringArray("backToTitle", "joinIP", "joinPort", "joinButton", "makeNewWorld", "hostPort", "hostPlayButton", "hostOnlyButton", "refreshList", "usernameBox", "pwordBox", "worldList", "serverList", "errorWindow", "createWorldWindow", "enterWorldName", "debugPlay")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -28,6 +31,7 @@ serverList = NodePath("VBoxContainer/HBoxContainer/VBoxContainer2/serverlist")
 errorWindow = NodePath("ErrorWindow")
 createWorldWindow = NodePath("WorldNameWindow")
 enterWorldName = NodePath("WorldNameWindow/LineEdit")
+debugPlay = NodePath("VBoxContainer/HBoxContainer/VBoxContainer/QuickstartBtn")
 
 [node name="Label" type="Label" parent="."]
 layout_mode = 2
@@ -79,6 +83,13 @@ alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 alignment = 1
+
+[node name="QuickstartBtn" type="Button" parent="VBoxContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.31
+theme_override_styles/normal = SubResource("StyleBoxFlat_aqsbx")
+text = "Quickstart (debug)"
 
 [node name="worldlist" type="ItemList" parent="VBoxContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2

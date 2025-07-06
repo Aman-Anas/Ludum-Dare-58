@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Game.Terrain.Noise;
+using Game.Terrain.Utils;
 using Godot;
 using static Game.Terrain.ChunkData;
 
@@ -14,13 +15,13 @@ namespace Game.Terrain;
 public partial class ChunkManager : Node3D
 {
     [Export]
-    PackedScene chunkTemplate;
+    PackedScene chunkTemplate = null!;
 
     [Export]
-    SimpleRigidPlayer player;
+    SimpleRigidPlayer player = null!;
 
     [Export]
-    Node3D terraformMarker;
+    Node3D terraformMarker = null!;
 
     // Manage the current chunks
     readonly ConcurrentDictionary<Vector3I, Chunk> loadedChunks = [];
@@ -84,7 +85,7 @@ public partial class ChunkManager : Node3D
     {
         // If this chunk is already loaded, reload it
         // Otherwise grab a new one and move it where it needs to go
-        if (!loadedChunks.TryGetValue(chunkID, out Chunk chunkToLoad))
+        if (!loadedChunks.TryGetValue(chunkID, out var chunkToLoad))
         {
             chunkToLoad = GetNewChunk();
         }

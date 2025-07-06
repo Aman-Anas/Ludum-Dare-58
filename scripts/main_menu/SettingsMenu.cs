@@ -19,19 +19,19 @@ public partial class SettingsMenu : MarginContainer
     // using Dear Imgui for this kinda stuff is just so much nicer
 
     [Export]
-    Button applyButton;
+    Button applyButton = null!;
 
     [Export]
-    ItemList settingsSelect;
+    ItemList settingsSelect = null!;
 
     [Export]
-    Control menuRoot;
+    Control menuRoot = null!;
 
     [Export]
-    Button resetAllButton;
+    Button resetAllButton = null!;
 
     [Export]
-    Button revertButton;
+    Button revertButton = null!;
 
     // A list of our menu options
     readonly List<ISettingsSubMenu> menus = new();

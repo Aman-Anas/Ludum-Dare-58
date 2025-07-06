@@ -17,16 +17,16 @@ public partial class Chunk : MeshInstance3D
 
     ///////////// Godot Node references ////////////
     [Export]
-    StaticBody3D physicsBody;
+    StaticBody3D physicsBody = null!;
 
     [Export]
-    CollisionShape3D collider;
+    CollisionShape3D collider = null!;
 
     [Export]
-    Material chunkMaterial;
+    Material chunkMaterial = null!;
 
     [Export]
-    MeshInstance3D testObj;
+    MeshInstance3D testObj = null!;
 
     //////////////  Actual Godot visual mesh and physics shape //////////////
     ArrayMesh visualMesh = new();
@@ -54,7 +54,7 @@ public partial class Chunk : MeshInstance3D
 
     // Cached chunk sample coordinate
     Vector3I chunkSampleCoord;
-    sbyte[] terrainVolume;
+    sbyte[] terrainVolume = null!;
 
     // Buffer to use during mesh generation
     int[] buffer = new int[

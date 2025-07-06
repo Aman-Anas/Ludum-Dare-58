@@ -1,73 +1,48 @@
-[gd_scene load_steps=7 format=3 uid="uid://bi664ndmrw5pa"]
+[gd_scene load_steps=7 format=3 uid="uid://d07if2ggl2y56"]
 
-[ext_resource type="PackedScene" uid="uid://c4j2ttclugxdy" path="res://assets/objects/player/player_hitbox.blend" id="1_e2kkv"]
-[ext_resource type="Script" uid="uid://cwjhgo6psng8k" path="res://scripts/entities/types/Player/ControllablePlayer.cs" id="2_uu2p5"]
-[ext_resource type="PackedScene" uid="uid://bcbqu4symo7ux" path="res://assets/objects/player/player_rig_default.blend" id="4_qnhgm"]
-[ext_resource type="Script" uid="uid://bxltufk1m4lgw" path="res://scripts/entities/InteractionRay.cs" id="5_6q3ja"]
-[ext_resource type="PackedScene" uid="uid://3mh05ycxlbvq" path="res://scenes/entities/Player/Inventory.tscn" id="6_k0eot"]
+[ext_resource type="PackedScene" uid="uid://c610j0q8br2ae" path="res://assets/hitboxes/hitbox3.glb" id="1_vcbjo"]
+[ext_resource type="PackedScene" uid="uid://3mh05ycxlbvq" path="res://scenes/entities/Player/Inventory.tscn" id="2_20h2i"]
+[ext_resource type="Script" uid="uid://cwjhgo6psng8k" path="res://scripts/entities/types/Player/ControllablePlayer.cs" id="2_lrmhu"]
+[ext_resource type="PackedScene" uid="uid://db5mfageo8ulj" path="res://assets/rigs/new_char.glb" id="3_lrmhu"]
+[ext_resource type="Script" uid="uid://bxltufk1m4lgw" path="res://scripts/entities/InteractionRay.cs" id="4_bluik"]
 
-[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_lt2x0"]
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_vcbjo"]
 friction = 0.0
 
-[node name="ControllablePlayer" node_paths=PackedStringArray("floorSensors", "yawTarget", "pitchTarget", "headMesh", "mouseLookRotationTarget", "animPlayer", "inventoryUI") instance=ExtResource("1_e2kkv")]
-collision_layer = 2
-collision_mask = 3
-physics_material_override = SubResource("PhysicsMaterial_lt2x0")
+[node name="new_char_hitbox" node_paths=PackedStringArray("floorSensors", "yawTarget", "pitchTarget", "headMesh", "mouseLookRotationTarget", "animPlayer", "inventoryUI") instance=ExtResource("1_vcbjo")]
+physics_material_override = SubResource("PhysicsMaterial_vcbjo")
 continuous_cd = true
-script = ExtResource("2_uu2p5")
+script = ExtResource("2_lrmhu")
 floorSensors = NodePath("FootRays")
 yawTarget = NodePath("CameraYawTarget")
 pitchTarget = NodePath("CameraYawTarget/CameraPitchTarget")
-headMesh = NodePath("player_rig_default/PlayerHead")
+headMesh = NodePath("new_char/head")
 mouseLookRotationTarget = NodePath("MouseLookRotationTarget")
-animPlayer = NodePath("player_rig_default/AnimationPlayer")
+animPlayer = NodePath("new_char/AnimationPlayer")
 inventoryUI = NodePath("Inventory")
 
-[node name="Inventory" parent="." index="0" instance=ExtResource("6_k0eot")]
+[node name="Inventory" parent="." index="1" instance=ExtResource("2_20h2i")]
 process_mode = 1
 
-[node name="player_rig_default" parent="." index="2" instance=ExtResource("4_qnhgm")]
+[node name="new_char" parent="." index="2" instance=ExtResource("3_lrmhu")]
 
-[node name="PlayerHead" parent="player_rig_default" index="0"]
-transform = Transform3D(1, -2.91322e-13, 2.38419e-07, 1.7053e-13, 1, 5.06639e-07, -2.38419e-07, -5.06639e-07, 1, -2.90638e-14, 1.74628, 0.0246999)
-top_level = true
+[node name="rig_game" parent="new_char" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.50996e-08, 0, -0.1)
 
-[node name="Skeleton3D" parent="player_rig_default/rig_player" index="0"]
-bones/2/rotation = Quaternion(-0.0568479, 2.86901e-14, -1.35536e-08, 0.998383)
-bones/3/rotation = Quaternion(0.27042, 1.14768e-07, 9.67096e-08, 0.962743)
-bones/3/scale = Vector3(1, 1, 1)
-bones/4/rotation = Quaternion(-0.26091, -1.1508e-07, -9.33085e-08, 0.965363)
-bones/5/rotation = Quaternion(-0.139365, -0.717596, -0.422666, 0.535712)
-bones/5/scale = Vector3(1, 1, 1)
-bones/6/rotation = Quaternion(-0.139365, 0.717596, 0.422666, 0.535712)
-bones/6/scale = Vector3(1, 1, 1)
-bones/7/scale = Vector3(1, 1, 1)
-bones/9/scale = Vector3(1, 1, 1)
-bones/13/scale = Vector3(1, 1, 1)
-bones/15/scale = Vector3(1, 1, 1)
-bones/19/rotation = Quaternion(-0.493167, -0.451538, -0.359942, 0.650647)
-bones/19/scale = Vector3(1, 1, 1)
-bones/20/scale = Vector3(1, 1, 1)
-bones/21/rotation = Quaternion(-4.88944e-08, 6.56582e-08, 9.0804e-08, 1)
-bones/22/scale = Vector3(1, 1, 1)
-bones/25/rotation = Quaternion(-0.493167, 0.451538, 0.359942, 0.650647)
-bones/25/scale = Vector3(1, 1, 1)
-bones/26/scale = Vector3(1, 1, 1)
-bones/30/scale = Vector3(1, 1, 1)
-
-[node name="BoneAttachment3D" type="BoneAttachment3D" parent="player_rig_default/rig_player/Skeleton3D" index="3"]
-transform = Transform3D(1, -2.55795e-13, 2.38419e-07, 1.7053e-13, 1, 5.06639e-07, -2.38419e-07, -5.06639e-07, 1, 2.29834e-14, 1.54628, 0.0247)
+[node name="BoneAttachment3D" type="BoneAttachment3D" parent="new_char/rig_game/Skeleton3D" index="5"]
+transform = Transform3D(1, -2.84217e-14, 2.38418e-07, 2.28706e-14, 1, 1.19209e-07, -2.38419e-07, -1.3411e-07, 1, -2.83755e-15, 1.56968, -1.30385e-08)
 bone_name = "DEF-spine.006"
-bone_idx = 4
+bone_idx = 6
 
-[node name="CameraTargetPosition" type="RemoteTransform3D" parent="player_rig_default/rig_player/Skeleton3D/BoneAttachment3D" index="0"]
-transform = Transform3D(1, 0, 0, 2.71051e-20, 1, 0, 0, 0, 1, -8.88178e-16, 0.2, 0)
+[node name="RemoteTransform3D" type="RemoteTransform3D" parent="new_char/rig_game/Skeleton3D/BoneAttachment3D" index="0"]
+transform = Transform3D(1, 5.0822e-21, 0, -1.69407e-21, 1, 2.84217e-14, 0, -2.84217e-14, 1, 0, 0.15, 0)
 remote_path = NodePath("../../../../../CameraYawTarget")
 update_rotation = false
 update_scale = false
 
-[node name="AnimationPlayer" parent="player_rig_default" index="2"]
-playback_default_blend_time = 1.0
+[node name="head" parent="new_char" index="1"]
+transform = Transform3D(-0.999999, 5.63287e-14, -3.89414e-07, 1.57097e-14, 1, 1.04308e-07, 3.89414e-07, 1.04308e-07, -0.999999, 2.09453e-15, 1.71968, 0.1)
+top_level = true
 
 [node name="FootRays" type="Node3D" parent="." index="3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
@@ -111,20 +86,20 @@ target_position = Vector3(0, -0.11, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
 [node name="CameraYawTarget" type="Node3D" parent="." index="5"]
-physics_interpolation_mode = 2
-transform = Transform3D(1, -2.91323e-13, 2.38419e-07, 1.7053e-13, 1, 5.0664e-07, -2.38419e-07, -5.06639e-07, 1, -2.90638e-14, 1.74628, 0.0246999)
+transform = Transform3D(-1, 4.96976e-14, -3.25842e-07, 1.57097e-14, 1, 1.04308e-07, 3.25842e-07, 1.04308e-07, -1, 2.09453e-15, 1.71968, 0.1)
 top_level = true
 
 [node name="HeadPosition" type="RemoteTransform3D" parent="CameraYawTarget" index="0"]
-remote_path = NodePath("../../player_rig_default/PlayerHead")
+remote_path = NodePath("../../new_char/head")
 update_rotation = false
 update_scale = false
 
 [node name="CameraPitchTarget" type="Node3D" parent="CameraYawTarget" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.77636e-15, -1.19209e-07, 0.1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.15)
 
 [node name="MainPlayerCamera" type="Camera3D" parent="CameraYawTarget/CameraPitchTarget" index="0"]
 transform = Transform3D(-1, 8.40257e-19, -1.50996e-07, 6.77626e-20, 1, 9.66338e-13, 1.50996e-07, 0, -1, 1.50996e-08, 0, 0.1)
+current = true
 fov = 90.0
 near = 0.02
 
@@ -132,7 +107,7 @@ near = 0.02
 transform = Transform3D(-1, 8.13152e-19, 1.50996e-07, 1.76183e-19, 1, 9.66338e-13, -1.50996e-07, 0, -1, 0, 0, 0)
 visible = false
 target_position = Vector3(0, 0, 30)
-script = ExtResource("5_6q3ja")
+script = ExtResource("4_bluik")
 
 [node name="CSGTorus3D" type="CSGTorus3D" parent="CameraYawTarget/CameraPitchTarget/MainPlayerCamera/RayCast3D" index="0"]
 transform = Transform3D(1, 2.38419e-07, 1.80952e-13, -2.91323e-13, 4.62929e-07, 1, 2.38419e-07, -1, 4.62928e-07, 0, 0, 2)
@@ -140,11 +115,11 @@ inner_radius = 0.086
 outer_radius = 0.105
 
 [node name="HeadTransformRotation" type="RemoteTransform3D" parent="CameraYawTarget/CameraPitchTarget" index="1"]
-remote_path = NodePath("../../../player_rig_default/PlayerHead")
+remote_path = NodePath("../../../new_char/head")
 update_position = false
 update_scale = false
 
 [node name="MouseLookRotationTarget" type="Node3D" parent="." index="6"]
 transform = Transform3D(1, -2.91323e-13, 2.38419e-07, 1.7053e-13, 1, 5.0664e-07, -2.38419e-07, -5.06639e-07, 1, 0, 0, 0)
 
-[editable path="player_rig_default"]
+[editable path="new_char"]

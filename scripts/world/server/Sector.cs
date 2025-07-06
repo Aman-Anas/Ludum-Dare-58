@@ -32,8 +32,8 @@ public partial class Sector
     {
         this.SectorID = id;
         this.Parameters = sectorParameters;
-        this.SectorSceneRoot = root;
-        this.WorldData = data;
+        this.SectorRoot = root;
+        this.ServerData = data;
     }
 
     /// <summary>
@@ -60,17 +60,18 @@ public partial class Sector
     [MemoryPackIgnore]
     public Dictionary<ulong, NetPeer> Players { get; set; } = [];
 
-    // Reference to world data, so we can update "global" world things (entity counter, directory)
+    // Reference to universal data, so we can update "global" world things (entity counter, directory)
     [MemoryPackIgnore]
-    public ServerData WorldData { get; set; }
+    public ServerData ServerData { get; set; } = null!;
 
+    // The root node of this sector, must be assigned externally!
     [MemoryPackIgnore]
-    public SubViewport SectorSceneRoot { get; private set; }
+    public SubViewport SectorRoot { get; private set; } = null!;
 
     public void EchoToSector<T>(
         T message,
         DeliveryMethod method = DeliveryMethod.Unreliable,
-        NetPeer ignorePeer = null
+        NetPeer? ignorePeer = null
     )
         where T : INetMessage
     {
@@ -110,7 +111,7 @@ public partial class Sector
 
     public void ReloadArea(SubViewport sectorRoot)
     {
-        SectorSceneRoot = sectorRoot;
+        SectorRoot = sectorRoot;
 
         foreach (var data in EntitiesData.Values)
         {
@@ -152,10 +153,10 @@ public partial class Sector
         data.CurrentSector = this;
 
         // Generate Entity ID
-        data.EntityID = WorldData.EntityIDCounter;
-        WorldData.EntityIDCounter++;
+        data.EntityID = ServerData.EntityIDCounter;
+        ServerData.EntityIDCounter++;
 
-        WorldData.EntityDirectory[data.EntityID] = SectorID;
+        ServerData.EntityDirectory[data.EntityID] = SectorID;
         EntitiesData[data.EntityID] = data;
 
         // When spawning a new entity, we can use GetSecrets to
@@ -173,7 +174,7 @@ public partial class Sector
         EchoToSector(new SpawnEntity(data), DeliveryMethod.ReliableUnordered);
     }
 
-    public EntityData RemoveEntity(ulong entityID)
+    public EntityData? RemoveEntity(ulong entityID)
     {
         // Remove the entity (and its secrets data if it exists)
         _ = EntitiesData.Remove(entityID, out var data);
@@ -198,7 +199,7 @@ public partial class Sector
         data.InSaveState = false;
 
         var newInstance = data.SpawnInstance(true);
-        SectorSceneRoot.AddChild(newInstance.GetNode());
+        SectorRoot.AddChild(newInstance.GetNode());
 
         Entities[data.EntityID] = newInstance;
     }
@@ -210,12 +211,12 @@ public partial class Sector
             entity.Data.InSaveState = true;
             entity.Data.Position = entity.Position;
             entity.Data.Rotation = entity.Rotation;
-            entity.Data.CurrentSector = null;
-            entity.Data = null;
+            entity.Data.CurrentSector = null!;
+            entity.Data = null!;
             entity.GetNode().QueueFree();
         }
-        SectorSceneRoot.QueueFree();
-        SectorSceneRoot = null;
+        SectorRoot.QueueFree();
+        SectorRoot = null!;
     }
 
     public void PlayerConnect(NetPeer peer)

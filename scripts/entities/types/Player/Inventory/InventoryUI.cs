@@ -18,15 +18,15 @@ public partial class InventoryUI : Control
     InventoryButton[] buttons = new InventoryButton[NumSlots];
 
     [Export]
-    PackedScene buttonTemplate;
+    PackedScene buttonTemplate = null!;
 
     [Export]
-    GridContainer hotbarRoot;
+    GridContainer hotbarRoot = null!;
 
     [Export]
-    GridContainer mainGridRoot;
+    GridContainer mainGridRoot = null!;
 
-    public Action<(short src, short dest, uint count)> TryInventoryMove { get; set; }
+    public Action<(short src, short dest, uint count)> TryInventoryMove { get; set; } = null!;
 
     public override void _Ready()
     {

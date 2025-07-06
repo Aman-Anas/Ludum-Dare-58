@@ -5,25 +5,25 @@ using Godot;
 public partial class Graphics : GridContainer, SettingsMenu.ISettingsSubMenu
 {
     [Export]
-    OptionButton windowModeDropdown;
+    OptionButton windowModeDropdown = null!;
 
     [Export]
-    SpinBox resolutionX;
+    SpinBox resolutionX = null!;
 
     [Export]
-    SpinBox resolutionY;
+    SpinBox resolutionY = null!;
 
     [Export]
-    OptionButton vsyncDropdown;
+    OptionButton vsyncDropdown = null!;
 
     [Export]
-    OptionButton antialiasDropdown;
+    OptionButton antialiasDropdown = null!;
 
     [Export]
-    SpinBox fpsBox;
+    SpinBox fpsBox = null!;
 
     [Export]
-    OptionButton locale;
+    OptionButton locale = null!;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
@@ -92,6 +92,6 @@ public partial class Graphics : GridContainer, SettingsMenu.ISettingsSubMenu
         config.Resolution = new((int)resolutionX.Value, (int)resolutionY.Value);
         config.MaxFPS = (int)fpsBox.Value;
 
-        config.UpdateConfig();
+        config.ApplyConfig();
     }
 }
