@@ -18,5 +18,7 @@ public static class GameActions
     public static readonly StringName PlayerPrimaryUse = new("player_primary_use");
     public static readonly StringName PlayerSecondaryUse = new("player_secondary_use");
 
+    public static readonly StringName DropItem = new("player_drop_item");
+
     public static readonly StringName PauseGame = new("pause_game");
 }

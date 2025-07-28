@@ -1,0 +1,79 @@
+[gd_scene load_steps=21 format=3 uid="uid://boeewqmen6j2a"]
+
+[ext_resource type="PackedScene" uid="uid://tv5yh5836fqv" path="res://assets/batch_exports/smaller_ship/Cube_002.gltf" id="2_m0v8i"]
+[ext_resource type="PackedScene" uid="uid://drqtxupsdmel0" path="res://assets/batch_exports/smaller_ship/Cube_004.gltf" id="3_ojis8"]
+[ext_resource type="PackedScene" uid="uid://chyorou81b45f" path="res://assets/batch_exports/smaller_ship/Cube_006.gltf" id="4_wk036"]
+[ext_resource type="PackedScene" uid="uid://dvk3wid3aj1s6" path="res://assets/batch_exports/smaller_ship/Cube_009.gltf" id="7_jniqm"]
+[ext_resource type="PackedScene" uid="uid://c6vke66pptst8" path="res://assets/batch_exports/smaller_ship/Cube_013.gltf" id="11_djxan"]
+[ext_resource type="PackedScene" uid="uid://duju0t1sbjj25" path="res://assets/batch_exports/smaller_ship/Cube_015.gltf" id="13_2kjs2"]
+[ext_resource type="PackedScene" uid="uid://debwja4nbc72y" path="res://assets/batch_exports/smaller_ship/Cube_017.gltf" id="14_sk072"]
+[ext_resource type="PackedScene" uid="uid://cx5cyr68jscqs" path="res://assets/batch_exports/smaller_ship/Cube_018.gltf" id="15_pybtn"]
+[ext_resource type="PackedScene" uid="uid://dpj2xf8b886mk" path="res://assets/batch_exports/smaller_ship/Empty.gltf" id="16_stpay"]
+[ext_resource type="PackedScene" uid="uid://c8m18gr1x8cne" path="res://assets/batch_exports/smaller_ship/Empty_001.gltf" id="17_0b43o"]
+[ext_resource type="PackedScene" uid="uid://djpw1iia36mjn" path="res://assets/batch_exports/smaller_ship/Empty_002.gltf" id="18_d861y"]
+[ext_resource type="PackedScene" uid="uid://uv8dr1nynqyo" path="res://assets/batch_exports/smaller_ship/Cube_019.gltf" id="18_h3jkd"]
+[ext_resource type="PackedScene" uid="uid://du7ieku1qihfn" path="res://assets/batch_exports/smaller_ship/Plane.gltf" id="19_ue4ag"]
+[ext_resource type="PackedScene" uid="uid://cb2msj3iidxv3" path="res://assets/batch_exports/smaller_ship/Plane_001.gltf" id="20_u54uo"]
+[ext_resource type="PackedScene" uid="uid://pac5mdy5ptwl" path="res://assets/batch_exports/smaller_ship/Plane_003.gltf" id="22_dupij"]
+[ext_resource type="PackedScene" uid="uid://bbpppy78f5gld" path="res://assets/batch_exports/smaller_ship/Sphere.gltf" id="23_ojk8u"]
+[ext_resource type="PackedScene" uid="uid://bxyye2alrqepf" path="res://assets/batch_exports/smaller_ship/Sphere_001.gltf" id="24_2st0j"]
+[ext_resource type="PackedScene" uid="uid://bnr1hvgd2ony" path="res://assets/batch_exports/smaller_ship/Sphere_002.gltf" id="25_vinrb"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i7nck"]
+albedo_color = Color(0.190762, 0.190762, 0.190762, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h3jkd"]
+albedo_color = Color(0.114897, 0.114897, 0.114897, 1)
+
+[node name="Interior" type="Node3D"]
+
+[node name="Cube_0022" parent="." instance=ExtResource("2_m0v8i")]
+
+[node name="Cube_0042" parent="." instance=ExtResource("3_ojis8")]
+
+[node name="Cube_004" parent="Cube_0042" index="0"]
+surface_material_override/0 = SubResource("StandardMaterial3D_i7nck")
+
+[node name="Cube_0062" parent="." instance=ExtResource("4_wk036")]
+
+[node name="Cube_006" parent="Cube_0062" index="0"]
+surface_material_override/0 = SubResource("StandardMaterial3D_h3jkd")
+
+[node name="Cube_0092" parent="." instance=ExtResource("7_jniqm")]
+
+[node name="Cube_0132" parent="." instance=ExtResource("11_djxan")]
+
+[node name="Cube_0152" parent="." instance=ExtResource("13_2kjs2")]
+
+[node name="Cube_0172" parent="." instance=ExtResource("14_sk072")]
+
+[node name="Cube_0182" parent="." instance=ExtResource("15_pybtn")]
+
+[node name="Empty2" parent="." instance=ExtResource("16_stpay")]
+
+[node name="Empty_0012" parent="." instance=ExtResource("17_0b43o")]
+
+[node name="Empty_0022" parent="." instance=ExtResource("18_d861y")]
+
+[node name="Plane2" parent="." instance=ExtResource("19_ue4ag")]
+
+[node name="Plane_0012" parent="." instance=ExtResource("20_u54uo")]
+
+[node name="Plane_001" parent="Plane_0012" index="0"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, -10.5353, -0.79867, 2.36932)
+
+[node name="Plane_0032" parent="." instance=ExtResource("22_dupij")]
+
+[node name="Sphere2" parent="." instance=ExtResource("23_ojk8u")]
+
+[node name="Sphere_0012" parent="." instance=ExtResource("24_2st0j")]
+
+[node name="Cube_019" parent="." instance=ExtResource("18_h3jkd")]
+
+[node name="Sphere_0022" parent="." instance=ExtResource("25_vinrb")]
+
+[editable path="Cube_0042"]
+[editable path="Cube_0062"]
+[editable path="Cube_0172"]
+[editable path="Plane_0012"]
+[editable path="Sphere2"]

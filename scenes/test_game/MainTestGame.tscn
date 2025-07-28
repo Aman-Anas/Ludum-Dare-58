@@ -1,12 +1,17 @@
-[gd_scene load_steps=16 format=3 uid="uid://c528dv4slqbn7"]
+[gd_scene load_steps=21 format=3 uid="uid://c528dv4slqbn7"]
 
 [ext_resource type="Material" uid="uid://dour81aelbrs3" path="res://assets/materials/test_material.tres" id="2_ks5h1"]
 [ext_resource type="Material" uid="uid://ddulokmr8s0l7" path="res://assets/materials/test_transparent_fade.tres" id="3_445kk"]
 [ext_resource type="Texture2D" uid="uid://c6yiplbg4g5yr" path="res://addons/kenney_prototype_textures/light/texture_07.png" id="4_8an4d"]
 [ext_resource type="Script" uid="uid://bybhsu0a3gpg0" path="res://utility/Node/LocalGravityArea.cs" id="5_lxk3v"]
 [ext_resource type="PackedScene" uid="uid://be68kkhnkgb6u" path="res://scenes/main_menu/Pause.tscn" id="6_euigh"]
-[ext_resource type="PackedScene" uid="uid://5tfng4tp7c4" path="res://scenes/test_game/Player.tscn" id="7_7ags4"]
+[ext_resource type="PackedScene" uid="uid://5tfng4tp7c4" path="res://scenes/test_game/deprecated_Player.tscn" id="7_7ags4"]
 [ext_resource type="PackedScene" uid="uid://crf33aqia24q7" path="res://scenes/test_game/TestBall.tscn" id="8_gbhpy"]
+[ext_resource type="PackedScene" uid="uid://cxlms8l43tj6i" path="res://assets/batch_exports/set_diplomat/tilefloor_five-convcol.gltf" id="8_iwiy2"]
+[ext_resource type="PackedScene" uid="uid://bapsclb0qixw5" path="res://assets/batch_exports/set_diplomat/tilefloor-convcol.gltf" id="9_1axx2"]
+[ext_resource type="PackedScene" uid="uid://d4k7ekbxldacr" path="res://assets/batch_exports/set_diplomat/pillar2-convcol.gltf" id="10_6i7a2"]
+[ext_resource type="PackedScene" uid="uid://k1hkx4lt1lsn" path="res://assets/batch_exports/set_diplomat/techfloor-convcol.gltf" id="11_jx2ce"]
+[ext_resource type="PackedScene" uid="uid://pe8igrs6yawo" path="res://assets/batch_exports/set_diplomat/wall-convcol.gltf" id="12_1axx2"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_4rm7k"]
 
@@ -76,7 +81,7 @@ sides = 20
 [node name="CSGBox3D" type="CSGBox3D" parent="TestLevel/WallsEnvironment"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, -0.05, 0)
 use_collision = true
-size = Vector3(50, 0.1, 48)
+size = Vector3(120, 0.1, 120)
 
 [node name="CSGBox3D3" type="CSGBox3D" parent="TestLevel/WallsEnvironment"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 7)
@@ -295,4 +300,73 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 125.095, 1.84353)
 [node name="TestBall" parent="." instance=ExtResource("8_gbhpy")]
 
 [node name="Player" parent="." instance=ExtResource("7_7ags4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.0045, -4.75347e-06, -10.9086)
+transform = Transform3D(0.258819, 0, 0.965926, 0, 1, 0, -0.965926, 0, 0.258819, -3.0045, -4.75347e-06, -12.9086)
+
+[node name="tilefloor_five-convcol2" parent="." instance=ExtResource("8_iwiy2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 1, -17)
+
+[node name="tilefloor_five-convcol3" parent="." instance=ExtResource("8_iwiy2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 1, -17)
+
+[node name="tilefloor-convcol2" parent="." instance=ExtResource("9_1axx2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 1, -16)
+
+[node name="pillar2-convcol2" parent="." instance=ExtResource("10_6i7a2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19, 1, -20)
+
+[node name="pillar2-convcol3" parent="." instance=ExtResource("10_6i7a2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 1, -20)
+
+[node name="techfloor-convcol2" parent="." instance=ExtResource("11_jx2ce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19, 1, -16)
+
+[node name="techfloor-convcol3" parent="." instance=ExtResource("11_jx2ce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 1, -16)
+
+[node name="tilefloor_five-convcol4" parent="." instance=ExtResource("8_iwiy2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 1, -11)
+
+[node name="techfloor-convcol4" parent="." instance=ExtResource("11_jx2ce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17, 1, -16)
+
+[node name="techfloor-convcol5" parent="." instance=ExtResource("11_jx2ce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 1, -16)
+
+[node name="techfloor-convcol6" parent="." instance=ExtResource("11_jx2ce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 1, -16)
+
+[node name="techfloor-convcol7" parent="." instance=ExtResource("11_jx2ce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 1, -15)
+
+[node name="techfloor-convcol8" parent="." instance=ExtResource("11_jx2ce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 1, -14)
+
+[node name="techfloor-convcol9" parent="." instance=ExtResource("11_jx2ce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 1, -13)
+
+[node name="techfloor-convcol10" parent="." instance=ExtResource("11_jx2ce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 1, -12)
+
+[node name="techfloor-convcol11" parent="." instance=ExtResource("11_jx2ce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 1, -11)
+
+[node name="tilefloor_five-convcol5" parent="." instance=ExtResource("8_iwiy2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 1, -11)
+
+[node name="techfloor-convcol12" parent="." instance=ExtResource("11_jx2ce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 1, -16)
+
+[node name="techfloor-convcol13" parent="." instance=ExtResource("11_jx2ce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13, 1, -16)
+
+[node name="techfloor-convcol14" parent="." instance=ExtResource("11_jx2ce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 1, -16)
+
+[node name="techfloor-convcol15" parent="." instance=ExtResource("11_jx2ce")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 1, -16)
+
+[node name="wall-convcol2" parent="." instance=ExtResource("12_1axx2")]
+transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, -20, 1, -19)
+
+[node name="wall-convcol3" parent="." instance=ExtResource("12_1axx2")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -20, 1, -15)

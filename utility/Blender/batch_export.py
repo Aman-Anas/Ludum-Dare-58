@@ -1,3 +1,7 @@
+# Constants to change import settings
+RECENTER = False
+
+
 # exports each selected object into its own file
 
 import bpy
@@ -20,26 +24,35 @@ view_layer = bpy.context.view_layer
 obj_active = view_layer.objects.active
 
 initial_selection = bpy.context.selected_objects
-selection = initial_selection # bpy.context.scene.objects
+selection = initial_selection  # bpy.context.scene.objects
 
 bpy.ops.object.select_all(action="DESELECT")
 
 for obj in selection:
     print("Exporting", obj, obj.name)
 
+    if obj.parent is not None:
+        print(obj.parent)
+        continue
+
     obj.select_set(True)
+    for child in obj.children_recursive:
+        child.select_set(True)
 
     # some exporters only use the active object
     view_layer.objects.active = obj
 
-    name = bpy.path.clean_name(obj.name)
+    name: str = bpy.path.clean_name(obj.name)
+    name = name.split("-")[0]
 
     fn = os.path.join(save_path + f"/{file_name}/", name)
 
     print(fn)
 
     saved_loc = tuple(obj.location)
-    obj.location = (0, 0, 0)
+
+    if RECENTER:
+        obj.location = (0, 0, 0)
 
     bpy.ops.export_scene.gltf(
         filepath=fn + ".gltf",
@@ -51,6 +64,8 @@ for obj in selection:
     obj.location = saved_loc
 
     obj.select_set(False)
+    for child in obj.children_recursive:
+        child.select_set(False)
 
     print("written:", fn)
 

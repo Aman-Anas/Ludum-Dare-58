@@ -1,0 +1,86 @@
+[gd_scene load_steps=27 format=3 uid="uid://3sj8lgub0g1"]
+
+[ext_resource type="PackedScene" uid="uid://22olmjfha0qf" path="res://assets/batch_exports/smaller_ship/Cube_001.gltf" id="2_algw6"]
+[ext_resource type="PackedScene" uid="uid://tv5yh5836fqv" path="res://assets/batch_exports/smaller_ship/Cube_002.gltf" id="3_cfoor"]
+[ext_resource type="PackedScene" uid="uid://drqtxupsdmel0" path="res://assets/batch_exports/smaller_ship/Cube_004.gltf" id="5_n3k4c"]
+[ext_resource type="PackedScene" uid="uid://chyorou81b45f" path="res://assets/batch_exports/smaller_ship/Cube_006.gltf" id="7_sx38o"]
+[ext_resource type="PackedScene" uid="uid://b0iocg6te3ekw" path="res://assets/batch_exports/smaller_ship/Cube_007.gltf" id="8_sgvwt"]
+[ext_resource type="PackedScene" uid="uid://cmw6p0fve11wt" path="res://assets/batch_exports/smaller_ship/Cube_008.gltf" id="9_lls3m"]
+[ext_resource type="PackedScene" uid="uid://dvk3wid3aj1s6" path="res://assets/batch_exports/smaller_ship/Cube_009.gltf" id="10_qqq68"]
+[ext_resource type="PackedScene" uid="uid://bm03akqyljr2b" path="res://assets/batch_exports/smaller_ship/Cube_010.gltf" id="11_m6fst"]
+[ext_resource type="PackedScene" uid="uid://cg2534pjx3kh2" path="res://assets/batch_exports/smaller_ship/Cube_011.gltf" id="12_vbegm"]
+[ext_resource type="PackedScene" uid="uid://dqed3aovryk4f" path="res://assets/batch_exports/smaller_ship/Cube_012.gltf" id="13_03341"]
+[ext_resource type="PackedScene" uid="uid://c6vke66pptst8" path="res://assets/batch_exports/smaller_ship/Cube_013.gltf" id="14_j8wjh"]
+[ext_resource type="PackedScene" uid="uid://bhxdtrqixi3ql" path="res://assets/batch_exports/smaller_ship/Cube_014.gltf" id="15_bqo7p"]
+[ext_resource type="PackedScene" uid="uid://duju0t1sbjj25" path="res://assets/batch_exports/smaller_ship/Cube_015.gltf" id="16_kbjv7"]
+[ext_resource type="PackedScene" uid="uid://debwja4nbc72y" path="res://assets/batch_exports/smaller_ship/Cube_017.gltf" id="17_6ocai"]
+[ext_resource type="PackedScene" uid="uid://cx5cyr68jscqs" path="res://assets/batch_exports/smaller_ship/Cube_018.gltf" id="18_241vk"]
+[ext_resource type="PackedScene" uid="uid://dpj2xf8b886mk" path="res://assets/batch_exports/smaller_ship/Empty.gltf" id="19_n147e"]
+[ext_resource type="PackedScene" uid="uid://c8m18gr1x8cne" path="res://assets/batch_exports/smaller_ship/Empty_001.gltf" id="20_braot"]
+[ext_resource type="PackedScene" uid="uid://djpw1iia36mjn" path="res://assets/batch_exports/smaller_ship/Empty_002.gltf" id="21_18n5x"]
+[ext_resource type="PackedScene" uid="uid://du7ieku1qihfn" path="res://assets/batch_exports/smaller_ship/Plane.gltf" id="22_eotdq"]
+[ext_resource type="PackedScene" uid="uid://cb2msj3iidxv3" path="res://assets/batch_exports/smaller_ship/Plane_001.gltf" id="23_wooyw"]
+[ext_resource type="PackedScene" uid="uid://bit2mae60j7o" path="res://assets/batch_exports/smaller_ship/Plane_002.gltf" id="24_fogpl"]
+[ext_resource type="PackedScene" uid="uid://pac5mdy5ptwl" path="res://assets/batch_exports/smaller_ship/Plane_003.gltf" id="25_8035g"]
+[ext_resource type="PackedScene" uid="uid://bbpppy78f5gld" path="res://assets/batch_exports/smaller_ship/Sphere.gltf" id="26_4wvr3"]
+[ext_resource type="PackedScene" uid="uid://uv8dr1nynqyo" path="res://assets/batch_exports/smaller_ship/Cube_019.gltf" id="26_xlvxa"]
+[ext_resource type="PackedScene" uid="uid://bxyye2alrqepf" path="res://assets/batch_exports/smaller_ship/Sphere_001.gltf" id="27_3iajh"]
+[ext_resource type="PackedScene" uid="uid://bnr1hvgd2ony" path="res://assets/batch_exports/smaller_ship/Sphere_002.gltf" id="28_qeil1"]
+
+[node name="Interior" type="Node3D"]
+
+[node name="Cube_0012" parent="." instance=ExtResource("2_algw6")]
+
+[node name="Cube_0022" parent="." instance=ExtResource("3_cfoor")]
+
+[node name="Cube_0042" parent="." instance=ExtResource("5_n3k4c")]
+
+[node name="Cube_0062" parent="." instance=ExtResource("7_sx38o")]
+
+[node name="Cube_0072" parent="." instance=ExtResource("8_sgvwt")]
+
+[node name="Cube_0082" parent="." instance=ExtResource("9_lls3m")]
+
+[node name="Cube_0092" parent="." instance=ExtResource("10_qqq68")]
+
+[node name="Cube_0102" parent="." instance=ExtResource("11_m6fst")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.55342, 0, -0.379006)
+
+[node name="Cube_0112" parent="." instance=ExtResource("12_vbegm")]
+
+[node name="Cube_0122" parent="." instance=ExtResource("13_03341")]
+
+[node name="Cube_0132" parent="." instance=ExtResource("14_j8wjh")]
+
+[node name="Cube_0142" parent="." instance=ExtResource("15_bqo7p")]
+
+[node name="Cube_0152" parent="." instance=ExtResource("16_kbjv7")]
+
+[node name="Cube_0172" parent="." instance=ExtResource("17_6ocai")]
+
+[node name="Cube_0182" parent="." instance=ExtResource("18_241vk")]
+
+[node name="Empty2" parent="." instance=ExtResource("19_n147e")]
+
+[node name="Empty_0012" parent="." instance=ExtResource("20_braot")]
+
+[node name="Empty_0022" parent="." instance=ExtResource("21_18n5x")]
+
+[node name="Plane2" parent="." instance=ExtResource("22_eotdq")]
+
+[node name="Plane_0012" parent="." instance=ExtResource("23_wooyw")]
+
+[node name="Plane_0022" parent="." instance=ExtResource("24_fogpl")]
+
+[node name="Plane_0032" parent="." instance=ExtResource("25_8035g")]
+
+[node name="Sphere2" parent="." instance=ExtResource("26_4wvr3")]
+
+[node name="Sphere_0012" parent="." instance=ExtResource("27_3iajh")]
+
+[node name="Sphere_0022" parent="." instance=ExtResource("28_qeil1")]
+
+[node name="Cube_019" parent="." instance=ExtResource("26_xlvxa")]
+
+[editable path="Cube_0172"]
+[editable path="Plane_0022"]

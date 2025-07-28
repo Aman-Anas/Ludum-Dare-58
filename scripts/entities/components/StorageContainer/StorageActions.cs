@@ -72,3 +72,32 @@ public partial record StorageUpdate(ulong EntityID, Dictionary<short, InventoryI
         entity.Data.OnInventoryUpdate?.Invoke();
     }
 }
+
+[MemoryPackable]
+/// <summary>
+/// Message to drop an item on the ground
+/// </summary>
+public readonly partial record struct StorageDrop(ulong EntityID, int DropIndex, Vector3 Rotation)
+    : IEntityUpdate<IStorageContainer>
+{
+    public MessageType MessageType => MessageType.StorageDrop;
+
+    public void OnClient(ClientManager client) =>
+        this.UpdateClientEntity<StorageDrop, IStorageContainer>(client);
+
+    public void OnServer(NetPeer peer, ServerManager server)
+    {
+        if (peer.OwnsEntity(EntityID))
+        {
+            this.UpdateServerEntity<StorageDrop, IStorageContainer>(peer);
+        }
+    }
+
+    public void UpdateEntity(INetEntity<IStorageContainer> entity)
+    {
+        var inventory = entity.Data.Inventory;
+
+        // Inform clients about the change
+        entity.Data.UpdateClientInventory();
+    }
+}

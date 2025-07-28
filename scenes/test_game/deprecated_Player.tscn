@@ -21,7 +21,8 @@ headMesh = NodePath("player_rig_default/head")
 mouseLookRotationTarget = NodePath("MouseLookRotationTarget")
 animPlayer = NodePath("player_rig_default/AnimationPlayer")
 
-[node name="player_rig_default" parent="." index="0" instance=ExtResource("2_jjmcg")]
+[node name="player_rig_default" parent="." index="1" instance=ExtResource("2_jjmcg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.50996e-08, 0, 0.1)
 
 [node name="rig_game" parent="player_rig_default" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.50996e-08, 0, -0.1)
@@ -85,7 +86,7 @@ target_position = Vector3(0, -0.11, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
 [node name="CameraYawTarget" type="Node3D" parent="." index="4"]
-transform = Transform3D(-1, 2.47031e-13, -1.50996e-07, 1.7053e-13, 1, 5.0664e-07, 1.50996e-07, 5.06639e-07, -1, 2.25877e-14, 1.66968, 0.1)
+transform = Transform3D(-1, 2.47031e-13, -1.50996e-07, 1.7053e-13, 1, 5.0664e-07, 1.50996e-07, 5.06639e-07, -1, 2.25877e-14, 1.66968, 1.15484e-08)
 top_level = true
 
 [node name="HeadPosition" type="RemoteTransform3D" parent="CameraYawTarget" index="0"]

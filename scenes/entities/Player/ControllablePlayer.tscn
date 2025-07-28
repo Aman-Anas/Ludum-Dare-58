@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://d07if2ggl2y56"]
+[gd_scene load_steps=11 format=3 uid="uid://d07if2ggl2y56"]
 
 [ext_resource type="PackedScene" uid="uid://c610j0q8br2ae" path="res://assets/hitboxes/hitbox3.glb" id="1_vcbjo"]
 [ext_resource type="PackedScene" uid="uid://3mh05ycxlbvq" path="res://scenes/entities/Player/Inventory.tscn" id="2_20h2i"]
@@ -8,6 +8,24 @@
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_vcbjo"]
 friction = 0.0
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_20h2i"]
+animation = &"GAME_Run"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_lrmhu"]
+animation = &"GAME_Breathe"
+
+[sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_20h2i"]
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_0p41p"]
+graph_offset = Vector2(-676.281, 26.7069)
+nodes/Animation/node = SubResource("AnimationNodeAnimation_lrmhu")
+nodes/Animation/position = Vector2(-340, 120)
+"nodes/Animation 2/node" = SubResource("AnimationNodeAnimation_20h2i")
+"nodes/Animation 2/position" = Vector2(-340, 300)
+nodes/Blend2/node = SubResource("AnimationNodeBlend2_20h2i")
+nodes/Blend2/position = Vector2(0, 140)
+node_connections = [&"Blend2", 0, &"Animation", &"Blend2", 1, &"Animation 2", &"output", 0, &"Blend2"]
 
 [node name="new_char_hitbox" node_paths=PackedStringArray("floorSensors", "yawTarget", "pitchTarget", "headMesh", "mouseLookRotationTarget", "animPlayer", "inventoryUI") instance=ExtResource("1_vcbjo")]
 physics_material_override = SubResource("PhysicsMaterial_vcbjo")
@@ -26,9 +44,6 @@ process_mode = 1
 
 [node name="new_char" parent="." index="2" instance=ExtResource("3_lrmhu")]
 
-[node name="rig_game" parent="new_char" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.50996e-08, 0, -0.1)
-
 [node name="BoneAttachment3D" type="BoneAttachment3D" parent="new_char/rig_game/Skeleton3D" index="5"]
 transform = Transform3D(1, -2.84217e-14, 2.38418e-07, 2.28706e-14, 1, 1.19209e-07, -2.38419e-07, -1.3411e-07, 1, -2.83755e-15, 1.56968, -1.30385e-08)
 bone_name = "DEF-spine.006"
@@ -41,8 +56,13 @@ update_rotation = false
 update_scale = false
 
 [node name="head" parent="new_char" index="1"]
-transform = Transform3D(-0.999999, 5.63287e-14, -3.89414e-07, 1.57097e-14, 1, 1.04308e-07, 3.89414e-07, 1.04308e-07, -0.999999, 2.09453e-15, 1.71968, 0.1)
+transform = Transform3D(-0.99999, 5.63278e-14, -3.89406e-07, 1.57095e-14, 0.999983, 1.04306e-07, 3.8941e-07, 1.04306e-07, -0.999978, 8.22027e-15, 1.70909, -5.17815e-08)
 top_level = true
+
+[node name="AnimationTree" type="AnimationTree" parent="new_char" index="2"]
+tree_root = SubResource("AnimationNodeBlendTree_0p41p")
+anim_player = NodePath("../AnimationPlayer")
+parameters/Blend2/blend_amount = 0.0
 
 [node name="FootRays" type="Node3D" parent="." index="3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
@@ -86,7 +106,7 @@ target_position = Vector3(0, -0.11, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
 [node name="CameraYawTarget" type="Node3D" parent="." index="5"]
-transform = Transform3D(-1, 4.96976e-14, -3.25842e-07, 1.57097e-14, 1, 1.04308e-07, 3.25842e-07, 1.04308e-07, -1, 2.09453e-15, 1.71968, 0.1)
+transform = Transform3D(-1, 4.96976e-14, -3.25842e-07, 1.57097e-14, 1, 1.04308e-07, 3.25842e-07, 1.04308e-07, -1, 8.22027e-15, 1.70909, -5.17815e-08)
 top_level = true
 
 [node name="HeadPosition" type="RemoteTransform3D" parent="CameraYawTarget" index="0"]
@@ -95,10 +115,9 @@ update_rotation = false
 update_scale = false
 
 [node name="CameraPitchTarget" type="Node3D" parent="CameraYawTarget" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.15)
 
 [node name="MainPlayerCamera" type="Camera3D" parent="CameraYawTarget/CameraPitchTarget" index="0"]
-transform = Transform3D(-1, 8.40257e-19, -1.50996e-07, 6.77626e-20, 1, 9.66338e-13, 1.50996e-07, 0, -1, 1.50996e-08, 0, 0.1)
+transform = Transform3D(-1, 4.40457e-20, -1.50996e-07, 6.77626e-20, 1, 0, 1.50996e-07, 0, -1, 0, 0, 0.15)
 current = true
 fov = 90.0
 near = 0.02

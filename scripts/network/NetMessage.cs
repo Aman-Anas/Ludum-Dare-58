@@ -37,6 +37,7 @@ public enum MessageType : ushort
     BasicAnimUpdate,
     StorageAction,
     StorageUpdate,
+    StorageDrop,
 
     // Custom transform update for players
     PlayerTransform,

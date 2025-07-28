@@ -1,0 +1,152 @@
+[gd_scene load_steps=13 format=3 uid="uid://b2o0ijiu0m4ol"]
+
+[ext_resource type="PackedScene" uid="uid://ctiwa6vsctbqu" path="res://assets/batch_exports/new_char/hitbox_shapeonly_rigid.gltf" id="1_re4tj"]
+[ext_resource type="Script" uid="uid://cwjhgo6psng8k" path="res://scripts/entities/types/Player/ControllablePlayer.cs" id="2_w8oha"]
+[ext_resource type="PackedScene" uid="uid://br8hx22rr8e6p" path="res://assets/batch_exports/new_char/head.gltf" id="2_xp5yw"]
+[ext_resource type="PackedScene" uid="uid://3mh05ycxlbvq" path="res://scenes/entities/Player/Inventory.tscn" id="3_jo34m"]
+[ext_resource type="Script" uid="uid://bxltufk1m4lgw" path="res://scripts/entities/InteractionRay.cs" id="6_ntvvj"]
+[ext_resource type="PackedScene" uid="uid://cfhck4cid8snb" path="res://assets/batch_exports/new_char/rig_game.gltf" id="8_0pe4p"]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_ntvvj"]
+animation = &"GAME_Run"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_ytqwd"]
+animation = &"GAME_HoldRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_7r2fp"]
+animation = &"GAME_Breathe"
+
+[sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_s5g4s"]
+filter_enabled = true
+filters = ["rig_game/Skeleton3D:DEF-forearm.R", "rig_game/Skeleton3D:DEF-upper_arm.R", "rig_game/Skeleton3D:DEF-upper_arm.R.001"]
+
+[sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_ytqwd"]
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_ntvvj"]
+graph_offset = Vector2(-187.154, -20.0555)
+nodes/Animation/node = SubResource("AnimationNodeAnimation_7r2fp")
+nodes/Animation/position = Vector2(120, 20)
+"nodes/Animation 2/node" = SubResource("AnimationNodeAnimation_ntvvj")
+"nodes/Animation 2/position" = Vector2(140, 180)
+"nodes/Animation 3/node" = SubResource("AnimationNodeAnimation_ytqwd")
+"nodes/Animation 3/position" = Vector2(400, 260)
+nodes/Blend2/node = SubResource("AnimationNodeBlend2_ytqwd")
+nodes/Blend2/position = Vector2(400, 20)
+"nodes/Blend2 2/node" = SubResource("AnimationNodeBlend2_s5g4s")
+"nodes/Blend2 2/position" = Vector2(640, 20)
+nodes/output/position = Vector2(860, 20)
+node_connections = [&"Blend2", 0, &"Animation", &"Blend2", 1, &"Animation 2", &"Blend2 2", 0, &"Blend2", &"Blend2 2", 1, &"Animation 3", &"output", 0, &"Blend2 2"]
+
+[node name="hitbox_shapeonly_rigid2" node_paths=PackedStringArray("floorSensors", "yawTarget", "pitchTarget", "headMesh", "mouseLookRotationTarget", "animPlayer", "inventoryUI") instance=ExtResource("1_re4tj")]
+script = ExtResource("2_w8oha")
+floorSensors = NodePath("FootRays")
+yawTarget = NodePath("CameraYawTarget")
+pitchTarget = NodePath("CameraYawTarget/CameraPitchTarget")
+headMesh = NodePath("rig_game2/head")
+mouseLookRotationTarget = NodePath("MouseLookRotationTarget")
+animPlayer = NodePath("rig_game2/AnimationPlayer")
+inventoryUI = NodePath("Inventory")
+
+[node name="Inventory" parent="." index="1" instance=ExtResource("3_jo34m")]
+process_mode = 1
+
+[node name="rig_game2" parent="." index="2" instance=ExtResource("8_0pe4p")]
+
+[node name="head" parent="rig_game2" index="0" instance=ExtResource("2_xp5yw")]
+transform = Transform3D(1, -7.20788e-14, 5.4041e-07, 1.57097e-14, 1, 1.04308e-07, -5.4041e-07, -1.04308e-07, 1, 1.9244e-14, 1.71933, -3.35276e-09)
+
+[node name="BoneAttachment3D" type="BoneAttachment3D" parent="rig_game2/rig_game/Skeleton3D" index="2"]
+transform = Transform3D(1, -2.84217e-14, 2.38418e-07, 2.28706e-14, 1, 1.19209e-07, -2.38419e-07, -1.3411e-07, 1, -2.83755e-15, 1.56968, -1.30385e-08)
+bone_name = "DEF-spine.006"
+bone_idx = 6
+
+[node name="RemoteTransform3D" type="RemoteTransform3D" parent="rig_game2/rig_game/Skeleton3D/BoneAttachment3D" index="0"]
+transform = Transform3D(1, 5.0822e-21, 0, -1.69407e-21, 1, 2.84217e-14, 0, -2.84217e-14, 1, 0, 0.15, 0)
+remote_path = NodePath("../../../../../CameraYawTarget")
+update_rotation = false
+update_scale = false
+
+[node name="AnimationTree" type="AnimationTree" parent="rig_game2" index="3"]
+tree_root = SubResource("AnimationNodeBlendTree_ntvvj")
+anim_player = NodePath("../AnimationPlayer")
+parameters/Blend2/blend_amount = 0.0
+"parameters/Blend2 2/blend_amount" = 0.0
+
+[node name="FootRays" type="Node3D" parent="." index="3"]
+transform = Transform3D(1, -2.84217e-14, 2.38418e-07, 2.28706e-14, 1, 1.19209e-07, -2.38419e-07, -1.3411e-07, 1, 0, 0, 0)
+
+[node name="Middle" type="RayCast3D" parent="FootRays" index="0"]
+target_position = Vector3(0, -0.11, 0)
+
+[node name="Right" type="RayCast3D" parent="FootRays" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0, 0)
+target_position = Vector3(0, -0.11, 0)
+
+[node name="RightFront" type="RayCast3D" parent="FootRays" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, 0, 0.2)
+target_position = Vector3(0, -0.11, 0)
+
+[node name="RightBack" type="RayCast3D" parent="FootRays" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, 0, -0.2)
+target_position = Vector3(0, -0.11, 0)
+
+[node name="Left" type="RayCast3D" parent="FootRays" index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0, 0)
+target_position = Vector3(0, -0.11, 0)
+
+[node name="LeftFront" type="RayCast3D" parent="FootRays" index="5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0, 0.2)
+target_position = Vector3(0, -0.11, 0)
+
+[node name="LeftBack" type="RayCast3D" parent="FootRays" index="6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0, -0.2)
+target_position = Vector3(0, -0.11, 0)
+
+[node name="Forward" type="RayCast3D" parent="FootRays" index="7"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.3)
+target_position = Vector3(0, -0.11, 0)
+
+[node name="Back" type="RayCast3D" parent="FootRays" index="8"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.3)
+target_position = Vector3(0, -0.11, 0)
+
+[node name="ForcePosition" type="Node3D" parent="." index="4"]
+transform = Transform3D(1, -2.84217e-14, 2.38418e-07, 2.28706e-14, 1, 1.19209e-07, -2.38419e-07, -1.3411e-07, 1, 0, 1, 0)
+
+[node name="CameraYawTarget" type="Node3D" parent="." index="5"]
+transform = Transform3D(-1, 4.96976e-14, -3.25842e-07, 1.57097e-14, 1, 1.04308e-07, 3.25842e-07, 1.04308e-07, -1, -1.97503e-14, 1.71933, 3.35276e-09)
+top_level = true
+
+[node name="HeadPosition" type="RemoteTransform3D" parent="CameraYawTarget" index="0"]
+remote_path = NodePath("../../rig_game2/head")
+update_rotation = false
+update_scale = false
+
+[node name="CameraPitchTarget" type="Node3D" parent="CameraYawTarget" index="1"]
+
+[node name="MainPlayerCamera" type="Camera3D" parent="CameraYawTarget/CameraPitchTarget" index="0"]
+transform = Transform3D(-1, 4.40457e-20, -1.50996e-07, 6.77626e-20, 1, 0, 1.50996e-07, 0, -1, 1.13117e-15, 0.00552058, 0.15)
+current = true
+fov = 90.0
+near = 0.02
+
+[node name="RayCast3D" type="RayCast3D" parent="CameraYawTarget/CameraPitchTarget/MainPlayerCamera" index="0"]
+transform = Transform3D(-1, 8.13152e-19, 1.50996e-07, 1.76183e-19, 1, 9.66338e-13, -1.50996e-07, 0, -1, 0, 0, 0)
+visible = false
+target_position = Vector3(0, 0, 30)
+script = ExtResource("6_ntvvj")
+
+[node name="CSGTorus3D" type="CSGTorus3D" parent="CameraYawTarget/CameraPitchTarget/MainPlayerCamera/RayCast3D" index="0"]
+transform = Transform3D(1, 2.38419e-07, 1.80952e-13, -2.91323e-13, 4.62929e-07, 1, 2.38419e-07, -1, 4.62928e-07, 0, 0, 2)
+inner_radius = 0.086
+outer_radius = 0.105
+
+[node name="HeadTransformRotation" type="RemoteTransform3D" parent="CameraYawTarget/CameraPitchTarget" index="1"]
+remote_path = NodePath("../../../rig_game2/head")
+update_position = false
+update_scale = false
+
+[node name="MouseLookRotationTarget" type="Node3D" parent="." index="6"]
+transform = Transform3D(1, -4.40537e-13, 4.76837e-07, 1.64979e-13, 1, 6.25849e-07, -4.76837e-07, -6.40749e-07, 1, 0, 0, 0)
+
+[editable path="rig_game2"]

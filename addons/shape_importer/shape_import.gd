@@ -6,7 +6,7 @@ func _post_import(scene):
 	# we're interested in:
 	if scene.get_child_count() == 1:
 		print("Imported asset only contains a single root note; discarding outer root node.")
-		return _remove_root_node(scene)
+		return _transfer_to_root(scene)
 		
 	# If the asset contains animation, Godot's importer will put them into an
 	# AnimationPlayer node. If there's only a single root object, but we also
@@ -15,38 +15,38 @@ func _post_import(scene):
 		print("Imported asset contains a single root note and an AnimationPlayer; discarding outer root node.")
 		
 		# First, convert the scene using our little trick.
-		var new_scene := _remove_root_node(scene)
-		
-		# Now grab the AnimationPlayer that was generated from the asset's animations.
-		var anim_player: AnimationPlayer = scene.get_child(1)
-		
-		# The following might seem a little verbose, but we have to be this 
-		# exact in order to not trigger various Godot warnings.
-		scene.remove_child(anim_player)
-		anim_player.owner = null
-		new_scene.add_child(anim_player)
-		anim_player.owner = new_scene
-		
-		return new_scene
-		
+		return _transfer_to_root(scene)
+
 	# In all other cases, we will just return the scene as originally imported.
 	else:
 		return scene
 
 
-func _remove_root_node(scene: Node) -> Node:
-	var new_root: Node = scene.get_child(0)
+func _transfer_to_root(scene: Node) -> Node:
+	var root: Node = scene.get_child(0)
+	
+	scene.remove_child(root)
+	root.owner = null
 
-	# Keep the original name so instances of this scene will have the
-	# imported asset's filename by default
-	new_root.name = scene.name
+	for prop in root.get_property_list():
+		var name: String = prop["name"]
+		if name.begins_with("global"):
+			continue
+		scene.set(name, root.get(name))
+	
+	for child_node in root.get_children():
+		root.remove_child(child_node)
+		child_node.owner = null
+		scene.add_child(child_node)
+		child_node.owner = scene
+
+	root.free()
 
 	# Recursively set the owner of the new root and all its children
-	_set_new_owner(new_root, new_root)
+	_set_new_owner(scene, scene)
 
 	# That's it!
-	return new_root
-	
+	return scene
 
 func _set_new_owner(node: Node, owner: Node):
 	# If we set a node's owner to itself, we'll get an error

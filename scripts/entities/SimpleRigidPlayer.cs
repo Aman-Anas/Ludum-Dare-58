@@ -214,13 +214,13 @@ public partial class SimpleRigidPlayer : RigidBody3D
         if ((horizontalSpeed.Length() > 0.2)) //movementVec.Length() > 0.1 &&
         {
             animPlayer.Play(
-                RUNNING_ANIM,
-                customBlend: MAX_MOVEMENT_SPEED / (horizontalSpeed.Length() + 0.01),
-                customSpeed: Mathf.Clamp(
-                    (horizontalSpeed.Length()) / (MAX_MOVEMENT_SPEED * 0.5f),
-                    0,
-                    1
-                )
+                RUNNING_ANIM
+            // customBlend: MAX_MOVEMENT_SPEED / (horizontalSpeed.Length() + 0.01),
+            // customSpeed: Mathf.Clamp(
+            //     (horizontalSpeed.Length()) / (MAX_MOVEMENT_SPEED * 1f),
+            //     0,
+            //     1
+            // )
             );
         }
         else

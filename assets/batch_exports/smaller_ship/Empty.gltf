@@ -1,0 +1,36 @@
+{
+	"asset":{
+		"generator":"Khronos glTF Blender I/O v4.4.56",
+		"version":"2.0"
+	},
+	"scene":0,
+	"scenes":[
+		{
+			"name":"Scene",
+			"nodes":[
+				0
+			]
+		}
+	],
+	"nodes":[
+		{
+			"name":"Empty",
+			"rotation":[
+				0,
+				0.7071067094802856,
+				0,
+				0.7071068286895752
+			],
+			"scale":[
+				2,
+				2,
+				2
+			],
+			"translation":[
+				-7.483027458190918,
+				3.048034906387329,
+				-25.76602554321289
+			]
+		}
+	]
+}

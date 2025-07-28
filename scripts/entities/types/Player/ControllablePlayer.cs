@@ -24,6 +24,9 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
     [Export]
     Node3D floorSensors = null!; // This should have a bunch of (or one) RayCast3D children
 
+    [Export]
+    Node3D dropLocation = null!;
+
     // Movement
     const float MOVEMENT_FORCE = 30;
     const float MAX_MOVEMENT_SPEED = 5;
@@ -151,6 +154,13 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
             var viewportTransform = GetTree().Root.GetFinalTransform();
             mouseMovement += ((InputEventMouseMotion)motion.XformedBy(viewportTransform)).Relative;
         }
+
+        // If we are carrying something in the first slot
+        if (Data.Inventory.TryGetValue(0, out var firstSlotItem))
+        {
+            firstSlotItem.Storable.Position = dropLocation.GlobalPosition;
+            Data.Client.SpawnEntity(firstSlotItem.Storable);
+        }
     }
 
     public override void _IntegrateForces(PhysicsDirectBodyState3D state)
@@ -232,8 +242,6 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
 
         // Turn it into an euler and multiply by our gravity correction speed
         var gravityCorrectionVelo = rotationDifference.Normalized();
-
-        // Before assigning gravity correction, add mouselook
         var newLocalAngVelo = gravityCorrectionVelo.GetEuler() * GRAVITY_CORRECTION_SPEED;
 
         // Get the rotation difference for our head
