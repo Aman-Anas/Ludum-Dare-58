@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bin8e1k68al1j"]
+
+[ext_resource type="Script" uid="uid://rp6hj2yea4b8" path="res://scripts/Scratchpad.cs" id="1_kfvd3"]
+
+[node name="Scratch" type="Node3D"]
+script = ExtResource("1_kfvd3")

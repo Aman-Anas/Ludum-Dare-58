@@ -1,8 +1,8 @@
 [gd_scene load_steps=10 format=3 uid="uid://biks2wycvo4vl"]
 
-[ext_resource type="Script" uid="uid://drqgn77jso0de" path="res://scripts/entities/types/ItemPickup/ItemPickup.cs" id="1_34d4q"]
-[ext_resource type="Script" uid="uid://dmtxmk5ma4g4h" path="res://scripts/entities/types/Burger/BurgerData.cs" id="2_qbdj7"]
-[ext_resource type="Script" uid="uid://bo3vvvgdvcvg8" path="res://scripts/entities/types/ItemPickup/ItemPickupData.cs" id="3_fak24"]
+[ext_resource type="Script" uid="uid://drqgn77jso0de" path="res://scripts/Game.Entities/types/ItemPickup/ItemPickup.cs" id="1_34d4q"]
+[ext_resource type="Script" uid="uid://dmtxmk5ma4g4h" path="res://scripts/Game.Entities/types/Burger/BurgerData.cs" id="2_qbdj7"]
+[ext_resource type="Script" uid="uid://bo3vvvgdvcvg8" path="res://scripts/Game.Entities/types/ItemPickup/ItemPickupData.cs" id="3_fak24"]
 
 [sub_resource type="Resource" id="Resource_vy0qk"]
 script = ExtResource("2_qbdj7")

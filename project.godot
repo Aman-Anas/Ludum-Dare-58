@@ -21,10 +21,6 @@ InputHelper="*res://addons/input_helper/input_helper.gd"
 DebugMenu="*res://addons/debug_menu/debug_menu.tscn"
 Manager="*res://scenes/Manager.tscn"
 
-[debug]
-
-settings/stdout/verbose_stdout=true
-
 [display]
 
 window/stretch/mode="canvas_items"
@@ -134,6 +130,7 @@ inventory_single_select={
 
 [physics]
 
+3d/run_on_separate_thread=true
 3d/physics_engine="Jolt Physics"
 common/physics_interpolation=true
 

@@ -1,8 +1,9 @@
-namespace Utilities.Node;
+namespace Utilities;
 
 using Godot;
 
-[GlobalClass]
+/** OBSOLETE */
+
 // Simple helper node to do physics interpolation
 // EDIT: Should be unnecessary now that 3D physics interpolation has been merged
 public partial class PhysicsSmoother : Node3D
