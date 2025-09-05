@@ -6,22 +6,18 @@ using Game.Networking;
 using Godot;
 using MemoryPack;
 
+[GlobalClass]
 [MemoryPackable]
-public partial class DestructibleDoorData : EntityData, IHealth, IToggleable
+public partial class DestructibleDoorData : EntityData, IHealth, IDoor
 {
+    [Export]
+    public ToggleComponent DoorState { get; set; } = new();
+
+    [Export]
     public HealthComponent HealthState { get; set; } = new();
-
-    public ToggleComponent[] Toggles { get; } =
-        [
-            new ToggleComponent(), // Door
-        ];
-
-    [MemoryPackIgnore]
-    public ToggleComponent Door => Toggles[0];
 
     public DestructibleDoorData()
     {
-        Toggles.InitializeAll(this);
-        HealthState.Initialize(this);
+        ComponentRegistry = new(this, [DoorState, HealthState]);
     }
 }

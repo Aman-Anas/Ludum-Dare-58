@@ -15,8 +15,8 @@ public readonly partial record struct StorageAction(
     short PrevIndex,
     short NewIndex,
     uint Count,
-    int SourceCIndex,
-    int DestCIndex
+    uint SrcCIndex,
+    uint DestCIndex
 ) : INetMessage
 {
     public MessageType MessageType => MessageType.StorageAction;
@@ -25,56 +25,46 @@ public readonly partial record struct StorageAction(
 
     public void OnServer(NetPeer peer, ServerManager server)
     {
-        if (
-            peer.OwnsEntity(SourceEntityID)
-            && peer.OwnsEntity(DestEntityID)
-            && (peer.GetLocalEntity(SourceEntityID) is INetEntity<IStorageContainer> store1)
-            && (peer.GetLocalEntity(DestEntityID) is INetEntity<IStorageContainer> store2)
-            && store1.Data.StorageState.Length > SourceCIndex
-            && store2.Data.StorageState.Length > DestCIndex
+        if (peer.OwnsEntity(SourceEntityID) && peer.OwnsEntity(DestEntityID)
+        // && (peer.GetLocalEntity(SourceEntityID) is INetEntity<IStorageContainer> store1)
+        // && (peer.GetLocalEntity(DestEntityID) is INetEntity<IStorageContainer> store2)
+        // && store1.Data.StorageState.Length > SourceCIndex
+        // && store2.Data.StorageState.Length > DestCIndex
         )
         {
-            var storage1 = store1.Data.StorageState[SourceCIndex];
-            var storage2 = store2.Data.StorageState[DestCIndex];
+            var store1 = peer.GetLocalEntity(SourceEntityID);
+            var store2 = peer.GetLocalEntity(DestEntityID);
 
-            storage1.StorageAct(storage2, PrevIndex, NewIndex, Count);
+            // Get the storage components we want to act on
 
-            if (store1.Data == store2.Data)
+            if (
+                (
+                    store1.Data.GetComponent<StorageContainerComponent>(SrcCIndex)
+                    is StorageContainerComponent storage1
+                )
+                && (
+                    store2.Data.GetComponent<StorageContainerComponent>(DestCIndex)
+                    is StorageContainerComponent storage2
+                )
+            )
             {
-                // If this is within the same entity
-                storage1.UpdateClientInventory();
+                // Call our storage action method to actually move the stuff
+                storage1.StorageAct(storage2, PrevIndex, NewIndex, Count);
+
+                if (store1.Data == store2.Data)
+                {
+                    // If this is within the same entity
+                    storage1.UpdateClientInventory();
+                }
+                else
+                {
+                    // Otherwise we need to send an update to all owners of each entity
+                    storage1.UpdateClientInventory();
+                    storage2.UpdateClientInventory();
+                }
             }
-            else
-            {
-                // Otherwise we need to send an update to all owners of each entity
-                storage1.UpdateClientInventory();
-                storage2.UpdateClientInventory();
-            }
+            // In case we can't find those components (or they're the wrong type), return.
         }
-    }
-}
-
-[MemoryPackable]
-public partial record StorageUpdate(
-    ulong EntityID,
-    int ComponentIndex,
-    Dictionary<short, InventoryEntry> Inventory
-) : IEntityUpdate<IStorageContainer>
-{
-    public MessageType MessageType => MessageType.StorageUpdate;
-
-    public void OnClient(ClientManager client)
-    {
-        this.UpdateClientEntity<StorageUpdate, IStorageContainer>(client);
-    }
-
-    public void OnServer(NetPeer peer, ServerManager server) { }
-
-    public void UpdateEntity(INetEntity<IStorageContainer> entity)
-    {
-        var storage = entity.Data.StorageState[ComponentIndex];
-        storage.Inventory = Inventory;
-        storage.OnInventoryUpdated?.Invoke();
     }
 }
 
@@ -84,26 +74,26 @@ public partial record StorageUpdate(
 [MemoryPackable]
 public readonly partial record struct StorageDrop(
     ulong EntityID,
-    int ComponentIndex,
+    uint ComponentIndex,
     short DropIndex
-) : IEntityUpdate<IStorageContainer>
+) : IEntityUpdate<EntityData>
 {
     public MessageType MessageType => MessageType.StorageDrop;
 
     public void OnClient(ClientManager client) =>
-        this.UpdateClientEntity<StorageDrop, IStorageContainer>(client);
+        this.UpdateClientEntity<StorageDrop, EntityData>(client);
 
     public void OnServer(NetPeer peer, ServerManager server)
     {
         if (peer.OwnsEntity(EntityID))
         {
-            this.UpdateServerEntity<StorageDrop, IStorageContainer>(peer);
+            this.UpdateServerEntity<StorageDrop, EntityData>(peer);
         }
     }
 
-    public void UpdateEntity(INetEntity<IStorageContainer> entity)
+    public void UpdateEntity(INetEntity<EntityData> entity)
     {
-        var storage = entity.Data.StorageState[ComponentIndex];
-        storage.DropItem(DropIndex);
+        var storage = entity.Data.GetComponent<StorageContainerComponent>(ComponentIndex);
+        storage?.DropItem(DropIndex);
     }
 }

@@ -13,6 +13,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Friflo.Engine.ECS" Version="3.4.2" />
     <PackageReference Include="Hexa.NET.ImGui" Version="2.2.6" />
     <PackageReference Include="LiteNetLib" Version="1.2.0" />
     <PackageReference Include="MemoryPack" Version="1.21.3" />

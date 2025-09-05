@@ -40,7 +40,7 @@ public partial class PhysicsProjectileServer : RigidBody3D, INetEntity<PhysicsPr
 
         if (entity.Data is IHealth healthData)
         {
-            // healthData.ChangeHealthBy(-Data.DamageValue);
+            healthData.HealthState.Health -= Data.DamageValue;
         }
     }
 }

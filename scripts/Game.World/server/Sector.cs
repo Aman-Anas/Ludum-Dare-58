@@ -33,17 +33,26 @@ public partial class Sector
         uint id,
         SectorParameters sectorParameters,
         SubViewport root,
-        string kernelScene, //TODO:
-        ServerData data
+        ServerData data,
+        string? kernelScene = null //TODO:
     )
     {
         this.SectorID = id;
         this.Parameters = sectorParameters;
         this.SectorRoot = root;
         this.ServerData = data;
+        this.KernelScene = kernelScene;
 
-        this.LoadFromScene(kernelScene);
+        if (kernelScene != null)
+        {
+            this.ImportFromScene(kernelScene, ignoreEntities: false);
+        }
     }
+
+    /// <summary>
+    /// Scene to use as a template for this sector.
+    /// </summary>
+    public string? KernelScene { get; set; }
 
     /// <summary>
     /// ID of sector in server data
@@ -121,6 +130,11 @@ public partial class Sector
     {
         SectorRoot = sectorRoot;
 
+        if (KernelScene != null)
+        {
+            ImportFromScene(KernelScene, ignoreEntities: true);
+        }
+
         foreach (var data in EntitiesData.Values)
         {
             data.CurrentSector = this;
@@ -129,8 +143,9 @@ public partial class Sector
         }
     }
 
-    public void LoadFromScene(
+    public void ImportFromScene(
         string scenePath,
+        bool ignoreEntities = false,
         Vector3 position = default,
         Vector3 rotation = default
     )
@@ -143,18 +158,25 @@ public partial class Sector
             GD.Print("Child from scene", child);
             if (child is INetEntity entity)
             {
-                GD.Print("entity", child);
-                SpawnNewEntity(
-                    position + entity.Position,
-                    rotation + entity.Rotation,
-                    entity.Data.CopyFromResource()
-                );
+                // Only spawn in entities if we set this flag.
+                if (!ignoreEntities)
+                {
+                    GD.Print("Child is entity, spawning", child);
+                    SpawnNewEntity(
+                        position + entity.Position,
+                        rotation + entity.Rotation,
+                        entity.Data.CopyFromResource()
+                    );
+                }
             }
-
-            instance.RemoveChild(child);
-            child.Owner = null;
-            SectorRoot.AddChild(child);
-            child.Owner = SectorRoot;
+            else
+            {
+                GD.Print("Child is not entity, adding under root");
+                instance.RemoveChild(child);
+                child.Owner = null;
+                SectorRoot.AddChild(child);
+                child.Owner = SectorRoot;
+            }
         }
 
         UpdateOwners.UpdateOwnerRecursive(SectorRoot, SectorRoot);
@@ -219,6 +241,11 @@ public partial class Sector
         SectorRoot.AddChild(newInstance.GetNode());
 
         Entities[data.EntityID] = newInstance;
+
+        foreach (var playerPeer in Players.Values)
+        {
+            data.OnMeetPlayer(playerPeer);
+        }
     }
 
     public void Unload()
@@ -247,7 +274,7 @@ public partial class Sector
         );
         foreach (var data in EntitiesData.Values)
         {
-            data.OnPlayerJoin(peer);
+            data.OnMeetPlayer(peer);
         }
     }
 

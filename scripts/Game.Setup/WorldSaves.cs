@@ -45,7 +45,7 @@ public static class WorldSaves
     {
         var dirPath = GetSaveDir(name);
         var metaPath = $"{dirPath}/{WorldMetaFile}";
-        if (!FileAccess.FileExists(metaPath))
+        if (!Godot.FileAccess.FileExists(metaPath))
         {
             // If the metadata file doesn't exist, let's make some world metadata
             DirAccess.MakeDirRecursiveAbsolute(dirPath);

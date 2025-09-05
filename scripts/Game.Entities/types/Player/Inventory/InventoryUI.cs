@@ -68,25 +68,25 @@ public partial class InventoryUI : Control
         }
     }
 
-    public void UpdateInventorySlots(Dictionary<short, InventoryEntry> items)
-    {
-        for (short x = 0; x < NumSlots; x++)
-        {
-            var square = buttons[x];
-            // square.Text = $"{x}";
+    // public void UpdateInventorySlots(Dictionary<short, InventoryEntry> items)
+    // {
+    //     for (short x = 0; x < NumSlots; x++)
+    //     {
+    //         var square = buttons[x];
+    //         // square.Text = $"{x}";
 
-            if (items.TryGetValue(x, out var item))
-            {
-                square.Icon = GD.Load<Texture2D>(item.StorableInterface.IconPath);
-                square.StackNum = item.StackSize;
-            }
-            else
-            {
-                square.Icon = null;
-                square.StackCountLabel.Text = "";
-            }
-        }
-    }
+    //         if (items.TryGetValue(x, out var item))
+    //         {
+    //             square.Icon = GD.Load<Texture2D>(item.StorableInterface.IconPath);
+    //             square.StackNum = item.StackSize;
+    //         }
+    //         else
+    //         {
+    //             square.Icon = null;
+    //             square.StackCountLabel.Text = "";
+    //         }
+    //     }
+    // }
 
     public override void _Process(double delta)
     {

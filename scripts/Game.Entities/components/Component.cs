@@ -1,53 +1,133 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Game.Networking;
+using Godot;
 using LiteNetLib;
 using MemoryPack;
+using Utilities.Data;
 
 namespace Game.Entities;
 
-public interface IComponent<in T>
-    where T : IEntityData
+[MemoryPackable]
+[MemoryPackUnion(0, typeof(ToggleComponent))]
+[MemoryPackUnion(1, typeof(HealthComponent))]
+public partial interface INetComponent
 {
-    public void Initialize(T data, int index);
-    public void Initialize(T data);
+    public void Initialize(IEntityData data, uint componentIndex);
+
+    [MemoryPackIgnore]
+    public Action? JustUpdated { get; set; }
 }
 
-public abstract class Component<T> : IComponent<T>
+public abstract partial class NetComponent<T> : MemoryPackableResource, INetComponent
     where T : IEntityData
 {
-    // Keep a reference to the data this component is contained in.
-    // Why? So we can use its server/client link, and in case we need
-    // to interact with other components
+    /// <summary>
+    /// This is how you would access the entity data inside of a component
+    /// </summary>
     [MemoryPackIgnore]
     protected T data = default!;
 
-    // If this is contained in an array of components, hang on to the index
-    // Can pass it to network messages so they know which index we are targeting
-    protected int index;
+    /// <summary>
+    /// This is the index of the component in the parent entity's component registry.
+    /// </summary>
+    [MemoryPackIgnore]
+    protected uint index;
 
-    public void Initialize(T data, int index)
+    /// <summary>
+    /// Emitted whenever this component gets overwritten by a ComponentOverwrite update.
+    /// </summary>
+    [MemoryPackIgnore]
+    public Action? JustUpdated { get; set; }
+
+    // Helpers for caching the update/overwrite message for this component
+    private ComponentOverwriteUpdate cachedUpdate = null!;
+    private readonly BufferedNetDataWriter cachedWriter = new();
+
+    /// <summary>
+    /// Initializes the component. This is NOT part of the constructor because we need to
+    /// pass in the entity data at runtime. In the editor, the component is a regular resource.
+    /// </summary>
+    public void Initialize(IEntityData data, uint componentIndex)
     {
-        this.data = data;
-        this.index = index;
+        this.data = (T)data;
+        this.index = componentIndex;
+
+        UpdateBufferWriter();
+        this.cachedUpdate = new(data.EntityID, index)
+        {
+            ToUpdate = cachedWriter.Data.AsMemory(0, cachedWriter.Length)
+        };
+    }
+
+    private void UpdateBufferWriter()
+    {
+        cachedWriter.Reset();
+        MemoryPackSerializer.Serialize(cachedWriter, this);
     }
 
     /// <summary>
-    /// Some components are singletons on their data structure
+    /// Overwrites this component across the network.
     /// </summary>
-    public void Initialize(T data) => Initialize(data, 0);
+    public void NetUpdate(
+        bool ownersOnly = false,
+        DeliveryMethod method = DeliveryMethod.Unreliable
+    )
+    {
+        UpdateBufferWriter();
+        cachedUpdate.ToUpdate = cachedWriter.Data.AsMemory(0, cachedWriter.Length);
+
+        if (ownersOnly)
+        {
+            data.SendToOwners(cachedUpdate, method);
+        }
+        else
+        {
+            data.SendMessage(cachedUpdate, method);
+        }
+    }
+
+    public void NetUpdatePeer(NetPeer peer, DeliveryMethod method = DeliveryMethod.Unreliable)
+    {
+        UpdateBufferWriter();
+        cachedUpdate.ToUpdate = cachedWriter.Data.AsMemory(0, cachedWriter.Length);
+        peer.EncodeAndSend(cachedUpdate, method);
+    }
 }
 
-public static class ComponentExtensions
+[MemoryPackable]
+public partial record ComponentOverwriteUpdate(ulong EntityID, uint ComponentID)
+    : IEntityUpdate<EntityData>
 {
-    public static void InitializeAll<TComponent, TData>(this TComponent[] componentList, TData data)
-        where TComponent : IComponent<TData>
-        where TData : IEntityData
+    [MemoryPoolFormatter<byte>]
+    public required Memory<byte> ToUpdate { get; set; }
+
+    public MessageType MessageType => MessageType.ComponentOverwriteUpdate;
+
+    public void OnClient(ClientManager client) =>
+        this.UpdateClientEntity<ComponentOverwriteUpdate, EntityData>(client);
+
+    public void OnServer(NetPeer peer, ServerManager server) =>
+        this.UpdateServerEntity<ComponentOverwriteUpdate, EntityData>(peer);
+
+    public void UpdateEntity(INetEntity<EntityData> entity)
     {
-        for (int x = 0; x < componentList.Length; x++)
-        {
-            componentList[x].Initialize(data, x);
-        }
+        var data = entity.Data;
+        if (data.ComponentRegistry == null)
+            return;
+
+        var components = data.ComponentRegistry.Components;
+
+        if (ComponentID >= components.Length)
+            return;
+
+        var component = components[ComponentID];
+
+        // Deserialize into an existing component
+        MemoryPackSerializer.Deserialize(ToUpdate.Span, ref component);
+
+        component?.JustUpdated?.Invoke();
     }
 }

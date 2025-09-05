@@ -1,29 +1,6 @@
-[gd_scene load_steps=10 format=3 uid="uid://biks2wycvo4vl"]
+[gd_scene load_steps=5 format=3 uid="uid://biks2wycvo4vl"]
 
 [ext_resource type="Script" uid="uid://drqgn77jso0de" path="res://scripts/Game.Entities/types/ItemPickup/ItemPickup.cs" id="1_34d4q"]
-[ext_resource type="Script" uid="uid://dmtxmk5ma4g4h" path="res://scripts/Game.Entities/types/Burger/BurgerData.cs" id="2_qbdj7"]
-[ext_resource type="Script" uid="uid://bo3vvvgdvcvg8" path="res://scripts/Game.Entities/types/ItemPickup/ItemPickupData.cs" id="3_fak24"]
-
-[sub_resource type="Resource" id="Resource_vy0qk"]
-script = ExtResource("2_qbdj7")
-StackName = "burger_standard"
-IconPath = "res://addons/kenney_prototype_textures/red/texture_11.png"
-ServerScene = "res://scenes/entities/test_items/test_burger.tscn"
-ClientScene = "res://scenes/entities/test_items/test_burger.tscn"
-
-[sub_resource type="Resource" id="Resource_3u5c3"]
-script = ExtResource("2_qbdj7")
-StackName = "burger_special"
-IconPath = "res://addons/kenney_prototype_textures/red/texture_11.png"
-ServerScene = "res://scenes/entities/test_items/test_burger.tscn"
-ClientScene = "res://scenes/entities/test_items/test_burger.tscn"
-
-[sub_resource type="Resource" id="Resource_2ivff"]
-script = ExtResource("3_fak24")
-Counts = Array[int]([4, 2])
-Datalist = Array[Object]([SubResource("Resource_vy0qk"), SubResource("Resource_3u5c3")])
-ServerScene = "res://scenes/entities/test_items/item_pickup.tscn"
-ClientScene = "res://scenes/entities/test_items/item_pickup.tscn"
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_w7xvb"]
 albedo_color = Color(0.486013, 0.600078, 0.857284, 1)
@@ -40,7 +17,6 @@ collision_layer = 0
 collision_mask = 3
 monitorable = false
 script = ExtResource("1_34d4q")
-Data = SubResource("Resource_2ivff")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_rd167")

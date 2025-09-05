@@ -10,4 +10,7 @@
         "*.shader": "$(capture).shader.uid",
         // ...
     },
+    "dotrush.roslyn.projectOrSolutionFiles": [
+        "SpaceGame.csproj"
+    ],
 }

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="DestructibleDoorData" load_steps=6 format=3 uid="uid://2gbayd8iq7yq"]
+
+[ext_resource type="Script" uid="uid://bfa6shq0nho0t" path="res://scripts/Game.Entities/components/Toggle/ToggleComponent.cs" id="1_1em4d"]
+[ext_resource type="Script" uid="uid://bb3viohvyt16p" path="res://scripts/Game.Entities/components/Health/HealthComponent.cs" id="2_aplwq"]
+[ext_resource type="Script" uid="uid://gn1g7hsmfe5b" path="res://scripts/Game.Entities/types/DestructibleProp/DestructibleDoorData.cs" id="3_6aahu"]
+
+[sub_resource type="Resource" id="Resource_ceiv7"]
+script = ExtResource("1_1em4d")
+State = false
+
+[sub_resource type="Resource" id="Resource_xjycl"]
+script = ExtResource("2_aplwq")
+InternalHealth = 0
+
+[resource]
+script = ExtResource("3_6aahu")
+DoorState = SubResource("Resource_ceiv7")
+HealthState = SubResource("Resource_xjycl")
+ServerScene = ""
+ClientScene = ""
+metadata/_custom_type_script = "uid://gn1g7hsmfe5b"

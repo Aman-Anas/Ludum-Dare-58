@@ -6,14 +6,16 @@ using Godot;
 using LiteNetLib;
 using MemoryPack;
 
-public interface IToggleable : IEntityData
+public interface IDoor : IEntityData
 {
-    public ToggleComponent[] Toggles { get; }
+    public ToggleComponent DoorState { get; }
 }
 
+[GlobalClass]
 [MemoryPackable]
-public partial class ToggleComponent : Component<IToggleable>
+public partial class ToggleComponent : NetComponent<EntityData>
 {
+    [Export]
     public bool State { get; set; }
 
     public event Action? ToggleStateChanged;
@@ -21,7 +23,7 @@ public partial class ToggleComponent : Component<IToggleable>
     public void Toggle()
     {
         State = !State;
-        data.SendMessage(new ToggleUpdate(data.EntityID, State, index));
+        this.NetUpdate();
 
         ToggleStateChanged?.Invoke();
     }

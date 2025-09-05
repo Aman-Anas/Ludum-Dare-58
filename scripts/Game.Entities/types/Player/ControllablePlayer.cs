@@ -75,16 +75,16 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
         Input.MouseMode = Input.MouseModeEnum.Captured;
 
         inventoryUI.Hide();
-        inventoryUI.UpdateInventorySlots(Data.Inventory);
+        // inventoryUI.UpdateInventorySlots(Data.Inventory);
 
-        inventoryUI.TryInventoryMove += ((short src, short dest, uint count) moveCmd) =>
-        {
-            Data.ExecuteStorageAction(Data, moveCmd.src, moveCmd.dest, moveCmd.count);
-        };
+        // inventoryUI.TryInventoryMove += ((short src, short dest, uint count) moveCmd) =>
+        // {
+        //     Data.ExecuteStorageAction(Data, moveCmd.src, moveCmd.dest, moveCmd.count);
+        // };
 
-        Data.OnInventoryUpdate += () => inventoryUI.UpdateInventorySlots(Data.Inventory);
+        // Data.OnInventoryUpdate += () => inventoryUI.UpdateInventorySlots(Data.Inventory);
 
-        animPlayer.CurrentAnimationChanged += (_) => Data.UpdateAnim();
+        animPlayer.CurrentAnimationChanged += (_) => Data.AnimHelper.NetUpdate();
     }
 
     public override void _PhysicsProcess(double delta)
@@ -155,12 +155,12 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
             mouseMovement += ((InputEventMouseMotion)motion.XformedBy(viewportTransform)).Relative;
         }
 
-        // If we are carrying something in the first slot
-        if (Data.Inventory.TryGetValue(0, out var firstSlotItem))
-        {
-            firstSlotItem.Storable.Position = dropLocation.GlobalPosition;
-            Data.Client.SpawnEntity(firstSlotItem.Storable);
-        }
+        // // If we are carrying something in the first slot
+        // if (Data.MainInventory.Inventory.TryGetValue(0, out var firstSlotItem))
+        // {
+        //     firstSlotItem.Storable.Position = dropLocation.GlobalPosition;
+        //     Data.Client.SpawnEntity(firstSlotItem.Storable);
+        // }
     }
 
     public override void _IntegrateForces(PhysicsDirectBodyState3D state)
@@ -272,11 +272,11 @@ public partial class ControllablePlayer : RigidBody3D, INetEntity<PlayerEntityDa
         horizontalSpeed.Y = 0;
         if (movementVec.Length() > 0.1 && (horizontalSpeed.Length() > 0.2))
         {
-            Data.CurrentAnim = (byte)PlayerAnims.Run;
+            Data.AnimHelper.CurrentAnimation = (byte)PlayerAnims.Run;
         }
         else
         {
-            Data.CurrentAnim = (byte)PlayerAnims.Idle;
+            Data.AnimHelper.CurrentAnimation = (byte)PlayerAnims.Idle;
         }
 
         animPlayer.Play(Data.GetAnimation(), customBlend: 1);

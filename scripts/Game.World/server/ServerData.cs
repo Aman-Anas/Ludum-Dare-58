@@ -74,6 +74,7 @@ public partial class ServerData
             sectorParams,
             Manager.Instance.GameServer.GetNewSectorViewport(),
             this
+        // "",
         );
         LoadedSectors[newSectorId] = newSector;
 

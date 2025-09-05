@@ -10,10 +10,21 @@ using MemoryPack;
 /// <summary>
 /// Interface meaning this object can contain IStorable entities
 /// </summary>
-public interface IStorageContainer : IEntityData
+public interface IAutoCollector : IEntityData
 {
-    public StorageContainerComponent[] StorageState { get; }
+    /// <summary>
+    /// Whether or not this entity will automatically pick up item pickups.
+    /// Automatically picked-up items will go in MainInventory.
+    /// </summary>
+    public bool AutoPickup { get; }
+
+    /// <summary>
+    /// The container to collect auto-picked-up items in.
+    /// </summary>
+    public StorageContainerComponent MainInventory { get; }
 }
+
+// public interface IStorageContainer : IEntityData { }
 
 [MemoryPackable]
 public partial class InventoryEntry(EntityData storable, uint stackSize)
@@ -38,8 +49,9 @@ public partial class InventoryEntry(EntityData storable, uint stackSize)
     }
 }
 
+[GlobalClass]
 [MemoryPackable]
-public partial class StorageContainerComponent : Component<IStorageContainer>
+public partial class StorageContainerComponent : NetComponent<EntityData>
 {
     // The actual data of the inventory
     public Dictionary<short, InventoryEntry> Inventory { get; set; } = [];
@@ -64,14 +76,12 @@ public partial class StorageContainerComponent : Component<IStorageContainer>
     }
 
     /// <summary>
-    /// Tell all the clients about the current complete inventory state
+    /// Tell all the clients about the current complete inventory state.
+    /// Only called on the server side.
     /// </summary>
     public void UpdateClientInventory()
     {
-        data.SendToOwners(
-            new StorageUpdate(data.EntityID, index, Inventory),
-            DeliveryMethod.ReliableOrdered
-        );
+        this.NetUpdate(ownersOnly: true, DeliveryMethod.ReliableOrdered);
     }
 
     /// <summary>
@@ -104,7 +114,7 @@ public partial class StorageContainerComponent : Component<IStorageContainer>
         // Check if there's anything at the target location
         var nextSlotItem = nextStore.GetValueOrDefault(newIndex);
 
-        // There's something there. Check if we can stack
+        // There's something there. Check if we can add to the stack
         if ((nextSlotItem != null) && nextSlotItem.CanStack(srcData.StorableInterface, count))
         {
             if (count == srcData.StackSize)
@@ -153,7 +163,7 @@ public partial class StorageContainerComponent : Component<IStorageContainer>
         // Tell all storages about this inventory change
         OnInventoryUpdated?.Invoke();
 
-        if (data != next)
+        if (this != next)
             next.OnInventoryUpdated?.Invoke();
 
         // If this is a client, send a message to the server
@@ -195,11 +205,14 @@ public partial class StorageContainerComponent : Component<IStorageContainer>
         }
         else
         {
-            var pickup = new ItemPickupData();
-            pickup.Items.Enqueue((item.Storable, item.StackSize));
+            // Make a new entity to hold the dropped items
+            var pickup = new ItemPickupData
+            {
+                Items = [new(item.Storable, item.StackSize)],
 
-            pickup.ClientScene = DroppedItemScene;
-            pickup.ServerScene = DroppedItemScene;
+                ClientScene = DroppedItemScene,
+                ServerScene = DroppedItemScene
+            };
 
             Vector3 droplocation;
             if (DropLocation != null)

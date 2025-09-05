@@ -10,32 +10,34 @@ using MemoryPack;
 
 [GlobalClass]
 [MemoryPackable]
-public partial class PlayerEntityData : EntityData, IBasicAnim, IStorageContainer
+public partial class PlayerEntityData : EntityData, IAutoCollector, IHealth
 {
+    /// <summary>
+    /// Health status of this player. Hidden
+    /// </summary>
     [Export]
-    public int Health { get; set; }
-
-    [Export]
-    // Why save this? because it's funny
-    public float HeadPivotAngle { get; set; }
-
-    [Export]
-    // For now, use a simple color to differentiate players
-    public Color PlayerColor { get; set; }
-
     [MemoryPackIgnore]
+    public HealthComponent HealthState { get; set; } = new();
+
+    /// <summary>
+    /// Property to test differentiation between players
+    /// </summary>
+    [Export]
+    public Color PlayerColor { get; set; } = Color.FromHsv(Random.Shared.NextSingle(), 1, 1);
+
+    /// <summary>
+    /// Current rotation state of the player's head
+    /// </summary>
     public Vector3 HeadRotation { get; set; } = Vector3.Zero;
 
+    /// <summary>
+    /// Main player inventory component. Hidden
+    /// </summary>
     [MemoryPackIgnore]
-    public byte CurrentAnim { get; set; }
+    public StorageContainerComponent MainInventory { get; set; } =
+        new() { MaxSlots = InventoryUI.NumSlots };
 
-    [MemoryPackIgnore]
-    public Action HealthDepleted { get; set; } = null!;
-
-    /////// Inventory ///////
-    [MemoryPackIgnore]
-    public Dictionary<short, InventoryEntry> Inventory { get; set; } = [];
-
+    // Save and load hidden components
     [MemoryPackOnSerialized]
     static void Saving<TBufferWriter>(
         ref MemoryPackWriter<TBufferWriter> writer,
@@ -45,8 +47,8 @@ public partial class PlayerEntityData : EntityData, IBasicAnim, IStorageContaine
     {
         if (value.InSaveState)
         {
-            writer.WriteUnmanaged(value.Health);
-            writer.WriteValue(value.Inventory);
+            writer.WriteValue(value.HealthState);
+            writer.WriteValue(value.MainInventory);
         }
     }
 
@@ -55,34 +57,26 @@ public partial class PlayerEntityData : EntityData, IBasicAnim, IStorageContaine
     {
         if (value.InSaveState)
         {
-            value.Health = reader.ReadUnmanaged<int>();
-            value.Inventory = reader.ReadValue<Dictionary<short, InventoryEntry>>()!;
+            value.HealthState = reader.ReadValue<HealthComponent>()!;
+            value.MainInventory = reader.ReadValue<StorageContainerComponent>()!;
         }
     }
 
-    public override void OnPlayerJoin(NetPeer peer)
+    public override void OnMeetPlayer(NetPeer peer)
     {
         if (peer.OwnsEntity(EntityID))
         {
-            peer.EncodeAndSend(new HealthUpdate(EntityID, Health));
-
-            var update = new StorageUpdate(EntityID, Inventory);
-            peer.EncodeAndSend(update, DeliveryMethod.ReliableOrdered);
+            HealthState.NetUpdatePeer(peer);
+            MainInventory.NetUpdatePeer(peer, DeliveryMethod.ReliableOrdered);
         }
     }
-
-    public short MaxSlots { get; set; } = InventoryUI.NumSlots;
-    public bool AutoPickup { get; set; } = true;
-
-    [MemoryPackIgnore]
-    public Action OnInventoryUpdate { get; set; } = null!;
 
     static readonly StringName IdleName = new("GAME_Breathe");
     static readonly StringName RunningName = new("GAME_Run");
 
     public StringName GetAnimation()
     {
-        return (PlayerAnims)CurrentAnim switch
+        return (PlayerAnims)AnimHelper.CurrentAnimation switch
         {
             PlayerAnims.Idle => IdleName,
             PlayerAnims.Run => RunningName,
@@ -90,12 +84,18 @@ public partial class PlayerEntityData : EntityData, IBasicAnim, IStorageContaine
         };
     }
 
+    /// <summary>
+    /// Animation component.
+    /// This is not saved because animation state depends on player input anyways
+    /// </summary>
     [MemoryPackIgnore]
-    public BasicAnimComponent BasicAnimHelper { get; }
+    public BasicAnimComponent AnimHelper { get; } = new();
+
+    public bool AutoPickup { get; } = true;
 
     public PlayerEntityData()
     {
-        BasicAnimHelper = new(this);
+        ComponentRegistry = new(this, [HealthState, MainInventory, AnimHelper]);
     }
 }
 

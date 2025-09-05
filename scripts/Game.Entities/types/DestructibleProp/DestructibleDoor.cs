@@ -17,6 +17,6 @@ public partial class DestructibleDoor : StaticBody3D, INetEntity<DestructibleDoo
 
     public override void _Ready()
     {
-        Data.HealthState.OnHealthDepleted += (newHp) => Data.DestroyEntity();
+        Data.HealthState.OnHealthDepleted += (_) => Data.DestroyEntity();
     }
 }

@@ -19,13 +19,16 @@ public interface IEntityData
     public HashSet<ulong> Owners { get; set; }
 }
 
+// Event bus shared by all entities and components to make things easier.
+public partial class EntityEvents;
+
 [GlobalClass, Icon("res://icon.svg")]
 [MemoryPackUnion(0, typeof(DestructibleDoorData))]
 [MemoryPackUnion(1, typeof(PhysicsProjectileData))]
 [MemoryPackUnion(2, typeof(StaticPropData))]
 [MemoryPackUnion(3, typeof(PlayerEntityData))]
 [MemoryPackUnion(4, typeof(ItemPickupData))]
-[MemoryPackUnion(5, typeof(BurgerData))]
+[MemoryPackUnion(5, typeof(FoodData))]
 [MemoryPackable]
 public abstract partial class EntityData : MemoryPackableResource, IEntityData
 {
@@ -59,6 +62,10 @@ public abstract partial class EntityData : MemoryPackableResource, IEntityData
     [MemoryPackIgnore]
     public ClientManager Client { get; set; } = null!; // Only accessible on client
 
+    /// <summary>
+    /// Flag set to true whenever we're saving/loading to a save file (should be false other times)
+    /// </summary>
+    /// <value></value>
     public bool InSaveState { get; set; }
 
     /// <summary>
@@ -75,13 +82,13 @@ public abstract partial class EntityData : MemoryPackableResource, IEntityData
     public virtual void OnResourceCopy() { }
 
     /// <summary>
-    /// Called whenever a player joins the local area of this entity.
-    ///
+    /// Called whenever a player joins the area of this entity,
+    /// or this entity joins an area containing players.
     /// This method is useful to send setup packets for nonserialized fields and other secret data
     /// </summary>
     ///
-    /// <param name="peer">The peer which joined this area.</param>
-    public virtual void OnPlayerJoin(NetPeer peer) { }
+    /// <param name="peer">The peer which we just met.</param>
+    public virtual void OnMeetPlayer(NetPeer peer) { }
 
     public INetEntity SpawnInstance(bool onServer)
     {
@@ -110,6 +117,45 @@ public abstract partial class EntityData : MemoryPackableResource, IEntityData
     }
 
     public virtual void OnDestroy() { }
+
+    [MemoryPackIgnore]
+    public virtual NetComponentRegistry? ComponentRegistry { get; init; }
+
+    public T? GetComponent<T>(uint index)
+        where T : class, INetComponent
+    {
+        if (ComponentRegistry == null)
+        {
+            return null;
+        }
+        var components = ComponentRegistry.Components;
+
+        if (index >= components.Length)
+        {
+            return null;
+        }
+
+        return (components[index]) as T;
+    }
+}
+
+/// <summary>
+/// Fancy name for an array of components
+/// Needed so that we can make sure they are initialized correctly
+/// </summary>
+public class NetComponentRegistry
+{
+    public INetComponent[] Components { get; }
+
+    public NetComponentRegistry(EntityData data, INetComponent[] components)
+    {
+        this.Components = components;
+
+        for (uint x = 0; x < Components.Length; x++)
+        {
+            Components[x].Initialize(data, x);
+        }
+    }
 }
 
 public static class EntityDataExtensions
@@ -121,8 +167,6 @@ public static class EntityDataExtensions
         where T : EntityData
     {
         T newData = (T)data.Duplicate(true);
-        // if (data.Secrets != null)
-        //     newData.Secrets = (SecretData)data.Secrets.Duplicate(true);
 
         newData.OnResourceCopy();
         return newData;

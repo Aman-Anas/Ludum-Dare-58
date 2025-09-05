@@ -14,11 +14,17 @@ public interface IHealth : IEntityData
     public HealthComponent HealthState { get; }
 }
 
+[GlobalClass]
 [MemoryPackable]
-public partial class HealthComponent : Component<IHealth>
+public partial class HealthComponent : NetComponent<EntityData>
 {
+    [Export]
     public int InternalHealth { get; set; }
 
+    /// <summary>
+    /// Action emitted when health is about to go below zero.
+    /// int parameter is the new health value.
+    /// </summary>
     public event Action<int>? OnHealthDepleted;
 
     [MemoryPackIgnore]
@@ -34,12 +40,7 @@ public partial class HealthComponent : Component<IHealth>
             InternalHealth = value;
 
             // Update the sector
-            Update();
+            this.NetUpdate();
         }
-    }
-
-    public void Update()
-    {
-        data.CurrentSector?.EchoToSector(new HealthUpdate(data.EntityID, InternalHealth));
     }
 }

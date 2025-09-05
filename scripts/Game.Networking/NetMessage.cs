@@ -32,17 +32,19 @@ public enum MessageType : ushort
     SpawnEntity,
 
     // Component updates
-    HealthUpdate,
-    DoorUpdate,
-    BasicAnimUpdate,
+    ComponentOverwriteUpdate,
+
+    // HealthUpdate,
+    // DoorUpdate,
+    // BasicAnimUpdate,
     StorageAction,
-    StorageUpdate,
+
+    // StorageUpdate,
     StorageDrop,
 
     // Custom transform update for players
     PlayerTransform,
     UsePortal,
-    ComponentUpdate,
 }
 
 public static class NetMessageUtil
@@ -78,21 +80,21 @@ public static class NetMessageUtil
                 ProcessNetMessage<SpawnEntity>(reader, peer, server, client);
                 break;
 
-            case MessageType.HealthUpdate:
-                ProcessNetMessage<HealthUpdate>(reader, peer, server, client);
-                break;
-            case MessageType.DoorUpdate:
-                ProcessNetMessage<ToggleUpdate>(reader, peer, server, client);
-                break;
-            case MessageType.BasicAnimUpdate:
-                ProcessNetMessage<BasicAnimUpdate>(reader, peer, server, client);
-                break;
+            // case MessageType.HealthUpdate:
+            //     ProcessNetMessage<HealthUpdate>(reader, peer, server, client);
+            //     break;
+            // case MessageType.DoorUpdate:
+            //     ProcessNetMessage<ToggleUpdate>(reader, peer, server, client);
+            //     break;
+            // case MessageType.BasicAnimUpdate:
+            //     ProcessNetMessage<BasicAnimUpdate>(reader, peer, server, client);
+            //     break;
             case MessageType.StorageAction:
                 ProcessNetMessage<StorageAction>(reader, peer, server, client);
                 break;
-            case MessageType.StorageUpdate:
-                ProcessNetMessage<StorageUpdate>(reader, peer, server, client);
-                break;
+            // case MessageType.StorageUpdate:
+            //     ProcessNetMessage<StorageUpdate>(reader, peer, server, client);
+            //     break;
 
             case MessageType.PlayerTransform:
                 ProcessNetMessage<PlayerTransform>(reader, peer, server, client);
@@ -181,7 +183,7 @@ public static class NetMessageUtil
     }
 }
 
-public class BufferedNetDataWriter(int initialSize)
+public class BufferedNetDataWriter(int initialSize = 64)
     : NetDataWriter(true, initialSize),
         IBufferWriter<byte>
 {

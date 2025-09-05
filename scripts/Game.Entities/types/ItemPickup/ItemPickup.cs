@@ -11,6 +11,12 @@ public partial class ItemPickup : Area3D, INetEntity<ItemPickupData>
     [Export]
     public ItemPickupData Data { get; set; } = null!;
 
+    /// <summary>
+    /// The visual element/representation to animate and spin
+    /// </summary>
+    [Export]
+    Node3D visualElement = null!;
+
     EntityData INetEntity.Data
     {
         get => Data;
@@ -24,22 +30,26 @@ public partial class ItemPickup : Area3D, INetEntity<ItemPickupData>
 
     private void TriggerPickup(Node3D body)
     {
-        if (body is INetEntity<IStorageContainer> entity && entity.Data.AutoPickup)
+        if (body is INetEntity<IAutoCollector> entity && entity.Data.AutoPickup)
         {
-            // On server
+            // Only pickup stuff on the server side. (for now)
             if (Data.CurrentSector != null)
             {
-                while (Data.Items.TryDequeue(out (EntityData item, uint count) val))
+                foreach (var entry in Data.Items)
                 {
-                    if (!((IStorable)val.item).StoreItem(entity.Data, val.count))
+                    bool storeSuccess = ((IStorable)entry.Item).StorableInfo.StoreItem(
+                        entity.Data.MainInventory,
+                        entry.Count
+                    );
+
+                    if (!storeSuccess)
                     {
-                        // early exit since we failed to store an item
-                        entity.Data.UpdateClientInventory();
+                        entity.Data.MainInventory.UpdateClientInventory();
                         return;
                     }
                 }
 
-                entity.Data.UpdateClientInventory();
+                entity.Data.MainInventory.UpdateClientInventory();
                 Data.DestroyEntity();
             }
         }
@@ -47,6 +57,7 @@ public partial class ItemPickup : Area3D, INetEntity<ItemPickupData>
 
     public override void _Process(double delta)
     {
-        Rotation = new(0, Rotation.Y + (float)(delta * 3), 0);
+        visualElement.Rotation = new(0, visualElement.Rotation.Y + (float)(delta * 3), 0);
+        visualElement.Position = new(0, MathF.PI + MathF.Sin(Time.GetTicksMsec() / 1000f), 0);
     }
 }

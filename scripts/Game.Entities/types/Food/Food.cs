@@ -6,10 +6,10 @@ using Godot;
 using MemoryPack;
 
 [GlobalClass]
-public partial class Burger : StaticBody3D, INetEntity<BurgerData>
+public partial class Food : StaticBody3D, INetEntity<FoodData>
 {
     [Export]
-    public BurgerData Data { get; set; } = null!;
+    public FoodData Data { get; set; } = null!;
 
     [Export]
     MeshInstance3D textMesh = null!;
@@ -17,11 +17,11 @@ public partial class Burger : StaticBody3D, INetEntity<BurgerData>
     EntityData INetEntity.Data
     {
         get => Data;
-        set => Data = (BurgerData)value;
+        set => Data = (FoodData)value;
     }
 
     public override void _Ready()
     {
-        ((TextMesh)textMesh.Mesh).Text = Data.StackClass;
+        ((TextMesh)textMesh.Mesh).Text = Data.StorableInfo.StackClass;
     }
 }

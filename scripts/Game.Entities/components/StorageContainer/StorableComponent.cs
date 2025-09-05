@@ -16,21 +16,26 @@ public interface IStorable : IEntityData
     StorableComponent StorableInfo { get; }
 }
 
+[GlobalClass]
 [MemoryPackable]
-public partial class StorableComponent : Component<IStorable>
+public partial class StorableComponent : NetComponent<IStorable>
 {
     // Whether or not this storable can stack with anything else
-    // If this is set then stack class and MaxStack doesn't matter
+    // If this is set to false then stack class and MaxStack doesn't matter
+    [Export]
     public bool Stackable { get; set; }
 
     // Unique identifier per stackable type
     // This could be an enum maybe
-    public string? StackClass { get; init; }
+    [Export]
+    public required string StackClass { get; set; }
 
     // The maximum amount this storable can stack
+    [Export]
     public int MaxStack { get; set; }
 
     // Path to the icon displayed in inventory for this storable
+    [Export]
     public string IconPath { get; set; } = @"res://icon.svg";
 
     public bool StoreItem(StorageContainerComponent storage, uint count)
