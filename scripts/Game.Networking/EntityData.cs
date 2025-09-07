@@ -1,6 +1,7 @@
 namespace Game.Networking;
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Game.Entities;
@@ -44,11 +45,33 @@ public abstract partial class EntityData : MemoryPackableResource, IEntityData
 
     /// <summary>
     /// The godot scene for this entity on the server.
-    /// This currently gets serialized to client as well, but it's
-    /// not a big deal
+    /// This field does not get serialized to the client.
     /// </summary>
     [Export(PropertyHint.File)]
+    [MemoryPackIgnore]
     public string ServerScene { get; set; } = null!;
+
+    [MemoryPackOnSerialized]
+    static void Saving<TBufferWriter>(
+        ref MemoryPackWriter<TBufferWriter> writer,
+        ref EntityData value
+    )
+        where TBufferWriter : IBufferWriter<byte>
+    {
+        if (value.InSaveState)
+        {
+            writer.WriteValue(value.ServerScene);
+        }
+    }
+
+    [MemoryPackOnDeserialized]
+    static void Loading(ref MemoryPackReader reader, ref EntityData value)
+    {
+        if (value.InSaveState)
+        {
+            value.ServerScene = reader.ReadString()!;
+        }
+    }
 
     /// <summary>
     /// The godot scene for this entity on the client
@@ -92,6 +115,9 @@ public abstract partial class EntityData : MemoryPackableResource, IEntityData
 
     public INetEntity SpawnInstance(bool onServer)
     {
+        // Initialize our components
+        ComponentRegistry?.Initialize();
+
         string scene = onServer ? ServerScene : ClientScene;
         // GD.Print(scene);
         var newEntity = NetHelper.InstanceFromScene<INetEntity>(scene);
@@ -119,7 +145,7 @@ public abstract partial class EntityData : MemoryPackableResource, IEntityData
     public virtual void OnDestroy() { }
 
     [MemoryPackIgnore]
-    public virtual NetComponentRegistry? ComponentRegistry { get; init; }
+    internal virtual NetComponentRegistry? ComponentRegistry { get; init; }
 
     public T? GetComponent<T>(uint index)
         where T : class, INetComponent
@@ -147,10 +173,17 @@ public class NetComponentRegistry
 {
     public INetComponent[] Components { get; }
 
+    readonly EntityData data;
+
     public NetComponentRegistry(EntityData data, INetComponent[] components)
     {
         this.Components = components;
+        this.data = data;
+    }
 
+    // Initialize will be called only at runtime
+    public void Initialize()
+    {
         for (uint x = 0; x < Components.Length; x++)
         {
             Components[x].Initialize(data, x);

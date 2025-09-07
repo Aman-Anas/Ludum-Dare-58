@@ -2,9 +2,9 @@
 
 [ext_resource type="PackedScene" uid="uid://c610j0q8br2ae" path="res://assets/hitboxes/hitbox3.glb" id="1_vcbjo"]
 [ext_resource type="PackedScene" uid="uid://3mh05ycxlbvq" path="res://scenes/entities/Player/Inventory.tscn" id="2_20h2i"]
-[ext_resource type="Script" uid="uid://cwjhgo6psng8k" path="res://scripts/entities/types/Player/ControllablePlayer.cs" id="2_lrmhu"]
+[ext_resource type="Script" uid="uid://cwjhgo6psng8k" path="res://scripts/Game.Entities/types/Player/ControllablePlayer.cs" id="2_lrmhu"]
 [ext_resource type="PackedScene" uid="uid://db5mfageo8ulj" path="res://assets/rigs/new_char.glb" id="3_lrmhu"]
-[ext_resource type="Script" uid="uid://bxltufk1m4lgw" path="res://scripts/entities/InteractionRay.cs" id="4_bluik"]
+[ext_resource type="Script" uid="uid://bxltufk1m4lgw" path="res://scripts/Game.Entities/InteractionRay.cs" id="4_bluik"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_vcbjo"]
 friction = 0.0
@@ -45,7 +45,7 @@ process_mode = 1
 [node name="new_char" parent="." index="2" instance=ExtResource("3_lrmhu")]
 
 [node name="BoneAttachment3D" type="BoneAttachment3D" parent="new_char/rig_game/Skeleton3D" index="5"]
-transform = Transform3D(1, -2.84217e-14, 2.38418e-07, 2.28706e-14, 1, 1.19209e-07, -2.38419e-07, -1.3411e-07, 1, -2.83755e-15, 1.56968, -1.30385e-08)
+transform = Transform3D(1, -2.84217e-14, 2.38418e-07, 2.28706e-14, 1, 1.19209e-07, -2.38419e-07, -1.3411e-07, 1, 1.18346e-14, 1.55946, -1.67638e-08)
 bone_name = "DEF-spine.006"
 bone_idx = 6
 
@@ -56,7 +56,7 @@ update_rotation = false
 update_scale = false
 
 [node name="head" parent="new_char" index="1"]
-transform = Transform3D(-0.99999, 5.63278e-14, -3.89406e-07, 1.57095e-14, 0.999983, 1.04306e-07, 3.8941e-07, 1.04306e-07, -0.999978, 8.22027e-15, 1.70909, -5.17815e-08)
+transform = Transform3D(-0.99999, 5.63278e-14, -3.89406e-07, 1.57095e-14, 0.999983, 1.04306e-07, 3.8941e-07, 1.04306e-07, -0.999978, -1.31401e-14, 1.70946, 3.68804e-08)
 top_level = true
 
 [node name="AnimationTree" type="AnimationTree" parent="new_char" index="2"]
@@ -106,7 +106,7 @@ target_position = Vector3(0, -0.11, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
 [node name="CameraYawTarget" type="Node3D" parent="." index="5"]
-transform = Transform3D(-1, 4.96976e-14, -3.25842e-07, 1.57097e-14, 1, 1.04308e-07, 3.25842e-07, 1.04308e-07, -1, 8.22027e-15, 1.70909, -5.17815e-08)
+transform = Transform3D(-1, 4.96976e-14, -3.25842e-07, 1.57097e-14, 1, 1.04308e-07, 3.25842e-07, 1.04308e-07, -1, -1.31401e-14, 1.70946, 3.68804e-08)
 top_level = true
 
 [node name="HeadPosition" type="RemoteTransform3D" parent="CameraYawTarget" index="0"]

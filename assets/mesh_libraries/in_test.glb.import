@@ -4,12 +4,11 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://dgc2gepmbya5b"
-path="res://.godot/imported/in_test.glb-44846e911cdcafaea4acc4a59fef1500.scn"
+valid=false
 
 [deps]
 
 source_file="res://assets/mesh_libraries/in_test.glb"
-dest_files=["res://.godot/imported/in_test.glb-44846e911cdcafaea4acc4a59fef1500.scn"]
 
 [params]
 

@@ -13,4 +13,18 @@
     "dotrush.roslyn.projectOrSolutionFiles": [
         "SpaceGame.csproj"
     ],
+    "workbench.colorCustomizations": {
+        "sash.hoverBorder": "#ad2fe1",
+        "commandCenter.border": "#e7e7e799",
+        "titleBar.activeBackground": "#911cc1",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.inactiveBackground": "#911cc199",
+        "titleBar.inactiveForeground": "#e7e7e799",
+        "statusBar.background": "#911cc1",
+        "statusBar.foreground": "#e7e7e7",
+        "statusBarItem.hoverBackground": "#ad2fe1",
+        "statusBarItem.remoteBackground": "#911cc1",
+        "statusBarItem.remoteForeground": "#e7e7e7"
+    },
+    "peacock.color": "#911cc1",
 }

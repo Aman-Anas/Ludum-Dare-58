@@ -13,6 +13,8 @@ namespace Game.Entities;
 [MemoryPackable]
 [MemoryPackUnion(0, typeof(ToggleComponent))]
 [MemoryPackUnion(1, typeof(HealthComponent))]
+[MemoryPackUnion(2, typeof(StorageContainerComponent))]
+[MemoryPackUnion(3, typeof(StorableComponent))]
 public partial interface INetComponent
 {
     public void Initialize(IEntityData data, uint componentIndex);

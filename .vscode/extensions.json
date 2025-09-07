@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "llvm-vs-code-extensions.vscode-clangd",
+        "nromanov.dotrush",
+        "geequlim.godot-tools",
+        "geforcelegend.vscode-glsl"
+    ]
+}
