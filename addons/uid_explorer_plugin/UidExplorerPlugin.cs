@@ -37,86 +37,91 @@ namespace UidExplorerPluginProject;
 [Tool]
 public partial class UidExplorerPlugin : EditorPlugin
 {
-	// Plugin Settings
-	private const string SETTINGS_PATH = "addons/UidExplorerPlugin/";
+    // Plugin Settings
+    private const string SETTINGS_PATH = "addons/UidExplorerPlugin/";
 
-	private const string DEV_MODE_ENABLED_PATH = SETTINGS_PATH + "DevModeEnabled";
-	private const bool DEV_MODE_ENABLED_DEFAULT = false;
+    private const string DEV_MODE_ENABLED_PATH = SETTINGS_PATH + "DevModeEnabled";
+    private const bool DEV_MODE_ENABLED_DEFAULT = false;
 
-	private const string PRESS_OPTION_PATH = SETTINGS_PATH + "PressOption";
-	private const PressOptionE PRESS_OPTION_DEFAULT = PressOptionE.EditResource;
+    private const string PRESS_OPTION_PATH = SETTINGS_PATH + "PressOption";
+    private const PressOptionE PRESS_OPTION_DEFAULT = PressOptionE.EditResource;
 
-	private bool devModeEnabled;
-	private PressOptionE pressOption;
+    private bool devModeEnabled;
+    private PressOptionE pressOption;
 
-	private UidInspector uidInspector;
+    private UidInspector uidInspector = null!;
 
-	public override void _EnterTree()
-	{
-		CheckForSettings();
-		uidInspector = new UidInspector(devModeEnabled, pressOption);
-		AddInspectorPlugin(uidInspector);
-		ProjectSettings.Singleton.Connect(ProjectSettings.SignalName.SettingsChanged, new(this, MethodName.OnProjectSettingChanged));
-	}
-	public override void _ExitTree()
-	{
-		RemoveInspectorPlugin(uidInspector);
-		uidInspector = null;
-	}
-	private void OnProjectSettingChanged()
-	{
-		CheckForSettings();
-		uidInspector.UpdateSettings(devModeEnabled, pressOption);
-	}
+    public override void _EnterTree()
+    {
+        CheckForSettings();
+        uidInspector = new UidInspector(devModeEnabled, pressOption);
+        AddInspectorPlugin(uidInspector);
+        ProjectSettings.Singleton.Connect(
+            ProjectSettings.SignalName.SettingsChanged,
+            new(this, MethodName.OnProjectSettingChanged)
+        );
+    }
 
-	/// <summary>
-	/// Checks for if the project settings exist, and if not, create them.
-	/// </summary>
-	private void CheckForSettings()
-	{
-		if (ProjectSettings.HasSetting(DEV_MODE_ENABLED_PATH))
-		{
-			devModeEnabled = ProjectSettings.GetSetting(DEV_MODE_ENABLED_PATH).As<bool>();
-		}
-		else 
-		{
-			ProjectSettings.SetSetting(DEV_MODE_ENABLED_PATH, DEV_MODE_ENABLED_DEFAULT);
-			ProjectSettings.SetInitialValue(DEV_MODE_ENABLED_PATH, DEV_MODE_ENABLED_DEFAULT);
-			devModeEnabled = DEV_MODE_ENABLED_DEFAULT;
-		}
+    public override void _ExitTree()
+    {
+        RemoveInspectorPlugin(uidInspector);
+        uidInspector = null!;
+    }
 
-		if (ProjectSettings.HasSetting(PRESS_OPTION_PATH))
-		{
-			pressOption = ProjectSettings.GetSetting(PRESS_OPTION_PATH).As<PressOptionE>();
-		}
-		else 
-		{
-			ProjectSettings.SetSetting(PRESS_OPTION_PATH, (int)PRESS_OPTION_DEFAULT);
-			ProjectSettings.SetInitialValue(PRESS_OPTION_PATH, (int)PRESS_OPTION_DEFAULT);
-			pressOption = PRESS_OPTION_DEFAULT;
-		}
+    private void OnProjectSettingChanged()
+    {
+        CheckForSettings();
+        uidInspector.UpdateSettings(devModeEnabled, pressOption);
+    }
 
-		ProjectSettings.AddPropertyInfo(GetPressOptionPropertyInfo());
-	}
+    /// <summary>
+    /// Checks for if the project settings exist, and if not, create them.
+    /// </summary>
+    private void CheckForSettings()
+    {
+        if (ProjectSettings.HasSetting(DEV_MODE_ENABLED_PATH))
+        {
+            devModeEnabled = ProjectSettings.GetSetting(DEV_MODE_ENABLED_PATH).As<bool>();
+        }
+        else
+        {
+            ProjectSettings.SetSetting(DEV_MODE_ENABLED_PATH, DEV_MODE_ENABLED_DEFAULT);
+            ProjectSettings.SetInitialValue(DEV_MODE_ENABLED_PATH, DEV_MODE_ENABLED_DEFAULT);
+            devModeEnabled = DEV_MODE_ENABLED_DEFAULT;
+        }
 
-	private static DictionaryG GetPressOptionPropertyInfo()
-	{
-		var propertyInfo = new DictionaryG
-		{
-			{ "name", PRESS_OPTION_PATH },
-			{ "type", (int)Variant.Type.Int },
-			{ "hint", (int)PropertyHint.Enum },
-			{ "hint_string", "ShowFullPath,EditResource" }
-		};
+        if (ProjectSettings.HasSetting(PRESS_OPTION_PATH))
+        {
+            pressOption = ProjectSettings.GetSetting(PRESS_OPTION_PATH).As<PressOptionE>();
+        }
+        else
+        {
+            ProjectSettings.SetSetting(PRESS_OPTION_PATH, (int)PRESS_OPTION_DEFAULT);
+            ProjectSettings.SetInitialValue(PRESS_OPTION_PATH, (int)PRESS_OPTION_DEFAULT);
+            pressOption = PRESS_OPTION_DEFAULT;
+        }
 
-		return propertyInfo;
-	}
+        ProjectSettings.AddPropertyInfo(GetPressOptionPropertyInfo());
+    }
+
+    private static DictionaryG GetPressOptionPropertyInfo()
+    {
+        var propertyInfo = new DictionaryG
+        {
+            { "name", PRESS_OPTION_PATH },
+            { "type", (int)Variant.Type.Int },
+            { "hint", (int)PropertyHint.Enum },
+            { "hint_string", "ShowFullPath,EditResource" }
+        };
+
+        return propertyInfo;
+    }
 }
 
 public enum PressOptionE
 {
-	ShowFullPath,
-	EditResource
+    ShowFullPath,
+    EditResource
 }
 
 #endif
