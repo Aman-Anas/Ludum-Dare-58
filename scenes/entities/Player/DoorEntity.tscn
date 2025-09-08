@@ -7,20 +7,20 @@
 [ext_resource type="Texture2D" uid="uid://frg1s6guouhb" path="res://addons/kenney_prototype_textures/light/texture_01.png" id="3_kp3xt"]
 [ext_resource type="Script" uid="uid://gn1g7hsmfe5b" path="res://scripts/Game.Entities/types/DestructibleProp/DestructibleDoorData.cs" id="4_b2twt"]
 
-[sub_resource type="Resource" id="Resource_0vyll"]
+[sub_resource type="Resource" id="Resource_jqc5p"]
 script = ExtResource("2_jqc5p")
 State = false
 
-[sub_resource type="Resource" id="Resource_ppemc"]
+[sub_resource type="Resource" id="Resource_g5khy"]
 script = ExtResource("3_g5khy")
 InternalHealth = 0
 
 [sub_resource type="Resource" id="Resource_swa6y"]
 script = ExtResource("4_b2twt")
-DoorState = SubResource("Resource_0vyll")
-HealthState = SubResource("Resource_ppemc")
-ServerScene = ""
-ClientScene = ""
+DoorState = SubResource("Resource_jqc5p")
+HealthState = SubResource("Resource_g5khy")
+ServerScene = "uid://uk4whdca7g18"
+ClientScene = "uid://uk4whdca7g18"
 metadata/_custom_type_script = "uid://gn1g7hsmfe5b"
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_t80si"]

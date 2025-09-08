@@ -47,7 +47,7 @@ public abstract partial class EntityData : MemoryPackableResource, IEntityData
     /// The godot scene for this entity on the server.
     /// This field does not get serialized to the client.
     /// </summary>
-    [Export(PropertyHint.File)]
+    [Export(PropertyHint.File, "uid")]
     [MemoryPackIgnore]
     public string ServerScene { get; set; } = null!;
 
@@ -76,7 +76,7 @@ public abstract partial class EntityData : MemoryPackableResource, IEntityData
     /// <summary>
     /// The godot scene for this entity on the client
     /// </summary>
-    [Export(PropertyHint.File)]
+    [Export(PropertyHint.File, "uid")]
     public string ClientScene { get; set; } = null!;
 
     [MemoryPackIgnore]

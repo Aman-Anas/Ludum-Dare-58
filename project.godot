@@ -36,7 +36,7 @@ naming/scene_name_casing=1
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/auto_mat_assign/plugin.cfg", "res://addons/debug_menu/plugin.cfg", "res://addons/input_helper/plugin.cfg")
+enabled=PackedStringArray("res://addons/auto_mat_assign/plugin.cfg", "res://addons/debug_menu/plugin.cfg", "res://addons/input_helper/plugin.cfg", "res://addons/uid_explorer_plugin/plugin.cfg")
 
 [file_customization]
 
