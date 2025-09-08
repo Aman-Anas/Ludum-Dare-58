@@ -1,8 +1,27 @@
-[gd_scene load_steps=13 format=3 uid="uid://uk4whdca7g18"]
+[gd_scene load_steps=19 format=3 uid="uid://uk4whdca7g18"]
 
 [ext_resource type="Script" uid="uid://bnt3hyn73pbqt" path="res://scripts/Game.Entities/types/Door/DoorEntity.cs" id="1_t80si"]
+[ext_resource type="Script" uid="uid://bfa6shq0nho0t" path="res://scripts/Game.Entities/components/Toggle/ToggleComponent.cs" id="2_jqc5p"]
 [ext_resource type="Texture2D" uid="uid://bos34kfj3myqe" path="res://addons/kenney_prototype_textures/dark/texture_05.png" id="2_kp3xt"]
+[ext_resource type="Script" uid="uid://bb3viohvyt16p" path="res://scripts/Game.Entities/components/Health/HealthComponent.cs" id="3_g5khy"]
 [ext_resource type="Texture2D" uid="uid://frg1s6guouhb" path="res://addons/kenney_prototype_textures/light/texture_01.png" id="3_kp3xt"]
+[ext_resource type="Script" uid="uid://gn1g7hsmfe5b" path="res://scripts/Game.Entities/types/DestructibleProp/DestructibleDoorData.cs" id="4_b2twt"]
+
+[sub_resource type="Resource" id="Resource_0vyll"]
+script = ExtResource("2_jqc5p")
+State = false
+
+[sub_resource type="Resource" id="Resource_ppemc"]
+script = ExtResource("3_g5khy")
+InternalHealth = 0
+
+[sub_resource type="Resource" id="Resource_swa6y"]
+script = ExtResource("4_b2twt")
+DoorState = SubResource("Resource_0vyll")
+HealthState = SubResource("Resource_ppemc")
+ServerScene = ""
+ClientScene = ""
+metadata/_custom_type_script = "uid://gn1g7hsmfe5b"
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_t80si"]
 size = Vector3(0.1, 2, 1)
@@ -72,6 +91,7 @@ _data = {
 
 [node name="DoorEntity" type="AnimatableBody3D" node_paths=PackedStringArray("player")]
 script = ExtResource("1_t80si")
+Data = SubResource("Resource_swa6y")
 player = NodePath("AnimationPlayer")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]

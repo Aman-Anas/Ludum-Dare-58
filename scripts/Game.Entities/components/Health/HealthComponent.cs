@@ -39,8 +39,11 @@ public partial class HealthComponent : NetComponent<EntityData>
             }
             InternalHealth = value;
 
-            // Update the sector
-            this.NetUpdate();
+            if (this.data != null)
+            {
+                // Update the sector
+                this.NetUpdate();
+            }
         }
     }
 }
