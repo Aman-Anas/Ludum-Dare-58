@@ -1,8 +1,7 @@
-namespace Utilities.Collections;
+namespace Utilities;
 
 using System.Diagnostics.CodeAnalysis;
 using Game;
-using Game.Networking;
 using Godot;
 using MemoryPack;
 
@@ -12,25 +11,7 @@ public static class DataUtils
     /// Call at game manager initialization to ensure
     /// MessagePack works correctly with Godot objects
     /// </summary>
-    public static void InitMessagePack()
-    { // Initialize MessagePack resolvers
-        // var resolver = MessagePack.Resolvers.CompositeResolver.Create(
-        //     // enable extension packages first (and put any other extensions you use in this section)
-
-        //     // Auto-generated static resolver for AOT compilation (so no JIT needed)
-        //     // MessagePack.Resolvers.GeneratedResolver.Instance,
-        //     // Godot-specific structs etc resolver
-        //     GodotResolver.Instance,
-        //     // finally use standard (default) resolver
-        //     MessagePack.Resolvers.StandardResolver.Instance
-        // );
-
-        // // Get the serializer options
-        // var options = MessagePackSerializerOptions.Standard.WithResolver(resolver);
-
-        // // pass options every time to set as default
-        // MessagePackSerializer.DefaultOptions = options;
-    }
+    public static void InitMessagePack() { }
 
     public static void SaveData<T>(string filename, T data)
     {

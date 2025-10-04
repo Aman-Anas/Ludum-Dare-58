@@ -1,16 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://8oenexyfi21p"]
+[gd_scene load_steps=3 format=3 uid="uid://8oenexyfi21p"]
 
 [ext_resource type="Script" uid="uid://cdtf7b73i8f6t" path="res://scripts/Manager.cs" id="1_up5no"]
-[ext_resource type="PackedScene" uid="uid://dd7wtsnynoibe" path="res://scenes/main_menu/Title.tscn" id="2_wdahu"]
-[ext_resource type="PackedScene" uid="uid://cnj5l2mx5fn22" path="res://scenes/MainClientScene.tscn" id="3_oi6hb"]
-[ext_resource type="PackedScene" uid="uid://b8wst84ngcpj" path="res://scenes/main_menu/ServerOnlyScene.tscn" id="4_tnfw3"]
-[ext_resource type="PackedScene" uid="uid://cwcbpiaoojxky" path="res://scenes/ServerManager.tscn" id="5_cbj25"]
-[ext_resource type="PackedScene" uid="uid://drtbteb1oc85e" path="res://scenes/ClientManager.tscn" id="6_xh5pj"]
+
+[sub_resource type="Resource" id="Resource_qfi1r"]
+metadata/__load_path__ = "res://scenes/main_menu/Title.tscn"
 
 [node name="Manager" type="Node"]
 script = ExtResource("1_up5no")
-titleScene = ExtResource("2_wdahu")
-mainClientScene = ExtResource("3_oi6hb")
-serverOnlyScene = ExtResource("4_tnfw3")
-serverScene = ExtResource("5_cbj25")
-clientScene = ExtResource("6_xh5pj")
+titleScene = SubResource("Resource_qfi1r")

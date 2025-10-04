@@ -1,7 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://d2uoggrumaopv"]
-
-[ext_resource type="Script" uid="uid://hdbrdvgu3qs0" path="res://scripts/entities/SimpleRigidPlayer.cs" id="1_876wq"]
-
-[node name="TestPlayer" type="RigidBody3D"]
-script = ExtResource("1_876wq")
-metadata/_custom_type_script = "uid://hdbrdvgu3qs0"

@@ -1,9 +1,0 @@
-[gd_resource type="Resource" script_class="StaticPropData" load_steps=2 format=3 uid="uid://chx45djd7abpk"]
-
-[ext_resource type="Script" uid="uid://cpxd6h1mppx58" path="res://scripts/entities/types/StaticProp/StaticPropData.cs" id="1_pcdcp"]
-
-[resource]
-script = ExtResource("1_pcdcp")
-ServerScene = "uid://3rgvlsypfh0j"
-ClientScene = "res://scenes/entities/example/test_wall.tscn"
-metadata/_custom_type_script = "uid://cpxd6h1mppx58"

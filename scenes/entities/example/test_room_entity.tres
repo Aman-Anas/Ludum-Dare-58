@@ -1,9 +1,0 @@
-[gd_resource type="Resource" script_class="StaticPropData" load_steps=2 format=3 uid="uid://dqvqanobob8ps"]
-
-[ext_resource type="Script" uid="uid://cpxd6h1mppx58" path="res://scripts/entities/types/StaticProp/StaticPropData.cs" id="1_4hydf"]
-
-[resource]
-script = ExtResource("1_4hydf")
-ServerScene = "uid://b5161nje632iv"
-ClientScene = "uid://b5161nje632iv"
-metadata/_custom_type_script = "uid://cpxd6h1mppx58"

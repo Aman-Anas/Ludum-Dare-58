@@ -1,22 +1,8 @@
-namespace Game;
-
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Game.Networking;
-using Game.Terrain;
-using Game.World;
 using Godot;
-using LiteNetLib;
-using MemoryPack;
-using Utilities.Collections;
+using Utilities;
 
-public enum GameNetState
-{
-    ClientAndServer,
-    ServerOnly,
-    ClientOnly
-}
+namespace Game;
 
 public partial class Manager : Node
 {
@@ -29,27 +15,8 @@ public partial class Manager : Node
 
     public GameConfig Config { get; set; } = null!;
 
-    public GameNetState NetState { get; private set; }
-
-    // These should be instantiated in ready()
-    public ServerManager GameServer { get; private set; } = null!;
-    public ClientManager GameClient { get; private set; } = null!;
-    public ChunkManager ChunkManager { get; set; } = null!;
-
     [Export]
     PackedScene titleScene = null!;
-
-    [Export]
-    PackedScene mainClientScene = null!;
-
-    [Export]
-    PackedScene serverOnlyScene = null!;
-
-    [Export]
-    PackedScene serverScene = null!;
-
-    [Export]
-    PackedScene clientScene = null!;
 
     public Manager()
     {
@@ -59,10 +26,7 @@ public partial class Manager : Node
         {
             Instance = this;
 
-            // Initialize MessagePack configuration
-            // DataUtils.InitMessagePack();
-
-            NetDebug.Logger = new GDNetLogger();
+            // Do other stuff
         }
     }
 
@@ -74,88 +38,18 @@ public partial class Manager : Node
 
         // Load config vars
         LoadConfig();
-        GameServer = serverScene.Instantiate<ServerManager>();
-        GameClient = clientScene.Instantiate<ClientManager>();
-        AddChild(GameServer);
-        AddChild(GameClient);
     }
 
     public override void _Notification(int what)
     {
         if (what == NotificationWMCloseRequest)
         {
-            GD.Print("oof");
             QuitGame();
         }
     }
 
-    public async Task<bool> StartGame(
-        GameNetState state,
-        int port,
-        LoginPacket loginInfo = default,
-        string address = "localhost"
-    )
-    {
-        switch (state)
-        {
-            case GameNetState.ClientAndServer:
-                bool serverSuccess;
-                bool clientSuccess;
-
-                serverSuccess = GameServer.StartServer(port);
-
-                // TODO: Make StartClient (and StartGame I guess) return a Task so we can
-                // wait for connection asynchronously (and probably put up a connection loading
-                // screen)
-                var connect = GameClient.StartClient("localhost", port, loginInfo);
-                await connect;
-                clientSuccess = connect.Result;
-
-                GD.Print("server success", serverSuccess);
-                GD.Print("client success", clientSuccess);
-
-                if (!(serverSuccess && clientSuccess))
-                {
-                    GameServer.Stop();
-                    GameClient.Stop();
-                    return false;
-                }
-
-                GetTree().ChangeSceneToPacked(mainClientScene);
-                break;
-            case GameNetState.ClientOnly:
-                var clientOnly = GameClient.StartClient(address, port, loginInfo);
-                await clientOnly;
-                if (!clientOnly.Result)
-                {
-                    GameClient.Stop();
-                    return false;
-                }
-                GetTree().ChangeSceneToPacked(mainClientScene);
-                break;
-            case GameNetState.ServerOnly:
-                if (!GameServer.StartServer(port))
-                {
-                    GameServer.Stop();
-                    return false;
-                }
-                GetTree().ChangeSceneToPacked(serverOnlyScene);
-                break;
-        }
-        return true;
-    }
-
     public void ExitToTitle()
     {
-        if (GameClient.IsRunning())
-        {
-            GameClient.Stop();
-        }
-
-        if (GameServer.IsRunning())
-        {
-            GameServer.Stop();
-        }
         GetTree().Paused = false;
 
         // Free the mouse if it was captured
@@ -166,15 +60,6 @@ public partial class Manager : Node
 
     public void QuitGame()
     {
-        if (GameClient.IsRunning())
-        {
-            GameClient.Stop();
-        }
-
-        if (GameServer.IsRunning())
-        {
-            GameServer.Stop();
-        }
         GetTree().Quit();
     }
 
