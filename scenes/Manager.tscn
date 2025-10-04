@@ -1,10 +1,8 @@
 [gd_scene load_steps=3 format=3 uid="uid://8oenexyfi21p"]
 
 [ext_resource type="Script" uid="uid://cdtf7b73i8f6t" path="res://scripts/Manager.cs" id="1_up5no"]
-
-[sub_resource type="Resource" id="Resource_qfi1r"]
-metadata/__load_path__ = "res://scenes/main_menu/Title.tscn"
+[ext_resource type="PackedScene" uid="uid://bqmihtrjbkrj5" path="res://scenes/Title.tscn" id="2_qfi1r"]
 
 [node name="Manager" type="Node"]
 script = ExtResource("1_up5no")
-titleScene = SubResource("Resource_qfi1r")
+titleScene = ExtResource("2_qfi1r")

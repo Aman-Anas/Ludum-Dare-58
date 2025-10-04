@@ -1,0 +1,60 @@
+using System;
+using Game;
+using Godot;
+
+public partial class Title : Node3D
+{
+    [Export]
+    StaticBody3D PlayButton;
+
+    [Export]
+    StaticBody3D HelpButton;
+
+    [Export]
+    StaticBody3D QuitButton;
+
+    // Called when the node enters the scene tree for the first time.
+    public override void _Ready()
+    {
+        PlayButton.InputEvent += (_, @event, _, _, _) =>
+        {
+            if (
+                @event is InputEventMouseButton click
+                && (click.IsPressed())
+                && (click.ButtonIndex == MouseButton.Left)
+            )
+            {
+                GD.Print("Play");
+                // GetTree().ChangeSceneToFile()
+            }
+        };
+
+        HelpButton.InputEvent += (_, @event, _, _, _) =>
+        {
+            if (
+                @event is InputEventMouseButton click
+                && (click.IsPressed())
+                && (click.ButtonIndex == MouseButton.Left)
+            )
+            {
+                GD.Print("Help");
+                // GetTree().ChangeSceneToFile()
+            }
+        };
+        QuitButton.InputEvent += (_, @event, _, _, _) =>
+        {
+            if (
+                @event is InputEventMouseButton click
+                && (click.IsPressed())
+                && (click.ButtonIndex == MouseButton.Left)
+            )
+            {
+                GD.Print("Quit");
+                Manager.Instance.QuitGame();
+            }
+        };
+    }
+
+    // Called every frame. 'delta' is the elapsed time since the previous frame.
+    public override void _Process(double delta) { }
+}
