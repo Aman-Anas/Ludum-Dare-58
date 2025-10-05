@@ -1,0 +1,186 @@
+[gd_scene load_steps=6 format=3 uid="uid://bvp4g30jjecci"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dvodd"]
+albedo_color = Color(0.47788018, 0.47788012, 0.47788012, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8mrap"]
+albedo_color = Color(0.26712787, 0.6293601, 0.7354741, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_q04gf"]
+albedo_color = Color(0.98587555, 0, 0.16563442, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s8dg4"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ex07k"]
+albedo_color = Color(0.31287983, 0.43406957, 0.8281982, 1)
+
+[node name="Node3D" type="Node3D"]
+
+[node name="Floor" type="CSGBox3D" parent="."]
+transform = Transform3D(75.37, 0, 0, 0, 1.265, 0, 0, 0, 77.395, 2.5673332, 0, 0)
+material = SubResource("StandardMaterial3D_dvodd")
+
+[node name="Sheep2" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2702045, 1.6796007, -30.084948)
+
+[node name="Spawn" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2737715, 0.6802895, -36.23084)
+size = Vector3(2.6796265, 0.23583984, 2.44339)
+material = SubResource("StandardMaterial3D_8mrap")
+
+[node name="Enemy1" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.3365393, 1.3981361, -19.405144)
+material = SubResource("StandardMaterial3D_q04gf")
+
+[node name="Enemy2" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.602844, 1.3981361, -8.090084)
+material = SubResource("StandardMaterial3D_q04gf")
+
+[node name="Enemy3" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.12652, 1.3981361, -6.850815)
+material = SubResource("StandardMaterial3D_q04gf")
+
+[node name="Sheep3" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2702045, 1.6796007, 6.05789)
+
+[node name="Sheep4" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29.496508, 1.6796007, 6.05789)
+
+[node name="Sheep5" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22.841942, 1.6796007, 6.05789)
+
+[node name="Platform6" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, 2.4275084, 7.909148, 24.034235)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform7" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, 2.4275084, 3.5161595, 15.328348)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform8" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, 4.023156, 13.9700165, 33.626938)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform10" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, 23.15547, 13.9700165, 33.626938)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform11" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, 13.384213, 13.9700165, 33.626938)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform12" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, 4.023156, 13.9700165, 48.031254)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform13" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, 23.15547, 13.9700165, 48.031254)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform14" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, 13.384213, 13.9700165, 48.031254)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform15" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, 4.023156, 13.9700165, 61.21286)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform16" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, 23.15547, 13.9700165, 61.21286)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform17" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, 13.384213, 13.9700165, 61.21286)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform18" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, -25.577091, 13.9700165, 47.772705)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform19" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, -6.4447784, 13.9700165, 47.772705)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform20" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, -16.216034, 13.9700165, 47.772705)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform21" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, -26.00803, 13.9700165, 60.86579)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform22" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, -6.8757153, 13.9700165, 60.86579)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform23" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, -16.646973, 13.9700165, 60.86579)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform9" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, -25.250813, 13.9700165, 33.626938)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform24" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, -6.1184998, 13.9700165, 33.626938)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform25" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, -15.889756, 13.9700165, 33.626938)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform26" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, -8.69382, 13.227004, 24.034235)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Platform27" type="CSGBox3D" parent="."]
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, -12.305917, 20.09748, 14.215372)
+material = SubResource("StandardMaterial3D_s8dg4")
+
+[node name="Floor2" type="CSGBox3D" parent="."]
+transform = Transform3D(75.37, 0, 0, 0, 1.265, 0, 0, 0, 77.395, 2.5673332, 19.179073, -35.9874)
+material = SubResource("StandardMaterial3D_dvodd")
+
+[node name="BigEnemy" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5294533, 22.64259, -32.389816)
+size = Vector3(6.57666, 5.3549805, 7.7373047)
+material = SubResource("StandardMaterial3D_q04gf")
+
+[node name="Sheep6" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9457211, 14.984013, 33.257896)
+
+[node name="Sheep7" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.073732, 14.984013, 47.61315)
+
+[node name="Sheep8" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.769154, 14.984013, 60.44935)
+
+[node name="Sheep9" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24.77874, 14.984013, 33.900906)
+
+[node name="Sheep10" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.513514, 14.984013, 33.257896)
+
+[node name="Enemy4" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.452751, 15.104458, 33.237755)
+material = SubResource("StandardMaterial3D_q04gf")
+
+[node name="Enemy5" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.0053253, 15.104458, 47.300953)
+material = SubResource("StandardMaterial3D_q04gf")
+
+[node name="Enemy6" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.938963, 15.104458, 47.318604)
+material = SubResource("StandardMaterial3D_q04gf")
+
+[node name="Enemy7" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.34445, 15.104458, 60.970963)
+material = SubResource("StandardMaterial3D_q04gf")
+
+[node name="Sheep11" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25.96661, 14.984013, 60.514412)
+
+[node name="LevelExit" type="CSGBox3D" parent="."]
+transform = Transform3D(9.69, 0, 0, 0, 2.77, 0, 0, 0, 0.915, -0.38193703, 21.468681, -72.191666)
+material = SubResource("StandardMaterial3D_ex07k")

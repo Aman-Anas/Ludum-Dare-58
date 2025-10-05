@@ -1,0 +1,137 @@
+[gd_scene load_steps=8 format=3 uid="uid://c48nnmhdj8r0n"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_w68nx"]
+albedo_color = Color(0.47788018, 0.47788012, 0.47788012, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eywy2"]
+albedo_color = Color(0.7581723, 0.47065794, 0.04655671, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_84iim"]
+albedo_color = Color(0.26712787, 0.6293601, 0.7354741, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_f63rs"]
+albedo_color = Color(0.98587555, 0, 0.16563442, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xcs05"]
+albedo_color = Color(0.9919793, 0.71914357, 0.67251384, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qlmxs"]
+albedo_color = Color(0.98587555, 0, 0.16563442, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_545p4"]
+albedo_color = Color(0.31287983, 0.43406957, 0.8281982, 1)
+
+[node name="Node3D" type="Node3D"]
+
+[node name="Floor" type="CSGBox3D" parent="."]
+transform = Transform3D(75.37, 0, 0, 0, 1.265, 0, 0, 0, 77.395, 2.5673332, 0, 0)
+material = SubResource("StandardMaterial3D_w68nx")
+
+[node name="Turret" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.032714844, 2.1341424, 21.91006)
+size = Vector3(1.0654297, 4.7264404, 0.9284668)
+material = SubResource("StandardMaterial3D_eywy2")
+
+[node name="Spawn" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 37.10085, 0.6802895, -0.18205166)
+size = Vector3(2.6796265, 0.23583984, 2.44339)
+material = SubResource("StandardMaterial3D_84iim")
+
+[node name="Sheep" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.492034, 1.3981361, 21.73546)
+
+[node name="Sheep2" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28.615952, 1.3981361, -0.34238052)
+
+[node name="Sheep3" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.502365, 1.3981361, 9.050749)
+
+[node name="Sheep4" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.996202, 1.3981361, -11.669245)
+
+[node name="Sheep5" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.492034, 1.3981361, -22.720293)
+
+[node name="Enemy3" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.011279, 1.3981361, -31.696522)
+material = SubResource("StandardMaterial3D_f63rs")
+
+[node name="Enemy4" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2060556, 1.3981361, -21.46873)
+material = SubResource("StandardMaterial3D_f63rs")
+
+[node name="Enemy5" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.31633, 1.3981361, -12.260868)
+material = SubResource("StandardMaterial3D_f63rs")
+
+[node name="Elevator" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.701569, 21.975922, 1.1376705)
+size = Vector3(7.1124268, 45.029533, 6.1254883)
+material = SubResource("StandardMaterial3D_xcs05")
+
+[node name="Floor2" type="CSGBox3D" parent="."]
+transform = Transform3D(75.37, 0, 0, 0, 1.265, 0, 0, 0, 77.395, 2.5673332, 35.474445, 0)
+material = SubResource("StandardMaterial3D_w68nx")
+
+[node name="Turret2" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.032714844, 37.663086, 25.851107)
+size = Vector3(1.0654297, 4.7264404, 0.9284668)
+material = SubResource("StandardMaterial3D_eywy2")
+
+[node name="Turret3" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.032714844, 37.90391, -26.780556)
+size = Vector3(1.0654297, 4.7264404, 0.9284668)
+material = SubResource("StandardMaterial3D_eywy2")
+
+[node name="BigEnemy" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.717955, 39.743137, -2.3224773)
+size = Vector3(6.57666, 5.3549805, 7.7373047)
+material = SubResource("StandardMaterial3D_qlmxs")
+
+[node name="Elevator2" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.75857, 56.072422, 1.1376705)
+size = Vector3(7.1124268, 41.658318, 6.1254883)
+material = SubResource("StandardMaterial3D_xcs05")
+
+[node name="Floor3" type="CSGBox3D" parent="."]
+transform = Transform3D(75.37, 0, 0, 0, 1.265, 0, 0, 0, 77.395, 2.5673332, 71.37197, 0)
+material = SubResource("StandardMaterial3D_w68nx")
+
+[node name="Turret4" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.032714844, 74.589806, 25.851107)
+size = Vector3(1.0654297, 4.7264404, 0.9284668)
+material = SubResource("StandardMaterial3D_eywy2")
+
+[node name="Turret5" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.032714844, 74.589806, -28.796291)
+size = Vector3(1.0654297, 4.7264404, 0.9284668)
+material = SubResource("StandardMaterial3D_eywy2")
+
+[node name="Turret6" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.032714844, 74.589806, -0.85676384)
+size = Vector3(1.0654297, 4.7264404, 0.9284668)
+material = SubResource("StandardMaterial3D_eywy2")
+
+[node name="Turret7" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.837851, 74.589806, 13.13661)
+size = Vector3(1.0654297, 4.7264404, 0.9284668)
+material = SubResource("StandardMaterial3D_eywy2")
+
+[node name="Turret8" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.491419, 74.589806, -17.480074)
+size = Vector3(1.0654297, 4.7264404, 0.9284668)
+material = SubResource("StandardMaterial3D_eywy2")
+
+[node name="Turret9" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.518013, 74.589806, 14.258078)
+size = Vector3(1.0654297, 4.7264404, 0.9284668)
+material = SubResource("StandardMaterial3D_eywy2")
+
+[node name="Turret10" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.436897, 74.589806, -17.478231)
+size = Vector3(1.0654297, 4.7264404, 0.9284668)
+material = SubResource("StandardMaterial3D_eywy2")
+
+[node name="LevelExit" type="CSGBox3D" parent="."]
+transform = Transform3D(0.08456038, 0, -0.91496515, 0, 2.77, 0, 9.6896305, 0, 0.007984804, -27.005617, 73.9327, -1.5233097)
+material = SubResource("StandardMaterial3D_545p4")
