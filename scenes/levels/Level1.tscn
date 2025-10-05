@@ -1,4 +1,19 @@
-[gd_scene load_steps=14 format=3 uid="uid://c66fmnod45frw"]
+[gd_scene load_steps=19 format=3 uid="uid://c66fmnod45frw"]
+
+[ext_resource type="PackedScene" uid="uid://cgv3ggu25ffs1" path="res://scenes/Player/Farmer.tscn" id="1_1pwbc"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_6ovph"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_bwv4p"]
+sky_material = SubResource("ProceduralSkyMaterial_6ovph")
+
+[sub_resource type="Environment" id="Environment_odhdn"]
+background_mode = 2
+sky = SubResource("Sky_bwv4p")
+tonemap_mode = 2
+glow_enabled = true
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ma5b5"]
 albedo_color = Color(0.47788018, 0.47788012, 0.47788012, 1)
@@ -42,7 +57,8 @@ albedo_color = Color(0, 0, 0, 1)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wapi5"]
 albedo_color = Color(0.26712787, 0.6293601, 0.7354741, 1)
 
-[node name="Node3D" type="Node3D"]
+[node name="Node3D" type="CSGCombiner3D"]
+use_collision = true
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
@@ -177,3 +193,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.91699, 17.01205, 1.4345064
 [node name="Wall9" type="CSGBox3D" parent="."]
 transform = Transform3D(0.575, 0, 0, 0, 13.465, 0, 0, 0, 45.1, 14.56369, 23.835989, -19.345497)
 material = SubResource("StandardMaterial3D_ma5b5")
+
+[node name="Spawn" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2737715, 0.6802895, -8.57438)
+size = Vector3(2.6796265, 0.23583984, 2.44339)
+material = SubResource("StandardMaterial3D_wapi5")
+
+[node name="Farmer" parent="." instance=ExtResource("1_1pwbc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.160009, 1.1583481, -1.6112347)
