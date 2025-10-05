@@ -13,6 +13,9 @@ public partial class Title : Node3D
     [Export]
     StaticBody3D QuitButton;
 
+    [Export(PropertyHint.FilePath)]
+    string firstScenePath;
+
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
@@ -25,7 +28,7 @@ public partial class Title : Node3D
             )
             {
                 GD.Print("Play");
-                // GetTree().ChangeSceneToFile()
+                GetTree().ChangeSceneToFile(firstScenePath);
             }
         };
 

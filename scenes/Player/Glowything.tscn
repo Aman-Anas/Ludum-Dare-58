@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://ccq8u0u72tw3d"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a7e2t"]
+albedo_color = Color(0, 0.6501417, 0.37760755, 1)
+emission_enabled = true
+emission = Color(1.6845763e-07, 0.59832484, 0.16839144, 1)
+emission_energy_multiplier = 16.0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_a7e2t"]
+material = SubResource("StandardMaterial3D_a7e2t")
+top_radius = 0.1
+bottom_radius = 0.1
+height = 1.0
+radial_segments = 6
+
+[node name="Glowything" type="MeshInstance3D"]
+transform = Transform3D(0.39999998, 0, 0, 0, 0.39999998, 0, 0, 0, 0.39999998, 0, 0.2, 0)
+mesh = SubResource("CylinderMesh_a7e2t")
