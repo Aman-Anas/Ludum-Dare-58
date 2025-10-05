@@ -1,0 +1,34 @@
+[gd_scene load_steps=3 format=3 uid="uid://ce1rhfyq0v7w5"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6sbs1"]
+albedo_color = Color(0.47788018, 0.47788012, 0.47788012, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yfies"]
+albedo_color = Color(0.41215247, 0.41215247, 0.41215247, 1)
+
+[node name="Node3D" type="Node3D"]
+
+[node name="Floor2" type="CSGBox3D" parent="."]
+transform = Transform3D(75.37, 0, 0, 0, 1.265, 0, 0, 0, 77.395, 2.5673332, 19.179073, -18.294512)
+size = Vector3(1, 1, 0.17675781)
+material = SubResource("StandardMaterial3D_6sbs1")
+
+[node name="Floor3" type="CSGBox3D" parent="."]
+transform = Transform3D(75.37, 0, 0, 0, 1.265, 0, 0, 0, 77.395, 2.5673332, 19.179073, 43.02738)
+size = Vector3(1, 1, 0.17675781)
+material = SubResource("StandardMaterial3D_6sbs1")
+
+[node name="Floor4" type="CSGBox3D" parent="."]
+transform = Transform3D(0.657721, 0, -77.39205, 0, 1.265, 0, 75.367134, 0, 0.6753922, -33.86888, 19.266972, 12.468648)
+size = Vector3(0.99108887, 1, 0.17675781)
+material = SubResource("StandardMaterial3D_6sbs1")
+
+[node name="Floor5" type="CSGBox3D" parent="."]
+transform = Transform3D(0.657721, 0, -77.39205, 0, 1.265, 0, 75.367134, 0, 0.6753922, 33.957367, 19.266972, 12.468648)
+size = Vector3(0.99108887, 1, 0.17675781)
+material = SubResource("StandardMaterial3D_6sbs1")
+
+[node name="Final Boss" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6308594, 27.34587, 11.1930275)
+size = Vector3(38.283203, 29.180786, 30.07788)
+material = SubResource("StandardMaterial3D_yfies")
