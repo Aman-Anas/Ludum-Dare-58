@@ -20,7 +20,7 @@ public partial class Farmer : RigidBody3D
     Vector3 movementVec = new(0, 0, 0);
 
     // Jumping
-    readonly Vector3 JUMP_IMPULSE = new(0, 5.5f, 0);
+    readonly Vector3 JUMP_IMPULSE = new(0, 8.5f, 0);
     readonly ulong MIN_JUMP_RESET_TIME = 1000; // ms
 
     bool justJumped;
@@ -44,7 +44,8 @@ public partial class Farmer : RigidBody3D
 
     [Export]
     RayCast3D grappleCast = null!;
-    Vector3? currentGrapplePos = null;
+    Vector3 currentGrapplePos;
+    Node3D? currentGrappleNode = null;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
@@ -90,18 +91,6 @@ public partial class Farmer : RigidBody3D
     public override void _IntegrateForces(PhysicsDirectBodyState3D state)
     {
         Orthonormalize();
-
-        if (!Input.IsMouseButtonPressed(MouseButton.Right))
-        {
-            currentGrapplePos = null;
-        }
-        if (Input.IsMouseButtonPressed(MouseButton.Right) && currentGrapplePos == null)
-        {
-            if (grappleCast.IsColliding())
-            {
-                currentGrapplePos = grappleCast.GetCollisionPoint();
-            }
-        }
 
         var inputVec = Input.GetVector(
             GameActions.PlayerStrafeLeft,
@@ -191,9 +180,34 @@ public partial class Farmer : RigidBody3D
         */
         state.AngularVelocity = newLocalAngVelo;
 
-        if (currentGrapplePos != null)
+        if (!IsInstanceValid(currentGrappleNode))
         {
-            var forceDir = (((Vector3)currentGrapplePos) - GlobalPosition).Normalized();
+            currentGrappleNode = null;
+            currentGrapplePos = Vector3.Zero;
+        }
+        if (!Input.IsMouseButtonPressed(MouseButton.Right))
+        {
+            currentGrapplePos = Vector3.Zero;
+            currentGrappleNode = null;
+        }
+
+        if (Input.IsMouseButtonPressed(MouseButton.Right) && currentGrappleNode == null)
+        {
+            if (grappleCast.IsColliding() && IsInstanceValid(grappleCast.GetCollider()))
+            {
+                currentGrappleNode = (Node3D)grappleCast.GetCollider();
+                var hitPoint = grappleCast.GetCollisionPoint();
+                currentGrapplePos = currentGrappleNode.ToLocal(hitPoint);
+            }
+        }
+
+        // GD.Print(currentGrappleNode);
+
+        if (currentGrappleNode != null)
+        {
+            var targetPoint = (currentGrappleNode.ToGlobal(currentGrapplePos));
+            // GD.Print("point", actualPoint);
+            var forceDir = ((targetPoint) - GlobalPosition).Normalized();
             state.ApplyCentralForce(GRAPPLE_FORCE * forceDir);
         }
     }
@@ -218,9 +232,10 @@ public partial class Farmer : RigidBody3D
             player.Play(runAnimName);
         }
 
-        if (currentGrapplePos != null)
+        if (IsInstanceValid(currentGrappleNode) && (currentGrappleNode != null))
         {
-            glowyEndPos.GlobalPosition = (Vector3)currentGrapplePos;
+            var targetPoint = (currentGrappleNode.ToGlobal(currentGrapplePos));
+            glowyEndPos.GlobalPosition = targetPoint;
             glowyThing.Visible = true;
         }
         else

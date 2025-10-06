@@ -1,0 +1,50 @@
+[gd_scene load_steps=10 format=3 uid="uid://cheuadkkuh1wh"]
+
+[ext_resource type="Script" uid="uid://eu3hmawuxr48" path="res://scripts/Gate.cs" id="1_yye86"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_yye86"]
+height = 0.20629883
+radius = 0.57373047
+
+[sub_resource type="Gradient" id="Gradient_yye86"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_ky3wf"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_on2n0"]
+noise = SubResource("FastNoiseLite_ky3wf")
+color_ramp = SubResource("Gradient_yye86")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0rktf"]
+shading_mode = 0
+albedo_color = Color(0.73612994, 0.26319027, 1, 1)
+albedo_texture = SubResource("NoiseTexture2D_on2n0")
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_733j4"]
+material = SubResource("StandardMaterial3D_0rktf")
+height = 0.2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_w4q6g"]
+albedo_color = Color(0.86036915, 0.8603692, 0.8603692, 1)
+metallic = 1.0
+roughness = 0.1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_ky3wf"]
+material = SubResource("StandardMaterial3D_w4q6g")
+top_radius = 0.6
+bottom_radius = 0.6
+height = 0.1
+
+[node name="Gate" type="Area3D"]
+script = ExtResource("1_yye86")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, -5.3343996e-12, 0.0044074357)
+shape = SubResource("CylinderShape3D_yye86")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
+mesh = SubResource("CylinderMesh_733j4")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0.004529506)
+mesh = SubResource("CylinderMesh_ky3wf")

@@ -16,7 +16,7 @@ public partial class Title : Node3D
     StaticBody3D QuitButton = null!;
     Node3D QuitRoot = null!;
 
-    [Export(PropertyHint.FilePath)]
+    [Export(PropertyHint.File)]
     string firstScenePath = null!;
 
     // Called when the node enters the scene tree for the first time.

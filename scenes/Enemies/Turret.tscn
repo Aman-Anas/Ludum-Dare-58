@@ -1,22 +1,75 @@
-[gd_scene load_steps=6 format=3 uid="uid://dwr4rcpss0p2w"]
+[gd_scene load_steps=11 format=3 uid="uid://dwr4rcpss0p2w"]
 
 [ext_resource type="Script" uid="uid://bhrw0lh0iv0j7" path="res://scripts/enemies/Turret.cs" id="1_88bew"]
 [ext_resource type="PackedScene" uid="uid://h83kcquyrd2t" path="res://assets/batch_exports/turret/Cube.gltf" id="1_v4e2t"]
 [ext_resource type="PackedScene" uid="uid://brb1b0m3aicro" path="res://assets/batch_exports/turret/Icosphere.gltf" id="2_88bew"]
 [ext_resource type="PackedScene" uid="uid://c7b6pcnns3tr" path="res://scenes/Enemies/potato.tscn" id="2_l221g"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_v4e2t"]
-size = Vector3(15, 15, 15)
+[sub_resource type="Animation" id="Animation_l221g"]
+resource_name = "hurt"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Icosphere2/Icosphere:surface_material_override/0:albedo_color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.53333336, 1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Color(0.78, 0.78, 0.78, 1), Color(0.78, 0, 0, 1), Color(0.78, 0.78, 0.78, 1)]
+}
 
-[node name="Turret" type="Node3D" node_paths=PackedStringArray("turretLauncher", "area", "launchPoint", "launchPewTime")]
+[sub_resource type="Animation" id="Animation_udiga"]
+resource_name = "RESET"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Icosphere2/Icosphere:surface_material_override/0:albedo_color")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0.78, 0.78, 0.78, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_2j3m8"]
+_data = {
+&"RESET": SubResource("Animation_udiga"),
+&"hurt": SubResource("Animation_l221g")
+}
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_l221g"]
+resource_local_to_scene = true
+albedo_color = Color(0.78, 0.78, 0.78, 1)
+metallic = 1.0
+roughness = 0.07
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_l221g"]
+radius = 10.0
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_udiga"]
+radius = 0.7
+
+[node name="Turret" type="Node3D" node_paths=PackedStringArray("turretLauncher", "area", "launchPoint", "launchPewTime", "hitArea", "animPlayer")]
 script = ExtResource("1_88bew")
 turretLauncher = NodePath("Node3D")
 area = NodePath("Area3D")
 pew = ExtResource("2_l221g")
 launchPoint = NodePath("Icosphere2/Icosphere/Cylinder/launchpoint")
 launchPewTime = NodePath("Timer")
+hitArea = NodePath("hitarea")
+animPlayer = NodePath("AnimationPlayer")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_2j3m8")
+}
 
 [node name="Timer" type="Timer" parent="."]
+process_callback = 0
 wait_time = 0.2
 autostart = true
 
@@ -33,14 +86,24 @@ remote_path = NodePath("../../Icosphere2/Icosphere")
 
 [node name="Icosphere" parent="Icosphere2" index="0"]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0.60000074, 0)
+surface_material_override/0 = SubResource("StandardMaterial3D_l221g")
 
 [node name="launchpoint" type="Node3D" parent="Icosphere2/Icosphere/Cylinder" index="0"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -0.5, 0, 0)
 
 [node name="Area3D" type="Area3D" parent="."]
+collision_layer = 2
+collision_mask = 2
 monitorable = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
-shape = SubResource("BoxShape3D_v4e2t")
+shape = SubResource("SphereShape3D_l221g")
+
+[node name="hitarea" type="Area3D" parent="."]
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="hitarea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("SphereShape3D_udiga")
 
 [editable path="Icosphere2"]

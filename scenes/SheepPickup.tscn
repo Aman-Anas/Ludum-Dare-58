@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://bnd8fs5wr4o81"]
+
+[ext_resource type="Script" uid="uid://dtmhstthh4gvt" path="res://scripts/SheepPickup.cs" id="1_4tkef"]
+[ext_resource type="PackedScene" uid="uid://bo0qt1u8pac2f" path="res://assets/batch_exports/sheep/SheepTank.gltf" id="1_q1nfw"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_q1nfw"]
+size = Vector3(4, 3, 4)
+
+[node name="SheepPickup" type="Area3D"]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0)
+script = ExtResource("1_4tkef")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, -0.22947253)
+shape = SubResource("BoxShape3D_q1nfw")
+
+[node name="SheepTank2" parent="." instance=ExtResource("1_q1nfw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6678362, 0, -0.8658166)
+
+[node name="SheepTank" parent="SheepTank2" index="0"]
+transform = Transform3D(1.7881393e-07, 0, 0.99999994, 0, 1, 0, -0.99999994, 0, 1.7881393e-07, 0.61504173, 1.6, 0.96924794)
+
+[editable path="SheepTank2"]

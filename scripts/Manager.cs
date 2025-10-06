@@ -18,6 +18,8 @@ public partial class Manager : Node
     [Export]
     PackedScene titleScene = null!;
 
+    public GameData Data { get; set; } = new();
+
     public Manager()
     {
         // Just so that other scripts can cache a reference.

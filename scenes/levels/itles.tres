@@ -1,0 +1,7 @@
+[gd_resource type="FastNoiseLite" format=3 uid="uid://dv0b2n8lqv3ga"]
+
+[resource]
+noise_type = 2
+frequency = 0.051
+fractal_octaves = 1
+cellular_jitter = 5.73

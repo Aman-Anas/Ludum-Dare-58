@@ -11,6 +11,7 @@
         // ...
     },
     "dotrush.roslyn.projectOrSolutionFiles": [
-        "SpaceGame.csproj"
+        "Game.sln",
+        "Game.csproj"
     ],
 }

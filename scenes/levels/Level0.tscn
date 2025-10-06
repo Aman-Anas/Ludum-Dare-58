@@ -1,0 +1,303 @@
+[gd_scene load_steps=28 format=3 uid="uid://vrenri3f8jxv"]
+
+[ext_resource type="Texture2D" uid="uid://cyi4ics6383mc" path="res://assets/mats/something.tres" id="1_in5bs"]
+[ext_resource type="PackedScene" uid="uid://cgv3ggu25ffs1" path="res://scenes/Player/Farmer.tscn" id="3_bbvxl"]
+[ext_resource type="PackedScene" uid="uid://dwr4rcpss0p2w" path="res://scenes/Enemies/Turret.tscn" id="4_e2o36"]
+[ext_resource type="FontFile" uid="uid://ca02fst6rlk4u" path="res://assets/fonts/main.ttf" id="4_in5bs"]
+[ext_resource type="FontVariation" uid="uid://bd1pe3yd5cuxt" path="res://assets/fonts/main_merged_font.tres" id="4_qcr8a"]
+[ext_resource type="FontFile" uid="uid://dtbscwwp2ifxg" path="res://assets/fonts/icons.ttf" id="5_ax2ff"]
+[ext_resource type="PackedScene" uid="uid://bnd8fs5wr4o81" path="res://scenes/SheepPickup.tscn" id="5_ue060"]
+[ext_resource type="PackedScene" uid="uid://cheuadkkuh1wh" path="res://scenes/levels/Gate.tscn" id="6_oswwn"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_6ovph"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_bwv4p"]
+sky_material = SubResource("ProceduralSkyMaterial_6ovph")
+
+[sub_resource type="Environment" id="Environment_odhdn"]
+background_mode = 2
+sky = SubResource("Sky_bwv4p")
+tonemap_mode = 2
+ssao_enabled = true
+ssao_radius = 1.43
+ssao_intensity = 7.14
+ssao_detail = 1.0
+glow_enabled = true
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_x4si1"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_fh0io"]
+noise = SubResource("FastNoiseLite_x4si1")
+seamless = true
+as_normal_map = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ma5b5"]
+albedo_color = Color(0.47788018, 0.47788012, 0.47788012, 1)
+albedo_texture = ExtResource("1_in5bs")
+metallic_specular = 0.57
+roughness = 0.64
+normal_enabled = true
+normal_scale = 2.64
+normal_texture = SubResource("NoiseTexture2D_fh0io")
+uv1_scale = Vector3(0.081, 0.081, 0.081)
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x4si1"]
+transparency = 1
+albedo_color = Color(0.2263, 0.56209993, 0.73, 0.75686276)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wapi5"]
+albedo_color = Color(0.26712787, 0.6293601, 0.7354741, 1)
+
+[sub_resource type="FontVariation" id="FontVariation_in5bs"]
+fallbacks = Array[Font]([ExtResource("5_ax2ff")])
+base_font = ExtResource("4_in5bs")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ax2ff"]
+emission_enabled = true
+emission = Color(6.3051284e-06, 0.83099604, 0.32782906, 1)
+emission_energy_multiplier = 13.75
+
+[sub_resource type="TextMesh" id="TextMesh_bbvxl"]
+material = SubResource("StandardMaterial3D_ax2ff")
+text = ">>>"
+font = SubResource("FontVariation_in5bs")
+font_size = 127
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0l7rd"]
+emission_enabled = true
+emission = Color(6.3051284e-06, 0.83099604, 0.32782906, 1)
+emission_energy_multiplier = 13.75
+
+[sub_resource type="TextMesh" id="TextMesh_qcr8a"]
+material = SubResource("StandardMaterial3D_0l7rd")
+text = "Right Mouse Button
+to grapple"
+font = ExtResource("4_qcr8a")
+font_size = 42
+
+[sub_resource type="FontVariation" id="FontVariation_ax2ff"]
+fallbacks = Array[Font]([ExtResource("5_ax2ff")])
+base_font = ExtResource("4_in5bs")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bbvxl"]
+emission_enabled = true
+emission = Color(6.3051284e-06, 0.83099604, 0.32782906, 1)
+emission_energy_multiplier = 13.75
+
+[sub_resource type="TextMesh" id="TextMesh_e2o36"]
+material = SubResource("StandardMaterial3D_bbvxl")
+text = "LMB to shoot"
+font = SubResource("FontVariation_ax2ff")
+font_size = 42
+
+[sub_resource type="FontVariation" id="FontVariation_bbvxl"]
+fallbacks = Array[Font]([ExtResource("5_ax2ff")])
+base_font = ExtResource("4_in5bs")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_e2o36"]
+emission_enabled = true
+emission = Color(6.3051284e-06, 0.83099604, 0.32782906, 1)
+emission_energy_multiplier = 13.75
+
+[sub_resource type="TextMesh" id="TextMesh_ue060"]
+material = SubResource("StandardMaterial3D_e2o36")
+text = ">>>"
+font = SubResource("FontVariation_bbvxl")
+font_size = 42
+
+[node name="Node3D" type="CSGCombiner3D"]
+use_collision = true
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_odhdn")
+
+[node name="Cube" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4115.5273, 9.089767, 0)
+
+[node name="Floor" type="CSGBox3D" parent="."]
+transform = Transform3D(75.37, 0, 0, 0, 1.265, 0, 0, 0, 77.395, 2.5673332, -5.5347404, 0)
+use_collision = true
+material = SubResource("StandardMaterial3D_ma5b5")
+
+[node name="Wall" type="CSGBox3D" parent="."]
+transform = Transform3D(0.575, 0, 0, 0, 2.025, 0, 0, 0, 9.71, 2.7896862, 12.325718, -6.817754)
+flip_faces = true
+size = Vector3(10.097656, 12, 1)
+material = SubResource("StandardMaterial3D_ma5b5")
+
+[node name="Cieling" type="CSGBox3D" parent="Wall"]
+transform = Transform3D(1.7391305, 0, 0, 0, 0.4938272, 0, 0, 0, 0.10298663, -0.091681, 5.891527, -0.0016281009)
+operation = 2
+flip_faces = true
+size = Vector3(5.666409, 0.51416016, 10.424526)
+material = SubResource("StandardMaterial3D_x4si1")
+
+[node name="Wall2" type="CSGBox3D" parent="."]
+transform = Transform3D(0.575, 0, 0, 0, 2.025, 0, 0, 0, 9.71, -6.15833, 12.325718, -15.279016)
+flip_faces = true
+size = Vector3(41.22119, 12, 0.7939453)
+material = SubResource("StandardMaterial3D_ma5b5")
+
+[node name="Cieling" type="CSGBox3D" parent="Wall2"]
+transform = Transform3D(1.7391305, 0, 0, 0, 0.4938272, 0, 0, 0, 0.10298663, -0.091681, 5.891527, -0.0016281009)
+operation = 2
+flip_faces = true
+size = Vector3(5.666409, 0.51416016, 10.424526)
+material = SubResource("StandardMaterial3D_x4si1")
+
+[node name="Wall3" type="CSGBox3D" parent="."]
+transform = Transform3D(0.575, 0, 0, 0, 2.025, 0, 0, 0, 9.71, -14.527346, 12.325718, -4.513503)
+flip_faces = true
+size = Vector3(12.111572, 12, 3.0113525)
+material = SubResource("StandardMaterial3D_ma5b5")
+
+[node name="Cieling" type="CSGBox3D" parent="Wall3"]
+transform = Transform3D(1.7391305, 0, 0, 0, 0.4938272, 0, 0, 0, 0.10298663, -0.091681, 5.891527, -0.0016281009)
+operation = 2
+flip_faces = true
+size = Vector3(5.666409, 0.51416016, 10.424526)
+material = SubResource("StandardMaterial3D_x4si1")
+
+[node name="Wall4" type="CSGBox3D" parent="."]
+transform = Transform3D(0.575, 0, 0, 0, 2.025, 0, 0, 0, 9.71, 13.299326, 12.325718, 19.276855)
+flip_faces = true
+size = Vector3(108.9, 12, 3.3054504)
+material = SubResource("StandardMaterial3D_ma5b5")
+
+[node name="Cieling" type="CSGBox3D" parent="Wall4"]
+transform = Transform3D(1.7391305, 0, 0, 0, 0.49382725, 0, 0, 0, 0.10298664, -0.09168053, 6.0626497, -0.0016280413)
+operation = 2
+flip_faces = true
+size = Vector3(5.666409, 0.51416016, 10.424526)
+material = SubResource("StandardMaterial3D_x4si1")
+
+[node name="Wall5" type="CSGBox3D" parent="."]
+transform = Transform3D(0.575, 0, 0, 0, 2.025, 0, 0, 0, 9.71, 50.748302, 18.545424, -3.2985225)
+flip_faces = true
+size = Vector3(22.260254, 5.5394287, 8.019213)
+material = SubResource("StandardMaterial3D_ma5b5")
+
+[node name="Cieling" type="CSGBox3D" parent="Wall5"]
+transform = Transform3D(1.7391305, 0, 0, 0, 0.49382725, 0, 0, 0, 0.10298664, -0.09168053, 6.0626497, -0.0016280413)
+operation = 2
+flip_faces = true
+size = Vector3(5.666409, 0.51416016, 10.424526)
+material = SubResource("StandardMaterial3D_x4si1")
+
+[node name="Wall6" type="CSGBox3D" parent="."]
+transform = Transform3D(0.575, 0, 0, 0, 2.025, 0, 0, 0, 9.71, 10.65918, 18.545424, -35.118385)
+flip_faces = true
+size = Vector3(161.70068, 5.5394287, 1.4651728)
+material = SubResource("StandardMaterial3D_ma5b5")
+
+[node name="Cieling" type="CSGBox3D" parent="Wall6"]
+transform = Transform3D(1.7391305, 0, 0, 0, 0.49382725, 0, 0, 0, 0.10298664, -0.09168053, 6.0626497, -0.0016280413)
+operation = 2
+flip_faces = true
+size = Vector3(5.666409, 0.51416016, 10.424526)
+material = SubResource("StandardMaterial3D_x4si1")
+
+[node name="Wall7" type="CSGBox3D" parent="."]
+transform = Transform3D(0.575, 0, 0, 0, 2.025, 0, 0, 0, 9.71, -23.0709, 37.694706, -35.118385)
+flip_faces = true
+size = Vector3(44.378662, 24.452301, 1.4651728)
+material = SubResource("StandardMaterial3D_ma5b5")
+
+[node name="Cieling" type="CSGBox3D" parent="Wall7"]
+transform = Transform3D(1.7391305, 0, 0, 0, 0.4938273, 0, 0, 0, 0.10298665, -0.091682434, 11.962877, -0.001627922)
+operation = 2
+flip_faces = true
+size = Vector3(5.666409, 0.51416016, 10.424526)
+material = SubResource("StandardMaterial3D_x4si1")
+
+[node name="Spawn" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2737715, 0.6802895, -8.57438)
+size = Vector3(2.6796265, 0.23583984, 2.44339)
+material = SubResource("StandardMaterial3D_wapi5")
+
+[node name="Farmer" parent="." instance=ExtResource("3_bbvxl")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8002417, 2.4777412, -6.100482)
+
+[node name="SpotLight3D" type="SpotLight3D" parent="."]
+transform = Transform3D(0.81434345, -0.0012946062, 0.58038193, -0.57985264, 0.040939752, 0.81369215, -0.024814101, -0.99916077, 0.03258834, 27.972439, 23.789928, -20.212763)
+light_energy = 16.0
+spot_range = 24.852825
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="."]
+transform = Transform3D(-4, 1.7484555e-07, -3.496911e-07, -1.7484554e-07, -4, -1.7484555e-07, -3.496911e-07, -1.7484554e-07, 4, 50.171127, 18.026718, -42.321655)
+mesh = SubResource("TextMesh_bbvxl")
+skeleton = NodePath("../Gate2")
+
+[node name="MeshInstance3D8" type="MeshInstance3D" parent="."]
+transform = Transform3D(-3.496911e-07, 1.4210855e-14, 4, 4, 0, 3.496911e-07, 1.074629e-15, 4, -1.4210855e-14, -35.828873, 19.742077, -40.321655)
+mesh = SubResource("TextMesh_bbvxl")
+skeleton = NodePath("../Gate2")
+
+[node name="MeshInstance3D9" type="MeshInstance3D" parent="."]
+transform = Transform3D(-3.496911e-07, 1.4210855e-14, 4, 4, 0, 3.496911e-07, 1.074629e-15, 4, -1.4210855e-14, -35.828873, 19.742077, -30.321655)
+mesh = SubResource("TextMesh_bbvxl")
+skeleton = NodePath("../Gate2")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="."]
+transform = Transform3D(3.5762787e-07, 2.653522e-07, -4, 5.126212e-07, 4, 2.6535227e-07, 4, -5.126212e-07, 3.5762787e-07, 44.5402, 3.2867737, 20.047405)
+mesh = SubResource("TextMesh_qcr8a")
+skeleton = NodePath("../Gate2")
+
+[node name="MeshInstance3D10" type="MeshInstance3D" parent="."]
+transform = Transform3D(-7.936762e-09, -2.6535227e-07, 4, 5.126212e-07, 4, 2.6535227e-07, -4, 5.126213e-07, -7.936762e-09, -18.024334, 3.2867737, -10.0023)
+mesh = SubResource("TextMesh_e2o36")
+skeleton = NodePath("../Gate2")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="."]
+transform = Transform3D(3.5762787e-07, 2.653522e-07, -4, 4, -6.874668e-07, 3.5762787e-07, -6.8746675e-07, -4, -2.653523e-07, 44.5402, 3.3273351, 31.047405)
+mesh = SubResource("TextMesh_ue060")
+skeleton = NodePath("../Gate2")
+
+[node name="MeshInstance3D7" type="MeshInstance3D" parent="."]
+transform = Transform3D(3.5762787e-07, 2.653522e-07, -4, 4, -6.874668e-07, 3.5762787e-07, -6.8746675e-07, -4, -2.653523e-07, 44.5402, 3.3273351, 8.047405)
+mesh = SubResource("TextMesh_ue060")
+skeleton = NodePath("../Gate2")
+
+[node name="Gate2" parent="." instance=ExtResource("6_oswwn")]
+transform = Transform3D(-1.7484555e-07, 0, 4, 0, 4, 0, -4, 0, -1.7484555e-07, -35.897125, 54.626667, -34.896667)
+nextScene = "uid://c66fmnod45frw"
+
+[node name="SheepPickup" parent="." instance=ExtResource("5_ue060")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, -2.9172783, 0.17573452, -15.004961)
+
+[node name="SheepPickup2" parent="." instance=ExtResource("5_ue060")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, -8.633112, 0.17573452, -15.031178)
+
+[node name="Turret" parent="." instance=ExtResource("4_e2o36")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.198351, 0.18886016, 7.760661)
+
+[node name="Turret2" parent="." instance=ExtResource("4_e2o36")]
+transform = Transform3D(-1.3987645e-07, -3.2, 1.3987645e-07, 0, -1.3987645e-07, -3.2, 3.2, -1.3987645e-07, 6.114194e-15, 57.105713, 17.823105, 23.24593)
+
+[node name="Turret3" parent="." instance=ExtResource("4_e2o36")]
+transform = Transform3D(3.2, 0, 0, 0, -1.3987645e-07, 3.2, 0, -3.2, -1.3987645e-07, 8.486221, 6.0878234, 35.520687)
+
+[node name="SheepPickup3" parent="." instance=ExtResource("5_ue060")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, -12.095074, 0.17573166, 20.238297)
+
+[node name="SheepPickup4" parent="." instance=ExtResource("5_ue060")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 43.134243, 12.936744, 31.8055)
+
+[node name="SheepPickup5" parent="." instance=ExtResource("5_ue060")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 48.846912, 12.936742, 20.38832)
+
+[node name="SheepPickup7" parent="." instance=ExtResource("5_ue060")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 46.43951, 12.936743, -22.797247)
+
+[node name="SheepPickup8" parent="." instance=ExtResource("5_ue060")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 19.381252, 12.936744, -36.578583)
+
+[node name="SheepPickup6" parent="." instance=ExtResource("5_ue060")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 51.762585, 12.936742, 27.014702)

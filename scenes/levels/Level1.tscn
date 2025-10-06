@@ -1,9 +1,11 @@
-[gd_scene load_steps=22 format=3 uid="uid://c66fmnod45frw"]
+[gd_scene load_steps=24 format=3 uid="uid://c66fmnod45frw"]
 
 [ext_resource type="PackedScene" uid="uid://cgv3ggu25ffs1" path="res://scenes/Player/Farmer.tscn" id="1_1pwbc"]
 [ext_resource type="Texture2D" uid="uid://cyi4ics6383mc" path="res://assets/mats/something.tres" id="1_x4si1"]
 [ext_resource type="Material" uid="uid://dpsg2qd1imb6q" path="res://assets/mats/metaltiles.tres" id="2_fh0io"]
 [ext_resource type="PackedScene" uid="uid://dwr4rcpss0p2w" path="res://scenes/Enemies/Turret.tscn" id="2_j08sa"]
+[ext_resource type="PackedScene" uid="uid://bnd8fs5wr4o81" path="res://scenes/SheepPickup.tscn" id="5_68ib6"]
+[ext_resource type="PackedScene" uid="uid://cheuadkkuh1wh" path="res://scenes/levels/Gate.tscn" id="6_76cw8"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_6ovph"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -17,8 +19,9 @@ background_mode = 2
 sky = SubResource("Sky_bwv4p")
 tonemap_mode = 2
 ssao_enabled = true
-ssao_radius = 1.7
-ssao_intensity = 6.67
+ssao_radius = 1.43
+ssao_intensity = 7.14
+ssao_detail = 1.0
 glow_enabled = true
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_x4si1"]
@@ -121,9 +124,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.613926, 29.38247, -17.9112
 size = Vector3(13.476098, 1.4794922, 39.817963)
 material = SubResource("StandardMaterial3D_x4si1")
 
-[node name="Sheep" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.208236, 1.3981361, 0)
-
 [node name="Wall5" type="CSGBox3D" parent="."]
 transform = Transform3D(0.575, 0, 0, 0, 32.7, 0, 0, 0, 54.82, 28.714975, 7.615851, -12.334068)
 size = Vector3(1, 1.3931274, 1)
@@ -144,7 +144,7 @@ size = Vector3(1, 10.158569, 1)
 material = SubResource("StandardMaterial3D_ma5b5")
 
 [node name="Platform" type="CSGBox3D" parent="."]
-transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, 21.391645, 1.858851, -4.050268)
+transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, 21.391645, 1.3531816, -4.050268)
 use_collision = true
 material = SubResource("StandardMaterial3D_mc20k")
 
@@ -189,31 +189,16 @@ transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, 24.72915, 16.177372
 use_collision = true
 material = SubResource("StandardMaterial3D_1bjei")
 
-[node name="Sheep2" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25.168402, 17.01205, -18.160183)
-
 [node name="Platform9" type="CSGBox3D" parent="."]
 transform = Transform3D(3.38, 0, 0, 0, 0.335, 0, 0, 0, 3.39, 18.536144, 16.177372, -9.82571)
 use_collision = true
 material = SubResource("StandardMaterial3D_5g1s2")
-
-[node name="Enemy2" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.38462, 17.081324, -10.2041)
 
 [node name="Platform10" type="CSGBox3D" parent="."]
 transform = Transform3D(11.475, 0, 0, 0, 0.335, 0, 0, 0, 7.585, 21.5279, 16.109312, -0.44093895)
 use_collision = true
 size = Vector3(1.2341309, 1, 1)
 material = SubResource("StandardMaterial3D_aiv1b")
-
-[node name="Sheep3" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25.168402, 17.01205, 1.835557)
-
-[node name="Sheep4" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.361422, 17.01205, -0.6695671)
-
-[node name="Sheep5" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.91699, 17.01205, 1.4345064)
 
 [node name="Wall9" type="CSGBox3D" parent="."]
 transform = Transform3D(0.575, 0, 0, 0, 13.465, 0, 0, 0, 45.1, 14.56369, 23.451368, -19.345497)
@@ -228,28 +213,19 @@ material = SubResource("StandardMaterial3D_wapi5")
 [node name="Farmer" parent="." instance=ExtResource("1_1pwbc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8002417, 2.4777412, -6.100482)
 
-[node name="Turret" parent="." instance=ExtResource("2_j08sa")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.290953, 0.6456392, -2.390721)
-
-[node name="Turret2" parent="." instance=ExtResource("2_j08sa")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25.668364, 0.64563966, -3.3473392)
-
 [node name="Turret3" parent="." instance=ExtResource("2_j08sa")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.010456, 2.0394733, -3.9921985)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.010456, 1.5575426, -3.9921985)
 
 [node name="Turret10" parent="." instance=ExtResource("2_j08sa")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.88211, 16.357996, -18.975866)
 
 [node name="Turret11" parent="." instance=ExtResource("2_j08sa")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.28627, 10.746788, -34.522423)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.026184, 10.746787, -34.00511)
 
 [node name="SpotLight3D" type="SpotLight3D" parent="."]
 transform = Transform3D(0.81434345, -0.0012946062, 0.58038193, -0.57985264, 0.040939752, 0.81369215, -0.024814101, -0.99916077, 0.03258834, 27.972439, 23.789928, -20.212763)
 light_energy = 16.0
 spot_range = 24.852825
-
-[node name="Turret12" parent="." instance=ExtResource("2_j08sa")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25.231384, 10.746786, -33.64193)
 
 [node name="Turret4" parent="." instance=ExtResource("2_j08sa")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.355867, 4.0973763, -7.667363)
@@ -263,8 +239,51 @@ transform = Transform3D(-4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0, 1, 14.8
 [node name="Turret9" parent="." instance=ExtResource("2_j08sa")]
 transform = Transform3D(-4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0, 1, 14.863966, 25.179718, -18.893429)
 
-[node name="Turret5" parent="." instance=ExtResource("2_j08sa")]
-transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 28.429714, 6.916562, -6.3638735)
-
 [node name="Turret6" parent="." instance=ExtResource("2_j08sa")]
 transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 28.414562, 9.676116, -9.070431)
+
+[node name="SheepPickup" parent="." instance=ExtResource("5_68ib6")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 3.2904096, 0.632494, -2.0965843)
+
+[node name="SheepPickup2" parent="." instance=ExtResource("5_68ib6")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 14.4158125, 0.632493, 0.30368662)
+
+[node name="SheepPickup3" parent="." instance=ExtResource("5_68ib6")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 23.842556, 0.6324949, 0.17119336)
+
+[node name="SheepPickup4" parent="." instance=ExtResource("5_68ib6")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 18.237133, 4.084259, -7.4730043)
+
+[node name="SheepPickup5" parent="." instance=ExtResource("5_68ib6")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 21.45205, 6.3835373, -10.981764)
+
+[node name="SheepPickup6" parent="." instance=ExtResource("5_68ib6")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 18.178244, 0.632494, -13.163675)
+
+[node name="SheepPickup10" parent="." instance=ExtResource("5_68ib6")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 25.36292, 10.73366, -30.902431)
+
+[node name="SheepPickup11" parent="." instance=ExtResource("5_68ib6")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 18.034023, 14.115255, -23.21502)
+
+[node name="SheepPickup12" parent="." instance=ExtResource("5_68ib6")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 18.854189, 16.34487, -9.485001)
+
+[node name="SheepPickup13" parent="." instance=ExtResource("5_68ib6")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 25.793707, 16.276823, -0.77595806)
+
+[node name="SheepPickup14" parent="." instance=ExtResource("5_68ib6")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 19.7177, 16.276823, -0.30473232)
+
+[node name="SheepPickup7" parent="." instance=ExtResource("5_68ib6")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 25.975819, 0.6324942, -9.868167)
+
+[node name="SheepPickup8" parent="." instance=ExtResource("5_68ib6")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 18.923662, 8.011656, -17.960003)
+
+[node name="SheepPickup9" parent="." instance=ExtResource("5_68ib6")]
+transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 24.495636, 9.106655, -23.298862)
+
+[node name="Gate" parent="." instance=ExtResource("6_76cw8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.948496, 27.01372, -6.7434196)
+nextScene = "uid://pwo532h460o7"

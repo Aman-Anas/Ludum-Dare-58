@@ -1,26 +1,22 @@
 using System;
-using Game;
 using Godot;
 
-public partial class Potato : RigidBody3D
+public partial class Gate : Area3D
 {
-    [Export]
-    Timer timeThing = null!;
+    [Export(PropertyHint.File)]
+    string nextScene = null!;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        timeThing.Timeout += QueueFree;
-        // timeThing.Start();
-        BodyEntered += HitSomething;
+        BodyEntered += Entered;
     }
 
-    private void HitSomething(Node body)
+    private void Entered(Node3D body)
     {
         if (body is Farmer)
         {
-            Manager.Instance.Data.CurrentHealth--;
-            QueueFree();
+            GetTree().ChangeSceneToFile(nextScene);
         }
     }
 

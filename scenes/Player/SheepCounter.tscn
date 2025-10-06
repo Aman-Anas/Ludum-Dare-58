@@ -1,0 +1,34 @@
+[gd_scene load_steps=5 format=3 uid="uid://dhcg6f1qd70ks"]
+
+[ext_resource type="PackedScene" uid="uid://bnd8fs5wr4o81" path="res://scenes/SheepPickup.tscn" id="1_6p3rx"]
+[ext_resource type="FontVariation" uid="uid://bd1pe3yd5cuxt" path="res://assets/fonts/main_merged_font.tres" id="2_n87vn"]
+[ext_resource type="Script" uid="uid://bv2y3yem7yivn" path="res://scripts/CounterLabel.cs" id="3_4firm"]
+
+[sub_resource type="Environment" id="Environment_n87vn"]
+background_mode = 3
+background_energy_multiplier = 8.13
+ambient_light_energy = 5.55
+
+[node name="Node3D" type="Node3D"]
+
+[node name="DirectionalLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, -0.51128983, 0.4196663, 1.2138238)
+light_energy = 2.021
+light_indirect_energy = 3.27
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_n87vn")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1)
+
+[node name="SheepPickup" parent="." instance=ExtResource("1_6p3rx")]
+transform = Transform3D(-0.19362952, 0, 0.05007598, 0, 0.19999999, 0, -0.05007598, 0, -0.19362952, -0.448, -0.259, 0.141)
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.53, 0, 0)
+text = "254"
+font = ExtResource("2_n87vn")
+font_size = 77
+outline_size = 29
+script = ExtResource("3_4firm")

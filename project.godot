@@ -108,6 +108,7 @@ cycle_debug_menu={
 
 [layer_names]
 
+3d_render/layer_2="PlayerOnly"
 3d_physics/layer_1="Environment"
 3d_physics/layer_2="Players"
 

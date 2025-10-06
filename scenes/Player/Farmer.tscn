@@ -1,16 +1,22 @@
-[gd_scene load_steps=13 format=3 uid="uid://cgv3ggu25ffs1"]
+[gd_scene load_steps=18 format=3 uid="uid://cgv3ggu25ffs1"]
 
 [ext_resource type="PackedScene" uid="uid://csuhlfqsadyi8" path="res://assets/batch_exports/farmer/Hat.gltf" id="1_cvdr5"]
 [ext_resource type="Script" uid="uid://cbm0nkqv3d50y" path="res://scripts/farmer/Farmer.cs" id="1_ry4qv"]
 [ext_resource type="PackedScene" uid="uid://be68kkhnkgb6u" path="res://scenes/main_menu/Pause.tscn" id="2_hv5dt"]
 [ext_resource type="PackedScene" uid="uid://dhixjqnm0ikvh" path="res://assets/batch_exports/farmer/rig_deform.gltf" id="2_ihj1x"]
+[ext_resource type="PackedScene" uid="uid://dhcg6f1qd70ks" path="res://scenes/Player/SheepCounter.tscn" id="2_w365b"]
+[ext_resource type="PackedScene" uid="uid://fnn2gxwhbiru" path="res://scenes/Player/HPCounter.tscn" id="3_3jv85"]
 [ext_resource type="PackedScene" uid="uid://fgksb5jkmhma" path="res://assets/batch_exports/CollectorDevice/Cube.gltf" id="3_ihj1x"]
 [ext_resource type="PackedScene" uid="uid://daryebep268vh" path="res://assets/batch_exports/glowything/Armature.gltf" id="5_bdrmn"]
 [ext_resource type="Material" uid="uid://dg851f02hken8" path="res://assets/mats/glowy.tres" id="6_e815o"]
+[ext_resource type="Script" uid="uid://d3t6sglw58pde" path="res://scripts/Launcher.cs" id="7_4xual"]
 [ext_resource type="Texture2D" uid="uid://c0iai8adk8ukx" path="res://assets/vector/crosshair.svg" id="8_huliv"]
+[ext_resource type="PackedScene" uid="uid://dr7d5obeqojf" path="res://scenes/Player/SheepProjectile.tscn" id="8_tphjg"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_hv5dt"]
 friction = 0.1
+
+[sub_resource type="World3D" id="World3D_w365b"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_d6kf3"]
 
@@ -23,7 +29,10 @@ roughness = 0.33
 albedo_color = Color(0.3854925, 0.38549247, 0.38549247, 1)
 
 [node name="Farmer" type="RigidBody3D" node_paths=PackedStringArray("TargetPosition", "floorSensor", "player", "yawTarget", "pitchTarget", "mouseLookRotationTarget", "grappleCast", "glowyEndPos", "glowyThing")]
+collision_layer = 7
+collision_mask = 3
 physics_material_override = SubResource("PhysicsMaterial_hv5dt")
+continuous_cd = true
 script = ExtResource("1_ry4qv")
 TargetPosition = NodePath("Targetpos")
 floorSensor = NodePath("RayCast3D")
@@ -38,7 +47,46 @@ runAnimName = &"BAKED_Idle"
 idleAnimName = &"BAKED_Run"
 
 [node name="Targetpos" type="Node3D" parent="."]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 1.4, 0.07272027)
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 1.7, 0.07272027)
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 109.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="SubViewportContainer2" type="SubViewportContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+stretch = true
+
+[node name="SubViewport3" type="SubViewport" parent="HBoxContainer/SubViewportContainer2"]
+own_world_3d = true
+world_3d = SubResource("World3D_w365b")
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(574, 109)
+render_target_update_mode = 4
+
+[node name="Node3D" parent="HBoxContainer/SubViewportContainer2/SubViewport3" instance=ExtResource("3_3jv85")]
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+stretch = true
+
+[node name="SubViewport2" type="SubViewport" parent="HBoxContainer/SubViewportContainer"]
+own_world_3d = true
+world_3d = SubResource("World3D_w365b")
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(574, 109)
+render_target_update_mode = 4
+
+[node name="sheepcount" parent="HBoxContainer/SubViewportContainer/SubViewport2" instance=ExtResource("2_w365b")]
 
 [node name="Control" type="CenterContainer" parent="."]
 anchors_preset = 8
@@ -89,6 +137,11 @@ top_level = true
 transform = Transform3D(-6.1195933e-09, 0, 0.13999997, 0, 0.13999997, 0, -0.13999997, 0, -6.1195933e-09, 0.3216493, -0.43626106, -0.10603726)
 material_override = SubResource("StandardMaterial3D_bdrmn")
 
+[node name="Node3D" type="Node3D" parent="YawTarget/PitchTarget/Cube"]
+transform = Transform3D(1.3113416e-07, 0, -1, 0, 1, 0, 1, 0, 1.3113416e-07, 8.7, 1.4, -4.851964e-07)
+script = ExtResource("7_4xual")
+projectile = ExtResource("8_tphjg")
+
 [node name="grappler" parent="YawTarget/PitchTarget" instance=ExtResource("3_ihj1x")]
 transform = Transform3D(1.2851145e-08, 0, -0.097999975, -0.025364261, 0.09466071, -3.3261212e-09, 0.09466071, 0.025364261, 1.24132535e-08, -0.2783507, -0.43626106, -0.25322258)
 material_override = SubResource("StandardMaterial3D_huliv")
@@ -123,6 +176,12 @@ target_position = Vector3(0, -888888, 0)
 [node name="Camera3D" type="Camera3D" parent="YawTarget/PitchTarget"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.1)
 fov = 90.0
+
+[node name="OmniLight3D" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+spot_range = 65.916
+spot_angle = 13.525834
+spot_angle_attenuation = 0.23325834
 
 [editable path="rig_deform2"]
 [editable path="YawTarget/PitchTarget/grappler/Armature2"]

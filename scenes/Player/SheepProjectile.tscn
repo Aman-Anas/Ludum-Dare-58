@@ -1,0 +1,28 @@
+[gd_scene load_steps=6 format=3 uid="uid://dr7d5obeqojf"]
+
+[ext_resource type="Script" uid="uid://b06ljmk0gyxy" path="res://scripts/SheepProjectile.cs" id="1_eploc"]
+[ext_resource type="PackedScene" uid="uid://bo0qt1u8pac2f" path="res://assets/batch_exports/sheep/SheepTank.gltf" id="1_fsmc8"]
+[ext_resource type="PackedScene" uid="uid://bnd8fs5wr4o81" path="res://scenes/SheepPickup.tscn" id="2_yq8l3"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_eploc"]
+friction = 0.17
+bounce = 1.0
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_yq8l3"]
+height = 1.4
+
+[node name="SheepProjectile" type="RigidBody3D"]
+physics_material_override = SubResource("PhysicsMaterial_eploc")
+gravity_scale = 0.3
+continuous_cd = true
+contact_monitor = true
+max_contacts_reported = 3
+script = ExtResource("1_eploc")
+pickupScene = ExtResource("2_yq8l3")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0.07227647)
+shape = SubResource("CapsuleShape3D_yq8l3")
+
+[node name="SheepTank2" parent="." instance=ExtResource("1_fsmc8")]
+transform = Transform3D(0.39999998, 0, 0, 0, 0.39999998, 0, 0, 0, 0.39999998, 0, 0, 0.142)
