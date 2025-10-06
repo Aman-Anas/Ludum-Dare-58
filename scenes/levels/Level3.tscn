@@ -21,7 +21,7 @@ albedo_color = Color(0.98587555, 0, 0.16563442, 1)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_545p4"]
 albedo_color = Color(0.31287983, 0.43406957, 0.8281982, 1)
 
-[node name="Node3D" type="Node3D"]
+[node name="Node3D" type="CSGCombiner3D"]
 
 [node name="Floor" type="CSGBox3D" parent="."]
 transform = Transform3D(75.37, 0, 0, 0, 1.265, 0, 0, 0, 77.395, 2.5673332, 0, 0)
@@ -64,14 +64,15 @@ material = SubResource("StandardMaterial3D_f63rs")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.31633, 1.3981361, -12.260868)
 material = SubResource("StandardMaterial3D_f63rs")
 
-[node name="Elevator" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.701569, 21.975922, 1.1376705)
-size = Vector3(7.1124268, 45.029533, 6.1254883)
-material = SubResource("StandardMaterial3D_xcs05")
-
 [node name="Floor2" type="CSGBox3D" parent="."]
 transform = Transform3D(75.37, 0, 0, 0, 1.265, 0, 0, 0, 77.395, 2.5673332, 35.474445, 0)
 material = SubResource("StandardMaterial3D_w68nx")
+
+[node name="Elevator" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.701569, 21.975922, 1.1376705)
+operation = 2
+size = Vector3(7.1124268, 45.029533, 6.1254883)
+material = SubResource("StandardMaterial3D_xcs05")
 
 [node name="Turret2" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.032714844, 37.663086, 25.851107)
@@ -88,14 +89,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.717955, 39.743137, -2.3224
 size = Vector3(6.57666, 5.3549805, 7.7373047)
 material = SubResource("StandardMaterial3D_qlmxs")
 
-[node name="Elevator2" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.75857, 56.072422, 1.1376705)
-size = Vector3(7.1124268, 41.658318, 6.1254883)
-material = SubResource("StandardMaterial3D_xcs05")
-
 [node name="Floor3" type="CSGBox3D" parent="."]
 transform = Transform3D(75.37, 0, 0, 0, 1.265, 0, 0, 0, 77.395, 2.5673332, 71.37197, 0)
 material = SubResource("StandardMaterial3D_w68nx")
+
+[node name="Elevator2" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.75857, 56.072422, 1.1376705)
+operation = 2
+size = Vector3(7.1124268, 41.658318, 6.1254883)
+material = SubResource("StandardMaterial3D_xcs05")
 
 [node name="Turret4" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.032714844, 74.589806, 25.851107)

@@ -5,6 +5,9 @@ using Godot;
 public partial class Farmer : RigidBody3D
 {
     [Export]
+    public Node3D TargetPosition { get; set; } = null!;
+
+    [Export]
     RayCast3D floorSensor = null!;
 
     [Export]
@@ -34,7 +37,7 @@ public partial class Farmer : RigidBody3D
     Node3D mouseLookRotationTarget = null!;
 
     readonly float MIN_PITCH = Mathf.DegToRad(-90.0f);
-    readonly float MAX_PITCH = Mathf.DegToRad(80.0f);
+    readonly float MAX_PITCH = Mathf.DegToRad(90.0f);
 
     const float GRAVITY_CORRECTION_SPEED = 4.0f;
     const float ROTATION_SPEED = 7f;

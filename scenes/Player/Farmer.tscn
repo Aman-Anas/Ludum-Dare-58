@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://cgv3ggu25ffs1"]
+[gd_scene load_steps=13 format=3 uid="uid://cgv3ggu25ffs1"]
 
 [ext_resource type="PackedScene" uid="uid://csuhlfqsadyi8" path="res://assets/batch_exports/farmer/Hat.gltf" id="1_cvdr5"]
 [ext_resource type="Script" uid="uid://cbm0nkqv3d50y" path="res://scripts/farmer/Farmer.cs" id="1_ry4qv"]
@@ -19,9 +19,13 @@ albedo_color = Color(0.7753804, 0.5168679, 0, 1)
 metallic = 1.0
 roughness = 0.33
 
-[node name="Farmer" type="RigidBody3D" node_paths=PackedStringArray("floorSensor", "player", "yawTarget", "pitchTarget", "mouseLookRotationTarget", "grappleCast", "glowyEndPos", "glowyThing")]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_huliv"]
+albedo_color = Color(0.3854925, 0.38549247, 0.38549247, 1)
+
+[node name="Farmer" type="RigidBody3D" node_paths=PackedStringArray("TargetPosition", "floorSensor", "player", "yawTarget", "pitchTarget", "mouseLookRotationTarget", "grappleCast", "glowyEndPos", "glowyThing")]
 physics_material_override = SubResource("PhysicsMaterial_hv5dt")
 script = ExtResource("1_ry4qv")
+TargetPosition = NodePath("Targetpos")
 floorSensor = NodePath("RayCast3D")
 player = NodePath("rig_deform2/AnimationPlayer")
 yawTarget = NodePath("YawTarget")
@@ -32,6 +36,9 @@ glowyEndPos = NodePath("YawTarget/PitchTarget/grappler/Armature2/Armature/Skelet
 glowyThing = NodePath("YawTarget/PitchTarget/grappler/Armature2")
 runAnimName = &"BAKED_Idle"
 idleAnimName = &"BAKED_Run"
+
+[node name="Targetpos" type="Node3D" parent="."]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 1.4, 0.07272027)
 
 [node name="Control" type="CenterContainer" parent="."]
 anchors_preset = 8
@@ -84,6 +91,7 @@ material_override = SubResource("StandardMaterial3D_bdrmn")
 
 [node name="grappler" parent="YawTarget/PitchTarget" instance=ExtResource("3_ihj1x")]
 transform = Transform3D(1.2851145e-08, 0, -0.097999975, -0.025364261, 0.09466071, -3.3261212e-09, 0.09466071, 0.025364261, 1.24132535e-08, -0.2783507, -0.43626106, -0.25322258)
+material_override = SubResource("StandardMaterial3D_huliv")
 
 [node name="Armature2" parent="YawTarget/PitchTarget/grappler" instance=ExtResource("5_bdrmn")]
 transform = Transform3D(-1.1920929e-07, -4.081633, -2.2737368e-13, 4.081633, -1.1920929e-07, -1.4210855e-14, -1.563194e-13, -5.684342e-14, 4.0816336, -1.2244899, 1.2244899, -6.3948846e-14)

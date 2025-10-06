@@ -1,6 +1,7 @@
-[gd_scene load_steps=19 format=3 uid="uid://c66fmnod45frw"]
+[gd_scene load_steps=20 format=3 uid="uid://c66fmnod45frw"]
 
 [ext_resource type="PackedScene" uid="uid://cgv3ggu25ffs1" path="res://scenes/Player/Farmer.tscn" id="1_1pwbc"]
+[ext_resource type="PackedScene" uid="uid://dwr4rcpss0p2w" path="res://scenes/Enemies/Turret.tscn" id="2_j08sa"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_6ovph"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -200,4 +201,25 @@ size = Vector3(2.6796265, 0.23583984, 2.44339)
 material = SubResource("StandardMaterial3D_wapi5")
 
 [node name="Farmer" parent="." instance=ExtResource("1_1pwbc")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.160009, 1.1583481, -1.6112347)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8002417, 2.4777412, -6.100482)
+
+[node name="Turret" parent="." instance=ExtResource("2_j08sa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.290953, 0.6456392, -2.390721)
+
+[node name="Turret2" parent="." instance=ExtResource("2_j08sa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25.668364, 0.64563966, -3.3473392)
+
+[node name="Turret3" parent="." instance=ExtResource("2_j08sa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.010456, 2.0394733, -3.9921985)
+
+[node name="Turret4" parent="." instance=ExtResource("2_j08sa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.355867, 4.0973763, -7.667363)
+
+[node name="Turret7" parent="." instance=ExtResource("2_j08sa")]
+transform = Transform3D(-4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0, 1, 14.872788, 8.864895, -12.881745)
+
+[node name="Turret5" parent="." instance=ExtResource("2_j08sa")]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 28.429714, 6.916562, -6.3638735)
+
+[node name="Turret6" parent="." instance=ExtResource("2_j08sa")]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 28.414562, 9.676116, -9.070431)

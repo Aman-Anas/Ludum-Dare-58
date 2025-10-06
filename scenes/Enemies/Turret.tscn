@@ -1,0 +1,45 @@
+[gd_scene load_steps=6 format=3 uid="uid://dwr4rcpss0p2w"]
+
+[ext_resource type="Script" uid="uid://bhrw0lh0iv0j7" path="res://scripts/enemies/Turret.cs" id="1_88bew"]
+[ext_resource type="PackedScene" uid="uid://h83kcquyrd2t" path="res://assets/batch_exports/turret/Cube.gltf" id="1_v4e2t"]
+[ext_resource type="PackedScene" uid="uid://brb1b0m3aicro" path="res://assets/batch_exports/turret/Icosphere.gltf" id="2_88bew"]
+[ext_resource type="PackedScene" uid="uid://c7b6pcnns3tr" path="res://scenes/Enemies/potato.tscn" id="2_l221g"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_v4e2t"]
+size = Vector3(15, 15, 15)
+
+[node name="Turret" type="Node3D" node_paths=PackedStringArray("turretLauncher", "area", "launchPoint", "launchPewTime")]
+script = ExtResource("1_88bew")
+turretLauncher = NodePath("Node3D")
+area = NodePath("Area3D")
+pew = ExtResource("2_l221g")
+launchPoint = NodePath("Icosphere2/Icosphere/Cylinder/launchpoint")
+launchPewTime = NodePath("Timer")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 0.2
+autostart = true
+
+[node name="Cube2" parent="." instance=ExtResource("1_v4e2t")]
+
+[node name="Node3D" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.60000074, 0)
+
+[node name="Node3D" type="RemoteTransform3D" parent="Node3D"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0, 0)
+remote_path = NodePath("../../Icosphere2/Icosphere")
+
+[node name="Icosphere2" parent="." instance=ExtResource("2_88bew")]
+
+[node name="Icosphere" parent="Icosphere2" index="0"]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0.60000074, 0)
+
+[node name="launchpoint" type="Node3D" parent="Icosphere2/Icosphere/Cylinder" index="0"]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -0.5, 0, 0)
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+shape = SubResource("BoxShape3D_v4e2t")
+
+[editable path="Icosphere2"]

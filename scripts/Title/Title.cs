@@ -5,16 +5,19 @@ using Godot;
 public partial class Title : Node3D
 {
     [Export]
-    StaticBody3D PlayButton;
+    StaticBody3D PlayButton = null!;
+    Node3D PlayRoot = null!;
 
     [Export]
-    StaticBody3D HelpButton;
+    StaticBody3D HelpButton = null!;
+    Node3D HelpRoot = null!;
 
     [Export]
-    StaticBody3D QuitButton;
+    StaticBody3D QuitButton = null!;
+    Node3D QuitRoot = null!;
 
     [Export(PropertyHint.FilePath)]
-    string firstScenePath;
+    string firstScenePath = null!;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
