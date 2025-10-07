@@ -1,0 +1,105 @@
+[gd_scene load_steps=11 format=3 uid="uid://cpov5xrxg0d8"]
+
+[ext_resource type="Script" uid="uid://bqwjsis4vm5fd" path="res://scripts/RollyTurret.cs" id="1_jkgo5"]
+[ext_resource type="PackedScene" uid="uid://c7b6pcnns3tr" path="res://scenes/Enemies/potato.tscn" id="2_6iy0j"]
+[ext_resource type="PackedScene" uid="uid://280uog8k2w0d" path="res://assets/batch_exports/rollyturret/Cube.gltf" id="3_tsp6m"]
+[ext_resource type="PackedScene" uid="uid://btfc3yx7a5qw8" path="res://assets/batch_exports/rollyturret/Icosphere.gltf" id="4_6iy0j"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_udiga"]
+
+[sub_resource type="Animation" id="Animation_udiga"]
+resource_name = "RESET"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Node3D2:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-1.5707964, -1.5707964, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_l221g"]
+resource_name = "hurt"
+
+[sub_resource type="Animation" id="Animation_tsp6m"]
+resource_name = "roll"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Node3D2:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(-6.2831855, 0, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_2j3m8"]
+_data = {
+&"RESET": SubResource("Animation_udiga"),
+&"hurt": SubResource("Animation_l221g"),
+&"roll": SubResource("Animation_tsp6m")
+}
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_tsp6m"]
+size = Vector3(19, 1, 15)
+
+[node name="Turret" type="RigidBody3D" node_paths=PackedStringArray("area", "launchPoint", "launchPewTime", "animPlayer")]
+axis_lock_angular_x = true
+axis_lock_angular_z = true
+contact_monitor = true
+max_contacts_reported = 5
+script = ExtResource("1_jkgo5")
+area = NodePath("Area3D")
+pew = ExtResource("2_6iy0j")
+launchPoint = NodePath("launchpoint")
+launchPewTime = NodePath("Timer")
+animPlayer = NodePath("AnimationPlayer")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("SphereShape3D_udiga")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_2j3m8")
+}
+autoplay = "roll"
+
+[node name="Timer" type="Timer" parent="."]
+process_callback = 0
+wait_time = 0.2
+autostart = true
+
+[node name="Node3D2" type="Node3D" parent="."]
+transform = Transform3D(-4.371139e-08, 1, 4.371139e-08, 0, -4.371139e-08, 1, 1, 4.371139e-08, 1.9106855e-15, 0, 0.40000075, 0)
+
+[node name="Cube3" parent="Node3D2" instance=ExtResource("3_tsp6m")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, -0.60000074, 0)
+
+[node name="Cube" parent="Node3D2/Cube3" index="0"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0.60000074, 0)
+
+[node name="launchpoint" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1855694e-08, 0.40000075, -1.2)
+
+[node name="Icosphere3" parent="." instance=ExtResource("4_6iy0j")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, -0.2, 0)
+
+[node name="Area3D" type="Area3D" parent="."]
+collision_layer = 2
+collision_mask = 2
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+shape = SubResource("BoxShape3D_tsp6m")
+
+[editable path="Node3D2/Cube3"]
+[editable path="Icosphere3"]

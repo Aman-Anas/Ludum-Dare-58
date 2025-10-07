@@ -1,6 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://bqmihtrjbkrj5"]
+[gd_scene load_steps=17 format=3 uid="uid://bqmihtrjbkrj5"]
 
+[ext_resource type="FontFile" uid="uid://c4m7bn0jfm275" path="res://assets/fonts/Inter-Bold.ttf" id="1_2sdm5"]
 [ext_resource type="PackedScene" uid="uid://bpom3saouiwpg" path="res://scenes/Title_Panel.tscn" id="1_ascc0"]
+[ext_resource type="FontFile" uid="uid://cwtr2qdc1tmrl" path="res://assets/fonts/Inter-Regular.ttf" id="1_lq0lj"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ascc0"]
 sky_top_color = Color(0.6343823, 0.77797455, 0.82775784, 1)
@@ -17,6 +19,55 @@ sky = SubResource("Sky_lq0lj")
 tonemap_mode = 2
 glow_enabled = true
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lq0lj"]
+emission_enabled = true
+emission = Color(0.13020599, 0.9487534, 0.35062638, 1)
+emission_energy_multiplier = 7.98
+
+[sub_resource type="TextMesh" id="TextMesh_2sdm5"]
+material = SubResource("StandardMaterial3D_lq0lj")
+text = "SHEEPSEEK"
+font = ExtResource("1_2sdm5")
+font_size = 127
+depth = 0.78
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2sdm5"]
+albedo_color = Color(1, 0, 0, 1)
+emission_enabled = true
+emission = Color(0.5750134, 0.09889362, 0.01355439, 1)
+emission_energy_multiplier = 7.98
+
+[sub_resource type="TextMesh" id="TextMesh_iyajp"]
+material = SubResource("StandardMaterial3D_2sdm5")
+text = "SHEEPUS
+IS MISSING!"
+font = ExtResource("1_lq0lj")
+font_size = 127
+depth = 1.51
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_iyajp"]
+albedo_color = Color(0.06879827, 0.06879828, 0.06879828, 1)
+
+[sub_resource type="TextMesh" id="TextMesh_aa56r"]
+material = SubResource("StandardMaterial3D_iyajp")
+text = "ESC for mouse settings"
+font = ExtResource("1_lq0lj")
+font_size = 127
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_aa56r"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_agd63"]
+material = SubResource("StandardMaterial3D_aa56r")
+size = Vector3(10.415, 2.2, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mh4yb"]
+albedo_color = Color(0.42627588, 0.18851408, 0.037037432, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_wq2ky"]
+material = SubResource("StandardMaterial3D_mh4yb")
+size = Vector3(10.415, 4.095, 1)
+
 [node name="Title" type="Node3D"]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
@@ -30,6 +81,31 @@ environment = SubResource("Environment_2sdm5")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 4)
 fov = 33.3
 size = 11.638
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.24, 0, 0, 0, 0.24, 0, 0, 0, 0.24, 0.498, 2.839, -1.158)
+mesh = SubResource("TextMesh_2sdm5")
+skeleton = NodePath("../Cube_0042")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.24, 0, 0, 0, 0.24, 0, 0, 0, 0.24, 0.498, 1.789, -1.2800181)
+mesh = SubResource("TextMesh_iyajp")
+skeleton = NodePath("../Cube_0042")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.18909152, 0, 0, 0, 0.18909152, 0, 0, 0, 0.18909152, 0.5573808, 0.93152654, -1.2747369)
+mesh = SubResource("TextMesh_aa56r")
+skeleton = NodePath("../Cube_0042")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.24, 0, 0, 0, 0.24, 0, 0, 0, 0.24, 0.498, 2.839, -1.245)
+mesh = SubResource("BoxMesh_agd63")
+skeleton = NodePath("../Cube_0042")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.24, 0, 0, 0, 0.24, 0, 0, 0, 0.24, 0.498, 1.764, -1.245)
+mesh = SubResource("BoxMesh_wq2ky")
+skeleton = NodePath("../Cube_0042")
 
 [node name="Cube_0042" parent="." instance=ExtResource("1_ascc0")]
 transform = Transform3D(0.09223088, 0, -0.22157045, 0, 0.24, 0, 0.22157045, 0, 0.09223088, -1.715, 1.857, -1.34)

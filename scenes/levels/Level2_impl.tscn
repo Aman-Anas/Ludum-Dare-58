@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=3 uid="uid://pwo532h460o7"]
+[gd_scene load_steps=35 format=3 uid="uid://pwo532h460o7"]
 
 [ext_resource type="Texture2D" uid="uid://cyi4ics6383mc" path="res://assets/mats/something.tres" id="1_w8kdv"]
 [ext_resource type="PackedScene" uid="uid://cgv3ggu25ffs1" path="res://scenes/Player/Farmer.tscn" id="2_alcoq"]
@@ -9,6 +9,8 @@
 [ext_resource type="PackedScene" uid="uid://cheuadkkuh1wh" path="res://scenes/levels/Gate.tscn" id="6_ujypk"]
 [ext_resource type="PackedScene" uid="uid://bnd8fs5wr4o81" path="res://scenes/SheepPickup.tscn" id="7_ahjng"]
 [ext_resource type="PackedScene" uid="uid://dwr4rcpss0p2w" path="res://scenes/Enemies/Turret.tscn" id="8_cy6rd"]
+[ext_resource type="PackedScene" uid="uid://dv777rhxbqya8" path="res://scenes/levels/Killzone.tscn" id="10_rpg6q"]
+[ext_resource type="PackedScene" uid="uid://cpov5xrxg0d8" path="res://scenes/Enemies/RollyTurret.tscn" id="11_l2xte"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_bvbb2"]
 size = Vector3(200, 200, 200)
@@ -131,16 +133,12 @@ font_size = 42
 use_collision = true
 
 [node name="Wall13" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.82035, -12.912167, -28.527468)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3459854, -4.90036, -10.178301)
 mesh = SubResource("BoxMesh_bvbb2")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, -263.57858, 53.501736, -27.486084)
-light_energy = 0.0
-light_indirect_energy = 0.0
-light_volumetric_fog_energy = 0.885
+transform = Transform3D(-0.6323201, -0.020986225, 0.77442294, 0.22175395, 0.9529026, 0.20688605, -0.74229145, 0.3025495, -0.5978857, -16.305422, -65.755615, -27.754185)
 shadow_enabled = true
-sky_mode = 2
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_odhdn")
@@ -346,6 +344,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -37.857895, -84.552666, -17.9
 
 [node name="Gate" parent="." instance=ExtResource("6_ujypk")]
 transform = Transform3D(1.8, 0, 0, 0, 1.8, 0, 0, 0, 1.8, -33.654083, -82.68177, 8.25519)
+nextScene = "uid://ce1rhfyq0v7w5"
 
 [node name="SheepPickup" parent="." instance=ExtResource("7_ahjng")]
 transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 2.6287892, 0.17572784, 6.1970387)
@@ -385,3 +384,28 @@ transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, -3
 
 [node name="SheepPickup13" parent="." instance=ExtResource("7_ahjng")]
 transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, -34.425735, -84.56579, -20.042149)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38.157703, -89.30196, -5.1910334)
+omni_range = 14.459
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40.176018, -89.30196, -5.1910334)
+omni_range = 14.459
+
+[node name="OmniLight3D3" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -33.652527, -81.45148, 4.7721796)
+light_color = Color(1, 0.4625457, 0.4549777, 1)
+omni_range = 5.968
+
+[node name="Killzone" parent="." instance=ExtResource("10_rpg6q")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35.677757, -109.21935, 31.855083)
+
+[node name="Turret12" parent="." instance=ExtResource("11_l2xte")]
+transform = Transform3D(2.8000002, 0, 0, 0, 2.8000002, 0, 0, 0, 2.8000002, 29.541777, -92.12699, -6.0489807)
+
+[node name="Turret13" parent="." instance=ExtResource("11_l2xte")]
+transform = Transform3D(2.8000002, 0, 0, 0, 2.8000002, 0, 0, 0, 2.8000002, 37.127815, -92.92703, -52.76441)
+
+[node name="Turret14" parent="." instance=ExtResource("11_l2xte")]
+transform = Transform3D(2.8000002, 0, 0, 0, 2.8000002, 0, 0, 0, 2.8000002, -34.32251, -84.00579, -32.010487)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://c66fmnod45frw"]
+[gd_scene load_steps=25 format=3 uid="uid://c66fmnod45frw"]
 
 [ext_resource type="PackedScene" uid="uid://cgv3ggu25ffs1" path="res://scenes/Player/Farmer.tscn" id="1_1pwbc"]
 [ext_resource type="Texture2D" uid="uid://cyi4ics6383mc" path="res://assets/mats/something.tres" id="1_x4si1"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://dwr4rcpss0p2w" path="res://scenes/Enemies/Turret.tscn" id="2_j08sa"]
 [ext_resource type="PackedScene" uid="uid://bnd8fs5wr4o81" path="res://scenes/SheepPickup.tscn" id="5_68ib6"]
 [ext_resource type="PackedScene" uid="uid://cheuadkkuh1wh" path="res://scenes/levels/Gate.tscn" id="6_76cw8"]
+[ext_resource type="PackedScene" uid="uid://dv777rhxbqya8" path="res://scenes/levels/Killzone.tscn" id="7_m00rq"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_6ovph"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -287,3 +288,6 @@ transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 24
 [node name="Gate" parent="." instance=ExtResource("6_76cw8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.948496, 27.01372, -6.7434196)
 nextScene = "uid://pwo532h460o7"
+
+[node name="Killzone" parent="." instance=ExtResource("7_m00rq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.850838, -49.188248, -46.407852)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://vrenri3f8jxv"]
+[gd_scene load_steps=30 format=3 uid="uid://vrenri3f8jxv"]
 
 [ext_resource type="Texture2D" uid="uid://cyi4ics6383mc" path="res://assets/mats/something.tres" id="1_in5bs"]
 [ext_resource type="PackedScene" uid="uid://cgv3ggu25ffs1" path="res://scenes/Player/Farmer.tscn" id="3_bbvxl"]
@@ -8,6 +8,8 @@
 [ext_resource type="FontFile" uid="uid://dtbscwwp2ifxg" path="res://assets/fonts/icons.ttf" id="5_ax2ff"]
 [ext_resource type="PackedScene" uid="uid://bnd8fs5wr4o81" path="res://scenes/SheepPickup.tscn" id="5_ue060"]
 [ext_resource type="PackedScene" uid="uid://cheuadkkuh1wh" path="res://scenes/levels/Gate.tscn" id="6_oswwn"]
+[ext_resource type="PackedScene" uid="uid://cpov5xrxg0d8" path="res://scenes/Enemies/RollyTurret.tscn" id="9_e2o36"]
+[ext_resource type="PackedScene" uid="uid://dv777rhxbqya8" path="res://scenes/levels/Killzone.tscn" id="10_ue060"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_6ovph"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -301,3 +303,12 @@ transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 19
 
 [node name="SheepPickup6" parent="." instance=ExtResource("5_ue060")]
 transform = Transform3D(0.48000002, 0, 0, 0, 0.48000002, 0, 0, 0, 0.48000002, 51.762585, 12.936742, 27.014702)
+
+[node name="Turret4" parent="." instance=ExtResource("9_e2o36")]
+transform = Transform3D(3.2, 0, 0, 0, 3.2, 0, 0, 0, 3.2, -7.618166, 13.941733, -34.997833)
+
+[node name="Turret5" parent="." instance=ExtResource("9_e2o36")]
+transform = Transform3D(1.8, 0, 0, 0, 1.8, 0, 0, 0, 1.8, 11.098286, 0.55527216, 18.068693)
+
+[node name="Killzone" parent="." instance=ExtResource("10_ue060")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.762283, -216.28339, -95.234695)

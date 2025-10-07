@@ -24,7 +24,7 @@ collision_mask = 4
 mass = 0.1
 continuous_cd = true
 contact_monitor = true
-max_contacts_reported = 1
+max_contacts_reported = 4
 script = ExtResource("1_3pj4v")
 timeThing = NodePath("Timer")
 

@@ -22,6 +22,9 @@ public partial class Title : Node3D
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
+        Manager.Instance.Data.CurrentHealth = 200;
+        Manager.Instance.Data.CurrentSheepCount = 0;
+
         PlayButton.InputEvent += (_, @event, _, _, _) =>
         {
             if (

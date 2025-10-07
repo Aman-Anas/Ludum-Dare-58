@@ -1,8 +1,14 @@
-[gd_scene load_steps=3 format=3 uid="uid://8oenexyfi21p"]
+[gd_scene load_steps=4 format=3 uid="uid://8oenexyfi21p"]
 
 [ext_resource type="Script" uid="uid://cdtf7b73i8f6t" path="res://scripts/Manager.cs" id="1_up5no"]
 [ext_resource type="PackedScene" uid="uid://bqmihtrjbkrj5" path="res://scenes/Title.tscn" id="2_qfi1r"]
+[ext_resource type="AudioStream" uid="uid://dc4e7ca3647mg" path="res://assets/funnybusinessld58.wav.ogg" id="3_5gvrk"]
 
 [node name="Manager" type="Node"]
 script = ExtResource("1_up5no")
 titleScene = ExtResource("2_qfi1r")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_5gvrk")
+autoplay = true
+parameters/looping = true

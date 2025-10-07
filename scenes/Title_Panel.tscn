@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=4 uid="uid://bpom3saouiwpg"]
+[gd_scene load_steps=13 format=4 uid="uid://bpom3saouiwpg"]
 
 [ext_resource type="PackedScene" uid="uid://ctxgjfgrkbc62" path="res://assets/batch_exports/title/Cube_004.gltf" id="1_m281x"]
 [ext_resource type="Script" uid="uid://c8gm7b0nmp6dt" path="res://scripts/Title/Title.cs" id="2_ifd30"]
@@ -82,6 +82,9 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_068rs")
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y0f50"]
+albedo_color = Color(0.68504333, 0.0045153983, 3.85046e-07, 1)
+
 [node name="Cube_0042" node_paths=PackedStringArray("PlayButton", "HelpButton", "QuitButton") instance=ExtResource("1_m281x")]
 script = ExtResource("2_ifd30")
 PlayButton = NodePath("play/StaticBody3D")
@@ -99,6 +102,23 @@ mesh = SubResource("ArrayMesh_gna0k")
 skeleton = NodePath("")
 
 [node name="Help" parent="." index="3" instance=ExtResource("4_2kcbx")]
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="Help" index="2"]
+transform = Transform3D(0.3222806, 0, 0, 0, -0.13305876, 0.29353055, 0, -0.29353055, -0.13305876, 0.24166572, 0.019435942, -0.048232675)
+size = Vector3(1, 11.612671, 0.45703125)
+material = SubResource("StandardMaterial3D_y0f50")
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="Help" index="3"]
+transform = Transform3D(0.3222806, 0, 0, 0, 0.13932893, 0.29060668, 0, -0.29060668, 0.13932893, 0.24166572, 0.019435942, -0.048232675)
+size = Vector3(1, 11.612671, 0.36621094)
+material = SubResource("StandardMaterial3D_y0f50")
+
+[node name="Label3D" type="Label3D" parent="Help/CSGBox3D3" index="0"]
+transform = Transform3D(-6.490652e-08, -0.113531604, 1.4805417, 1.3389529, 0.64007074, 0.049082242, -0.6419496, 1.3350339, 0.10237367, 0.87243605, 0.09211558, -0.66671175)
+modulate = Color(0.44105682, 0.57328, 0.47810882, 1)
+text = "There's no time!"
+font_size = 222
+outline_size = 127
 
 [node name="Quit" parent="." index="4" instance=ExtResource("3_ifd30")]
 
